@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.7.1
+    ports:
+      - "3050:4180"
+    environment:
+      - OAUTH2_PROXY_PROVIDER=google
+      - OAUTH2_PROXY_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - OAUTH2_PROXY_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - OAUTH2_PROXY_COOKIE_SECRET=${COOKIE_SECRET}
+      - OAUTH2_PROXY_UPSTREAMS=http://jobscan:3050/
+      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_AUTHENTICATED_EMAILS_FILE=/etc/oauth2-proxy/emails.txt
+      - OAUTH2_PROXY_REDIRECT_URL=${GOOGLE_CALLBACK_URL}
+      # htpasswd enables HTTP Basic Auth for API clients such as MCP.
+      # Copy htpasswd.example to htpasswd and generate a real entry with:
+      #   htpasswd -nbB mcp '<strong-password>'
+      - OAUTH2_PROXY_HTPASSWD_FILE=/etc/oauth2-proxy/htpasswd
+    volumes:
+      - ./emails.txt:/etc/oauth2-proxy/emails.txt:ro
+      - ./htpasswd:/etc/oauth2-proxy/htpasswd:ro
+    depends_on:
+      - jobscan
+
+  jobscan:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT:-3050}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # - GEMINI_MODEL=gemini-2.5-flash
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:

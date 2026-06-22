@@ -1,0 +1,1810 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JobScan</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- App mixins (order matters — loaded before app.js) -->
+    <script src="helpers.js"></script>
+    <script src="data-loading.js"></script>
+    <script src="pagination.js"></script>
+    <script src="sync.js"></script>
+    <script src="sources.js"></script>
+    <script src="jobs.js"></script>
+    <script src="crm.js"></script>
+    <script src="crm-filters.js"></script>
+    <script src="crm-settings.js"></script>
+    <script src="crm-analytics.js"></script>
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <hgroup>
+        <h1>🔍 JobScan</h1>
+        <p>Local careers page aggregator</p>
+      </hgroup>
+    </header>
+
+    <main x-data="app()" x-init="init()">
+      <!-- Toast notifications -->
+      <div class="toast-container">
+        <template x-for="toast in toasts" :key="toast.id">
+          <div class="toast" x-text="toast.message" x-transition></div>
+        </template>
+      </div>
+
+      <!-- Tab navigation -->
+      <nav>
+        <ul>
+          <li>
+            <a
+              href="#"
+              :class="activeTab === 'sources' ? 'active-tab' : ''"
+              @click.prevent="activeTab = 'sources'"
+              >Sources (<span x-text="totalSourceCount"></span>)</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="activeTab === 'jobs' ? 'active-tab' : ''"
+              @click.prevent="activeTab = 'jobs'"
+              >All Jobs (<span x-text="totalJobCount"></span>)</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="activeTab === 'new-jobs' ? 'active-tab' : ''"
+              @click.prevent="activeTab = 'new-jobs'"
+              >New Jobs
+              <span x-show="latestSyncNewCount > 0" x-text="'(' + latestSyncNewCount + ')'" class="badge-new"></span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="activeTab === 'crm' ? 'active-tab' : ''"
+              @click.prevent="activeTab = 'crm'"
+              >CRM (<span x-text="crmTotalCount"></span>)
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- ── SOURCES TAB ──────────────────────────────────────────────────── -->
+      <section x-show="activeTab === 'sources'">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+          <h2 style="margin:0">Sources</h2>
+          <button @click="showAddForm = !showAddForm; showBatchForm = false; detectedOk = false; detectedCandidates = []; candidateResults = []; addError = ''; addResult = null" class="outline">
+            <span x-text="showAddForm ? 'Cancel' : '+ Add Source'"></span>
+          </button>
+          <button @click="showBatchForm = !showBatchForm; showAddForm = false" class="outline">
+            <span x-text="showBatchForm ? 'Cancel' : '+ Add Batch'"></span>
+          </button>
+          <button
+            @click="syncAll()"
+            :aria-busy="syncing"
+            :disabled="syncing"
+          >
+            <span x-show="!syncing">⟳ Sync All</span>
+            <span x-show="syncing">Syncing…</span>
+          </button>
+          <button
+            x-show="syncing"
+            class="outline secondary"
+            @click="cancelSync()"
+          >⏹ Stop</button>
+        </div>
+
+        <!-- ── Sync progress dot grid panel ────────────────────────────── -->
+        <article x-show="syncPanel.active" class="sync-dot-panel">
+          <div class="sync-dot-header">
+            <div class="sync-dot-stats">
+              <span class="sync-stat">
+                <strong x-text="syncDoneCount()"></strong> / <span x-text="syncPanel.sources.length"></span> sources
+              </span>
+              <span class="sync-stat">
+                <span class="sync-stat-label">With jobs:</span>
+                <strong x-text="syncWithJobsCount()"></strong>
+              </span>
+              <span class="sync-stat" x-show="syncing">
+                <span class="sync-stat-label">Workers:</span>
+                <strong x-text="syncPanel.activeWorkers || 0"></strong>
+              </span>
+              <span class="sync-stat">
+                <span class="sync-stat-label">New jobs:</span>
+                <strong x-text="syncNewJobsTotal()"></strong>
+              </span>
+              <span class="sync-stat">
+                <span class="sync-stat-label">Elapsed:</span>
+                <span x-text="formatDuration(syncPanel.elapsedSec)"></span>
+              </span>
+              <span class="sync-stat" x-show="syncing && syncEta() != null">
+                <span class="sync-stat-label">ETA:</span>
+                <span x-text="formatDuration(syncEta())"></span>
+              </span>
+              <span class="sync-stat" x-show="!syncing && syncPanel.finishedAt">
+                ✓ Done
+              </span>
+            </div>
+            <button
+              x-show="!syncing"
+              class="outline secondary sync-close-btn"
+              @click="closeSyncPanel()"
+            >✕</button>
+          </div>
+
+          <!-- Dot grid -->
+          <div class="sync-dot-grid" :style="syncDotStyle()">
+            <template x-for="(src, idx) in syncPanel.sources" :key="src.id">
+              <div
+                class="sync-dot"
+                :class="{
+                  'dot-pending':  src.state === 'pending',
+                  'dot-syncing':  src.state === 'syncing',
+                  'dot-done':     src.state === 'done',
+                  'dot-error':    src.state === 'error',
+                  'dot-zero':     src.state === 'zero-jobs',
+                }"
+                @click="syncDotClick(src.company)"
+              >
+                <div class="sync-dot-tooltip">
+                  <strong x-text="src.company"></strong>
+                  <span class="dot-tip-parser" x-text="src.parser"></span>
+                  <span class="dot-tip-status" x-text="
+                    src.state === 'pending' ? 'Waiting…' :
+                    src.state === 'syncing' ? 'Syncing…' :
+                    src.state === 'done' ? (src.newJobs > 0 ? '+' + src.newJobs + ' new' : 'No new jobs') :
+                    src.state === 'zero-jobs' ? '0 jobs found' :
+                    src.error || 'Error'
+                  "></span>
+                  <span class="dot-tip-count"
+                    x-show="src.totalJobs != null || src.last_count != null"
+                    x-text="(src.totalJobs ?? src.last_count) + ' jobs total'"
+                  ></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </article>
+
+        <!-- Batch add form -->
+        <article x-show="showBatchForm" class="add-form-card">
+          <h3>Batch Add Sources</h3>
+          <p style="margin:0 0 0.5rem;color:var(--pico-muted-color);font-size:0.9em">
+            Paste one careers page URL per line. Each URL will be auto-detected and saved.
+          </p>
+          <label>
+            URLs (one per line)
+            <textarea
+              x-model="batchUrls"
+              rows="8"
+              placeholder="https://company1.com/careers&#10;https://boards.greenhouse.io/company2&#10;https://jobs.lever.co/company3"
+              :disabled="batchRunning"
+              style="font-family:monospace;font-size:0.85em"
+            ></textarea>
+          </label>
+          <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+            <button @click="addBatch()" :aria-busy="batchRunning" :disabled="batchRunning || !batchUrls.trim()">
+              <span x-show="!batchRunning">▶ Start Import</span>
+              <span x-show="batchRunning">Importing… (<span x-text="batchProgress.done"></span>/<span x-text="batchProgress.total"></span>)</span>
+            </button>
+            <button class="outline secondary" @click="clearBatch()" :disabled="batchRunning">Clear</button>
+            <span x-show="batchRunning" style="font-size:0.85em;color:var(--pico-muted-color)" x-text="batchProgress.current"></span>
+          </div>
+
+          <!-- Results list -->
+          <template x-if="batchResults.length > 0">
+            <div class="batch-results" style="margin-top:1rem">
+              <div style="font-size:0.85em;margin-bottom:0.4rem;color:var(--pico-muted-color)">
+                Results: <strong x-text="batchResults.filter(r=>r.status==='ok').length"></strong> added,
+                <strong x-text="batchResults.filter(r=>r.status==='duplicate').length"></strong> skipped (duplicate),
+                <strong x-text="batchResults.filter(r=>r.status==='error').length"></strong> failed
+              </div>
+              <div class="batch-result-list">
+                <template x-for="(r, i) in batchResults" :key="i">
+                  <div class="batch-result-row">
+                    <span
+                      :class="{
+                        'badge-ok':      r.status === 'ok',
+                        'badge-warning': r.status === 'duplicate',
+                        'badge-error':   r.status === 'error'
+                      }"
+                      x-text="r.status === 'ok' ? '✓' : r.status === 'duplicate' ? '≡' : '✗'"
+                    ></span>
+                    <span class="batch-result-company" x-text="r.company || r.url"></span>
+                    <span class="batch-result-detail" x-show="r.status === 'ok'" x-text="r.jobs != null ? r.jobs + ' jobs' : ''"></span>
+                    <span class="batch-result-detail badge-error" x-show="r.status === 'error'" x-text="r.error"></span>
+                    <span class="batch-result-detail" x-show="r.status === 'duplicate'" style="color:var(--pico-muted-color)">already exists</span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </article>
+
+        <!-- Add source form -->
+        <article x-show="showAddForm" class="add-form-card">
+          <h3>Add New Source</h3>
+          <!-- Step 1: URL + Detect -->
+          <form @submit.prevent="detectSource()">
+            <label for="detect-url">Careers Page URL</label>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input
+                id="detect-url"
+                type="url"
+                x-model="newSource.url"
+                placeholder="https://example.com/careers"
+                required
+                maxlength="2048"
+                @change="detectedOk = false"
+                style="flex:1;margin:0"
+              />
+              <button type="submit" class="outline" :aria-busy="detecting" :disabled="detecting" style="white-space:nowrap;margin:0;width:auto">
+                <span x-show="!detecting">🔍 Detect</span>
+                <span x-show="detecting">Detecting…</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Step 2a: Multiple ATS sources detected — confirm each before adding -->
+          <div x-show="detectedOk && detectedCandidates.length > 1" style="margin-top:0.75rem">
+            <p style="margin-bottom:0.5rem">
+              <strong x-text="detectedCandidates.length"></strong> ATS sources detected on this page.
+              Review and add the ones you want:
+            </p>
+            <table style="width:100%;border-collapse:collapse;font-size:0.88em">
+              <thead>
+                <tr style="border-bottom:1px solid var(--pico-muted-border-color)">
+                  <th style="padding:0.3rem 0.5rem;text-align:left;width:1.5rem"></th>
+                  <th style="padding:0.3rem 0.5rem;text-align:left">Company</th>
+                  <th style="padding:0.3rem 0.5rem;text-align:left">URL</th>
+                  <th style="padding:0.3rem 0.5rem;text-align:left">Parser</th>
+                  <th style="padding:0.3rem 0.5rem;text-align:left">Via</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(c, i) in detectedCandidates" :key="i">
+                  <tr style="border-bottom:1px solid var(--pico-muted-border-color)">
+                    <td style="padding:0.3rem 0.5rem;text-align:center">
+                      <input type="checkbox" x-model="c.selected" style="margin:0" />
+                    </td>
+                    <td style="padding:0.3rem 0.5rem">
+                      <input type="text" x-model="c.companyEdit" placeholder="Company name"
+                        style="margin:0;padding:0.25rem 0.4rem;min-width:120px;font-size:0.88em" />
+                    </td>
+                    <td style="padding:0.3rem 0.5rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                      <a :href="c.url" target="_blank" x-text="c.url" style="font-size:0.8em"></a>
+                    </td>
+                    <td style="padding:0.3rem 0.5rem">
+                      <span class="badge-parser" x-text="c.parser"></span>
+                    </td>
+                    <td style="padding:0.3rem 0.5rem">
+                      <span class="badge-method" x-text="c.detection && c.detection.method"></span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+
+            <!-- Per-candidate results after saving -->
+            <template x-if="candidateResults.length > 0">
+              <div style="margin-top:0.5rem">
+                <template x-for="(r, i) in candidateResults" :key="i">
+                  <div style="font-size:0.85em;padding:0.2rem 0">
+                    <span x-show="r.status === 'ok'" class="badge-ok">
+                      ✓ <span x-text="r.companyEdit || r.company"></span>
+                      <span x-show="r.jobs != null"> — <span x-text="r.jobs"></span> jobs</span>
+                    </span>
+                    <span x-show="r.status === 'duplicate'" class="badge-warning">
+                      ⚠ <span x-text="r.companyEdit || r.company"></span> — already exists
+                    </span>
+                    <span x-show="r.status === 'error'" class="badge-error">
+                      ✗ <span x-text="r.companyEdit || r.company"></span> — <span x-text="r.error"></span>
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <button
+              @click="addAllCandidates()"
+              :aria-busy="addingCandidates"
+              :disabled="addingCandidates || detectedCandidates.filter(c => c.selected).length === 0"
+              style="margin-top:0.75rem"
+            >
+              Add Selected
+              (<span x-text="detectedCandidates.filter(c => c.selected).length"></span>)
+            </button>
+          </div>
+
+          <!-- Step 2b: Single source detected — confirm / override then save -->
+          <form x-show="(detectedOk && detectedCandidates.length === 0) || addError" @submit.prevent="addSource()" style="margin-top:0.75rem">
+            <div class="grid">
+              <label>
+                Company Name
+                <input
+                  type="text"
+                  x-model="newSource.company"
+                  placeholder="e.g. Stripe"
+                  required
+                  maxlength="200"
+                />
+              </label>
+              <label>
+                Parser
+                <select x-model="newSource.parser">
+                  <template x-for="p in parsers" :key="p">
+                    <option :value="p" x-text="p"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+            <div x-show="addError" class="badge-error" x-text="addError"></div>
+            <div x-show="addResult" class="add-result">
+              <span x-show="addResult && addResult.firstScrape && !addResult.firstScrape.error && !addResult.firstScrape.warning" class="badge-ok">
+                ✓ Source added — <span x-text="addResult && addResult.firstScrape ? addResult.firstScrape.count : 0"></span> jobs found on first scrape
+              </span>
+              <span x-show="addResult && addResult.firstScrape && addResult.firstScrape.warning" class="badge-warning">
+                ⚠ <span x-text="addResult && addResult.firstScrape ? addResult.firstScrape.warning : ''"></span>
+              </span>
+              <span x-show="addResult && addResult.firstScrape && addResult.firstScrape.error" class="badge-error">
+                ✗ First scrape error: <span x-text="addResult && addResult.firstScrape ? addResult.firstScrape.error : ''"></span>
+              </span>
+            </div>
+            <button type="submit" :aria-busy="addingSource" :disabled="addingSource">Save Source</button>
+          </form>
+        </article>
+
+        <!-- Sync summary banner -->
+        <article x-show="syncSummary" class="sync-banner">
+          <template x-if="syncSummary">
+            <div>
+              <strong>Sync complete</strong> —
+              Checked <span x-text="syncSummary.sourcesChecked"></span> source(s),
+              found <span x-text="syncSummary.newJobsTotal"></span> new job(s).
+              <span x-show="syncSummary.sourcesChecked === 0">No sources configured.</span>
+
+              <!-- Per-source errors / warnings -->
+              <template x-if="syncSummary.results && syncSummary.results.some(r => r.status === 'error')">
+                <div style="margin-top:0.5rem">
+                  <div class="badge-error" style="font-weight:600">Errors:</div>
+                  <template x-for="r in syncSummary.results.filter(r => r.status === 'error')" :key="r.sourceId">
+                    <div class="sync-error-row">
+                      <strong x-text="r.company"></strong>
+                      <span class="badge-error" x-text="r.error || 'Unknown error'" style="font-size:0.85em"></span>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template x-if="syncSummary.results && syncSummary.results.some(r => r.status === 'zero-jobs')">
+                <div class="badge-warning" style="margin-top:0.25rem">
+                  Zero jobs found: <span x-text="syncSummary.results.filter(r => r.status === 'zero-jobs').map(r => r.company).join(', ')"></span>
+                </div>
+              </template>
+
+              <button
+                x-show="syncSummary.newJobsTotal > 0"
+                class="outline"
+                style="margin-top:0.5rem"
+                @click="viewNewJobs()"
+              >View New Jobs (<span x-text="syncSummary.newJobsTotal"></span>)</button>
+            </div>
+          </template>
+        </article>
+
+        <!-- Sources table -->
+        <template x-if="sourcesTotal === 0 && !sourcesFilter && !sourcesStatusFilter">
+          <p>No sources yet. Click "+ Add Source" to get started.</p>
+        </template>
+        <template x-if="sourcesTotal > 0 || sourcesFilter || sourcesStatusFilter">
+          <div>
+            <!-- Sources pagination top -->
+            <div class="pagination-bar">
+              <div class="pagination-info">
+                Showing <span x-text="showingFrom(sourcesPage, sourcesPageSize, sourcesTotal)"></span>–<span x-text="showingTo(sourcesPage, sourcesPageSize, sourcesTotal)"></span>
+                of <span x-text="sourcesTotal"></span> sources
+              </div>
+              <div class="pagination-controls">
+                <label style="margin:0;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.85em">
+                  Per page:
+                  <select class="page-size-select" x-model.number="sourcesPageSize" @change="setSourcesPageSize(Number($event.target.value))">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </label>
+                <button class="outline pagination-btn" :disabled="sourcesPage <= 1" @click="goToSourcesPage(1)">«</button>
+                <button class="outline pagination-btn" :disabled="sourcesPage <= 1" @click="goToSourcesPage(sourcesPage - 1)">‹</button>
+                <span class="pagination-page" x-text="sourcesPage + ' / ' + sourcesTotalPages()"></span>
+                <button class="outline pagination-btn" :disabled="sourcesPage >= sourcesTotalPages()" @click="goToSourcesPage(sourcesPage + 1)">›</button>
+                <button class="outline pagination-btn" :disabled="sourcesPage >= sourcesTotalPages()" @click="goToSourcesPage(sourcesTotalPages())">»</button>
+              </div>
+            </div>
+
+            <!-- Sources filter bar -->
+            <div class="sources-filter-bar">
+              <input
+                type="search"
+                class="sources-filter-input"
+                x-model="sourcesFilter"
+                @input="onSourceSearchInput()"
+                placeholder="Filter by company, URL, or parser…"
+                autocomplete="off"
+              />
+              <select class="sources-filter-select" x-model="sourcesStatusFilter" @change="applySourceFilters()">
+                <option value="">All statuses</option>
+                <option value="ok">ok</option>
+                <option value="zero-jobs">zero-jobs</option>
+                <option value="error">error</option>
+              </select>
+              <button
+                x-show="sourcesFilter || sourcesStatusFilter"
+                class="outline secondary sources-filter-clear"
+                @click="clearSourceFilters()"
+              >✕ Clear</button>
+              <span
+                x-show="sourcesFilter || sourcesStatusFilter"
+                class="sources-filter-count"
+                x-text="sourcesTotal + ' found'"
+              ></span>
+            </div>
+
+            <div class="table-scroll">
+              <table class="sources-table">
+                <thead>
+                  <tr>
+                    <th class="col-company">Company</th>
+                    <th class="col-url">URL</th>
+                    <th class="col-parser">Parser</th>
+                    <th class="col-added">Added</th>
+                    <th class="col-synced">Last Synced</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-jobs">Jobs</th>
+                    <th class="col-actions"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-if="sources.length === 0">
+                    <tr>
+                      <td colspan="8" style="text-align:center;color:var(--muted-color,#888);padding:1.5rem 0">
+                        No sources match the current filter.
+                      </td>
+                    </tr>
+                  </template>
+                  <template x-for="s in sources" :key="s.id">
+                    <tr>
+                      <td class="col-company" x-text="s.company"></td>
+                      <td class="col-url"><a :href="s.url" target="_blank" rel="noopener" x-text="truncateUrl(s.url)"></a></td>
+                      <td class="col-parser" x-text="s.parser"></td>
+                      <td class="col-added" x-text="formatDate(s.added_at)"></td>
+                      <td class="col-synced" x-text="s.last_synced ? formatDate(s.last_synced) : '—'"></td>
+                      <td class="col-status">
+                        <span
+                          :class="{
+                            'badge-ok': s.last_status === 'ok',
+                            'badge-warning': s.last_status === 'zero-jobs',
+                            'badge-error': s.last_status === 'error'
+                          }"
+                          x-text="s.last_status ?? '—'"
+                        ></span>
+                        <div x-show="s.last_error" class="source-error-detail" x-text="s.last_error"></div>
+                      </td>
+                      <td class="col-jobs" x-text="s.last_count ?? '—'"></td>
+                      <td class="col-actions">
+                        <div class="source-action-btns">
+                          <button
+                            class="outline"
+                            @click="syncOneSource(s.id)"
+                            :aria-busy="syncingSourceIds.has(s.id)"
+                            :disabled="syncingSourceIds.has(s.id)"
+                            title="Sync this source"
+                          >
+                            <span x-show="!syncingSourceIds.has(s.id)">⟳ Sync</span>
+                            <span x-show="syncingSourceIds.has(s.id)">Syncing…</span>
+                          </button>
+                          <button class="outline contrast" @click="deleteSource(s.id)">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Sources pagination bottom -->
+            <div class="pagination-bar">
+              <div class="pagination-info">
+                Showing <span x-text="showingFrom(sourcesPage, sourcesPageSize, sourcesTotal)"></span>–<span x-text="showingTo(sourcesPage, sourcesPageSize, sourcesTotal)"></span>
+                of <span x-text="sourcesTotal"></span> sources
+              </div>
+              <div class="pagination-controls">
+                <button class="outline pagination-btn" :disabled="sourcesPage <= 1" @click="goToSourcesPage(1)">«</button>
+                <button class="outline pagination-btn" :disabled="sourcesPage <= 1" @click="goToSourcesPage(sourcesPage - 1)">‹</button>
+                <span class="pagination-page" x-text="sourcesPage + ' / ' + sourcesTotalPages()"></span>
+                <button class="outline pagination-btn" :disabled="sourcesPage >= sourcesTotalPages()" @click="goToSourcesPage(sourcesPage + 1)">›</button>
+                <button class="outline pagination-btn" :disabled="sourcesPage >= sourcesTotalPages()" @click="goToSourcesPage(sourcesTotalPages())">»</button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ── ALL JOBS TAB ─────────────────────────────────────────────────── -->
+      <section x-show="activeTab === 'jobs'">
+        <h2>All Jobs</h2>
+
+        <!-- Compact filter toolbar -->
+        <div class="filter-toolbar">
+          <div class="filter-toolbar-row">
+            <!-- Search (always visible) -->
+            <div class="filter-field filter-field-search">
+              <div class="search-with-mode">
+                <input type="search" x-model="filters.query" placeholder="Search title, location, dept…" @input="onJobSearchInput()" class="filter-input" />
+                <div class="search-mode-toggle" role="group">
+                  <button type="button" :class="searchMode === 'fuzzy' ? 'active' : ''" @click="searchMode = 'fuzzy'; applyJobFilters()" title="Fuzzy">Fuzzy</button>
+                  <button type="button" :class="searchMode === 'regex' ? 'active' : ''" @click="searchMode = 'regex'; applyJobFilters()" title="Regex">Regex</button>
+                  <button type="button" :class="searchMode === 'exact' ? 'active' : ''" @click="searchMode = 'exact'; applyJobFilters()" title="Exact">Exact</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CRM checkbox -->
+            <div class="filter-field filter-field-crm">
+              <label class="filter-crm-label">
+                <select x-model="filters.inCrm" @change="applyJobFilters()" class="filter-input filter-crm-select">
+                  <option value="">CRM: All</option>
+                  <option value="yes">In CRM</option>
+                  <option value="no">Not in CRM</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- Toggle extra filters -->
+            <button class="outline filter-toggle-btn" @click="filtersExpanded = !filtersExpanded">
+              <span x-text="filtersExpanded ? '▲ Filters' : '▼ Filters'"></span>
+              <span class="filter-active-badge" x-show="hasActiveFilters()" title="Filters active">●</span>
+            </button>
+
+            <button class="outline secondary filter-clear-btn" @click="clearFilters()" x-show="hasActiveFilters()">✕ Clear</button>
+            <button class="outline filter-select-btn" @click="toggleSelectMode()" x-text="selectMode ? '✓ Exit Select' : '☐ Select'"></button>
+          </div>
+
+          <!-- Expandable extra filters -->
+          <div class="filter-extra-row" x-show="filtersExpanded" x-transition.opacity>
+            <!-- Company combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.company || 'Company'" :class="{ 'has-value': filters.company }" x-model="search" @focus="open = true; search = ''" @input="open = true" @keydown.arrow-down.prevent="$refs.jclist?.querySelector('.combobox-item')?.focus()" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.company" @click.stop="filters.company = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-ref="jclist" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.company }" @click="filters.company = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All companies</li>
+                  <template x-for="c in filterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase()))" :key="c">
+                    <li class="combobox-item" :class="{ selected: filters.company === c }" x-text="c" @click="filters.company = c; search = ''; open = false; applyJobFilters()" @keydown.enter.prevent="filters.company = c; search = ''; open = false; applyJobFilters()" tabindex="0"></li>
+                  </template>
+                  <li class="combobox-empty" x-show="filterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Title combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.title || 'Title'" :class="{ 'has-value': filters.title }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.title" @click.stop="filters.title = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.title }" @click="filters.title = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All titles</li>
+                  <li class="combobox-empty" x-show="!search">Type to filter titles…</li>
+                  <li class="combobox-item" x-show="search.length >= 1" @click="filters.title = search; open = false; applyJobFilters()" tabindex="0">
+                    Filter by: "<span x-text="search"></span>"
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Location combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.location || 'Location'" :class="{ 'has-value': filters.location }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.location" @click.stop="filters.location = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.location }" @click="filters.location = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All locations</li>
+                  <template x-for="loc in filterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="loc">
+                    <li class="combobox-item" :class="{ selected: filters.location === loc }" x-text="loc" @click="filters.location = loc; search = ''; open = false; applyJobFilters()" @keydown.enter.prevent="filters.location = loc; search = ''; open = false; applyJobFilters()" tabindex="0"></li>
+                  </template>
+                  <li class="combobox-item" x-show="search.length >= 1 && !filterOptions.locations.some(l => l.toLowerCase() === search.toLowerCase())" @click="filters.location = search; open = false; applyJobFilters()" tabindex="0">
+                    Filter by: "<span x-text="search"></span>"
+                  </li>
+                  <li class="combobox-empty" x-show="filterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No locations</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Department combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.department || 'Department'" :class="{ 'has-value': filters.department }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.department" @click.stop="filters.department = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.department }" @click="filters.department = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All departments</li>
+                  <template x-for="d in filterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="d">
+                    <li class="combobox-item" :class="{ selected: filters.department === d }" x-text="d" @click="filters.department = d; search = ''; open = false; applyJobFilters()" @keydown.enter.prevent="filters.department = d; search = ''; open = false; applyJobFilters()" tabindex="0"></li>
+                  </template>
+                  <li class="combobox-item" x-show="search.length >= 1 && !filterOptions.departments.some(d => d.toLowerCase() === search.toLowerCase())" @click="filters.department = search; open = false; applyJobFilters()" tabindex="0">
+                    Filter by: "<span x-text="search"></span>"
+                  </li>
+                  <li class="combobox-empty" x-show="filterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No departments</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Workplace combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.workplace_type || 'Workplace'" :class="{ 'has-value': filters.workplace_type }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.workplace_type" @click.stop="filters.workplace_type = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.workplace_type }" @click="filters.workplace_type = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All workplaces</li>
+                  <template x-for="w in filterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase()))" :key="w">
+                    <li class="combobox-item" :class="{ selected: filters.workplace_type === w }" x-text="w" @click="filters.workplace_type = w; search = ''; open = false; applyJobFilters()" tabindex="0"></li>
+                  </template>
+                  <li class="combobox-empty" x-show="filterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Type (commitment) combobox -->
+            <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+              <div class="combobox">
+                <div class="combobox-input-wrap">
+                  <input type="text" class="combobox-input filter-input" :placeholder="filters.commitment || 'Type'" :class="{ 'has-value': filters.commitment }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                  <button type="button" class="combobox-clear" x-show="filters.commitment" @click.stop="filters.commitment = ''; search = ''; applyJobFilters()" title="Clear">&times;</button>
+                </div>
+                <ul class="combobox-list" x-show="open" x-transition.opacity>
+                  <li class="combobox-item" :class="{ selected: !filters.commitment }" @click="filters.commitment = ''; search = ''; open = false; applyJobFilters()" tabindex="0">All types</li>
+                  <template x-for="ct in filterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase()))" :key="ct">
+                    <li class="combobox-item" :class="{ selected: filters.commitment === ct }" x-text="ct" @click="filters.commitment = ct; search = ''; open = false; applyJobFilters()" tabindex="0"></li>
+                  </template>
+                  <li class="combobox-empty" x-show="filterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Added since -->
+            <div class="filter-field filter-field-date">
+              <input type="date" class="filter-input" x-model="filters.since" @change="applyJobFilters()" title="Added since" />
+            </div>
+          </div>
+        </div>
+
+        <template x-if="jobsTotal === 0 && !jobsLoading">
+          <p style="margin-top:1rem">No jobs match the current filters.</p>
+        </template>
+
+        <div x-show="jobsTotal > 0 || jobsLoading">
+          <!-- Pagination controls top -->
+          <div class="pagination-bar">
+            <div class="pagination-info">
+              <span x-show="jobsLoading" aria-busy="true" style="display:inline-block;width:1em;height:1em;vertical-align:middle"></span>
+              Showing <span x-text="showingFrom(currentPage, pageSize, jobsTotal)"></span>–<span x-text="showingTo(currentPage, pageSize, jobsTotal)"></span>
+              of <span x-text="jobsTotal"></span> jobs
+            </div>
+            <div class="pagination-controls">
+              <label style="margin:0;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.85em">
+                Per page:
+                <select class="page-size-select" x-model.number="pageSize" @change="setPageSize(Number($event.target.value))">
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </label>
+              <button class="outline pagination-btn" :disabled="currentPage <= 1" @click="goToPage(1)">«</button>
+              <button class="outline pagination-btn" :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">‹</button>
+              <span class="pagination-page" x-text="currentPage + ' / ' + totalPages()"></span>
+              <button class="outline pagination-btn" :disabled="currentPage >= totalPages()" @click="goToPage(currentPage + 1)">›</button>
+              <button class="outline pagination-btn" :disabled="currentPage >= totalPages()" @click="goToPage(totalPages())">»</button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+          <table class="jobs-table">
+              <thead>
+                <tr>
+                  <th class="col-select" x-show="selectMode"><input type="checkbox" @change="$event.target.checked ? selectedJobIds = jobs.map(j=>j.id) : selectedJobIds = []" style="margin:0"></th>
+                  <th class="sortable-th col-company" @click="toggleSort('company')">Company <span class="sort-icon" x-text="sortIcon('company')"></span></th>
+                  <th class="sortable-th col-title" @click="toggleSort('title')">Title <span class="sort-icon" x-text="sortIcon('title')"></span></th>
+                  <th class="sortable-th col-location" @click="toggleSort('location')">Location <span class="sort-icon" x-text="sortIcon('location')"></span></th>
+                  <th class="sortable-th col-department" @click="toggleSort('department')">Department <span class="sort-icon" x-text="sortIcon('department')"></span></th>
+                  <th class="sortable-th col-workplace" @click="toggleSort('workplace_type')">Workplace <span class="sort-icon" x-text="sortIcon('workplace_type')"></span></th>
+                  <th class="sortable-th col-type" @click="toggleSort('commitment')">Type <span class="sort-icon" x-text="sortIcon('commitment')"></span></th>
+                  <th class="sortable-th col-date" @click="toggleSort('first_seen')">First Seen <span class="sort-icon" x-text="sortIcon('first_seen')"></span></th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="job in jobs" :key="job.id">
+                  <template x-if="true">
+                    <tr
+                      class="expandable"
+                      @click="selectMode ? toggleJobSelection(job.id) : toggleJob(job.id)"
+                      :class="{ 'row-selected': selectMode && isJobSelected(job.id) }"
+                    >
+                      <td x-show="selectMode" @click.stop><input type="checkbox" :checked="isJobSelected(job.id)" @change="toggleJobSelection(job.id)" style="margin:0"></td>
+                      <td x-text="job.company"></td>
+                      <td>
+                        <strong x-text="job.title"></strong>
+                        <!-- Shortened JD from server (500 chars) -->
+                        <div class="job-short-description" x-show="!expandedJobs[job.id]" x-text="shortenJD(job.description_short)"></div>
+                        <!-- Full JD shown when expanded (fetched on demand) -->
+                        <div class="job-full-description" x-show="expandedJobs[job.id] === 'full'" x-html="renderMD(getJobDescription(job.id) || 'Loading…')"></div>
+                        <div class="jd-hint" x-show="expandedJobs[job.id] === 'full'">Click row to collapse</div>
+                      </td>
+                      <td x-text="job.location ?? '—'"></td>
+                      <td x-text="job.department ?? '—'"></td>
+                      <td x-text="job.workplace_type ?? '—'"></td>
+                      <td x-text="job.commitment ?? '—'"></td>
+                      <td x-text="formatDate(job.first_seen)"></td>
+                      <td @click.stop class="actions-cell">
+                        <a :href="job.url" target="_blank" rel="noopener" class="outline action-btn" title="Open job page">Open ↗</a>
+                        <button class="outline action-btn" @click="copyJD(job.id)" title="Copy job description">JD</button>
+                        <template x-if="crmStatusMap[job.id]">
+                          <span class="crm-badge"
+                                :class="'crm-badge-' + crmStatusMap[job.id].bucket"
+                                @click="navigateToCrmJob(job.id)"
+                                x-text="formatCrmBadge(crmStatusMap[job.id])">
+                          </span>
+                        </template>
+                        <template x-if="!crmStatusMap[job.id]">
+                          <div class="crm-add-dropdown" x-data="{ open: false }" @click.outside="open = false">
+                            <button class="outline action-btn" @click="open = !open">+ CRM ▾</button>
+                            <ul class="crm-add-menu" x-show="open" x-transition.opacity @click.stop>
+                              <li @click="addToCrm(job.id, 'sourced'); open = false">📥 Sourced</li>
+                              <li @click="addToCrm(job.id, 'applied'); open = false">✅ Applied</li>
+                              <li @click="open = false; disqualifyJob(job.id)">🚫 Disqualified</li>
+                            </ul>
+                          </div>
+                        </template>
+                      </td>
+                    </tr>
+                  </template>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bulk action bar for multi-select -->
+          <template x-if="selectMode && selectedJobIds.length > 0">
+            <div class="crm-bulk-bar">
+              <span><strong x-text="selectedJobIds.length"></strong> job(s) selected</span>
+              <button @click="addToCrmBulk(selectedJobIds, 'sourced')">📥 Sourced</button>
+              <button @click="addToCrmBulk(selectedJobIds, 'applied')">✅ Applied</button>
+              <button @click="disqualifyJobsBulk(selectedJobIds)">🚫 Disqualified</button>
+              <button class="outline" @click="selectedJobIds = []">Clear</button>
+            </div>
+          </template>
+
+          <!-- Pagination controls bottom -->
+          <div class="pagination-bar">
+            <div class="pagination-info">
+              Showing <span x-text="showingFrom(currentPage, pageSize, jobsTotal)"></span>–<span x-text="showingTo(currentPage, pageSize, jobsTotal)"></span>
+              of <span x-text="jobsTotal"></span> jobs
+            </div>
+            <div class="pagination-controls">
+              <button class="outline pagination-btn" :disabled="currentPage <= 1" @click="goToPage(1)">«</button>
+              <button class="outline pagination-btn" :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">‹</button>
+              <span class="pagination-page" x-text="currentPage + ' / ' + totalPages()"></span>
+              <button class="outline pagination-btn" :disabled="currentPage >= totalPages()" @click="goToPage(currentPage + 1)">›</button>
+              <button class="outline pagination-btn" :disabled="currentPage >= totalPages()" @click="goToPage(totalPages())">»</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── NEW JOBS TAB ─────────────────────────────────────────────────── -->
+      <section x-show="activeTab === 'new-jobs'">
+        <h2>New Jobs <span x-show="latestSyncId" style="font-weight:normal;font-size:0.9em">(latest sync)</span></h2>
+
+        <template x-if="!latestSyncId">
+          <p>No sync has been run yet. Go to Sources and click "Sync All".</p>
+        </template>
+
+        <template x-if="latestSyncId">
+          <div>
+            <!-- Compact filter toolbar for new jobs -->
+            <div class="filter-toolbar">
+              <div class="filter-toolbar-row">
+                <!-- Search (always visible) -->
+                <div class="filter-field filter-field-search">
+                  <div class="search-with-mode">
+                    <input type="search" x-model="newFilters.query" placeholder="Search title, location, dept…" @input="onNewJobSearchInput()" class="filter-input" />
+                    <div class="search-mode-toggle" role="group">
+                      <button type="button" :class="newSearchMode === 'fuzzy' ? 'active' : ''" @click="newSearchMode = 'fuzzy'; applyNewJobFilters()" title="Fuzzy">Fuzzy</button>
+                      <button type="button" :class="newSearchMode === 'regex' ? 'active' : ''" @click="newSearchMode = 'regex'; applyNewJobFilters()" title="Regex">Regex</button>
+                      <button type="button" :class="newSearchMode === 'exact' ? 'active' : ''" @click="newSearchMode = 'exact'; applyNewJobFilters()" title="Exact">Exact</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CRM select -->
+                <div class="filter-field filter-field-crm">
+                  <label class="filter-crm-label">
+                    <select x-model="newFilters.inCrm" @change="applyNewJobFilters()" class="filter-input filter-crm-select">
+                      <option value="">CRM: All</option>
+                      <option value="yes">In CRM</option>
+                      <option value="no">Not in CRM</option>
+                    </select>
+                  </label>
+                </div>
+
+                <!-- Toggle extra filters -->
+                <button class="outline filter-toggle-btn" @click="newFiltersExpanded = !newFiltersExpanded">
+                  <span x-text="newFiltersExpanded ? '▲ Filters' : '▼ Filters'"></span>
+                  <span class="filter-active-badge" x-show="hasActiveNewFilters()" title="Filters active">●</span>
+                </button>
+
+                <button class="outline secondary filter-clear-btn" @click="clearNewFilters()" x-show="hasActiveNewFilters()">✕ Clear</button>
+                <button class="outline filter-select-btn" @click="toggleSelectMode()" x-text="selectMode ? '✓ Exit Select' : '☐ Select'"></button>
+              </div>
+
+              <!-- Expandable extra filters -->
+              <div class="filter-extra-row" x-show="newFiltersExpanded" x-transition.opacity>
+                <!-- Company combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.company || 'Company'" :class="{ 'has-value': newFilters.company }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.company" @click.stop="newFilters.company = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.company }" @click="newFilters.company = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All companies</li>
+                      <template x-for="c in newFilterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase()))" :key="c">
+                        <li class="combobox-item" :class="{ selected: newFilters.company === c }" x-text="c" @click="newFilters.company = c; search = ''; open = false; applyNewJobFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="newFilterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Title combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.title || 'Title'" :class="{ 'has-value': newFilters.title }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.title" @click.stop="newFilters.title = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.title }" @click="newFilters.title = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All titles</li>
+                      <li class="combobox-empty" x-show="!search">Type to filter titles…</li>
+                      <li class="combobox-item" x-show="search.length >= 1" @click="newFilters.title = search; open = false; applyNewJobFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Location combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.location || 'Location'" :class="{ 'has-value': newFilters.location }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.location" @click.stop="newFilters.location = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.location }" @click="newFilters.location = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All locations</li>
+                      <template x-for="loc in newFilterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="loc">
+                        <li class="combobox-item" :class="{ selected: newFilters.location === loc }" x-text="loc" @click="newFilters.location = loc; search = ''; open = false; applyNewJobFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-item" x-show="search.length >= 1 && !newFilterOptions.locations.some(l => l.toLowerCase() === search.toLowerCase())" @click="newFilters.location = search; open = false; applyNewJobFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                      <li class="combobox-empty" x-show="newFilterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No locations</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Department combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.department || 'Department'" :class="{ 'has-value': newFilters.department }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.department" @click.stop="newFilters.department = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.department }" @click="newFilters.department = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All departments</li>
+                      <template x-for="d in newFilterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="d">
+                        <li class="combobox-item" :class="{ selected: newFilters.department === d }" x-text="d" @click="newFilters.department = d; search = ''; open = false; applyNewJobFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-item" x-show="search.length >= 1 && !newFilterOptions.departments.some(d => d.toLowerCase() === search.toLowerCase())" @click="newFilters.department = search; open = false; applyNewJobFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                      <li class="combobox-empty" x-show="newFilterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No departments</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Workplace combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.workplace_type || 'Workplace'" :class="{ 'has-value': newFilters.workplace_type }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.workplace_type" @click.stop="newFilters.workplace_type = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.workplace_type }" @click="newFilters.workplace_type = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All workplaces</li>
+                      <template x-for="w in newFilterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase()))" :key="w">
+                        <li class="combobox-item" :class="{ selected: newFilters.workplace_type === w }" x-text="w" @click="newFilters.workplace_type = w; search = ''; open = false; applyNewJobFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="newFilterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Type (commitment) combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="newFilters.commitment || 'Type'" :class="{ 'has-value': newFilters.commitment }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="newFilters.commitment" @click.stop="newFilters.commitment = ''; search = ''; applyNewJobFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !newFilters.commitment }" @click="newFilters.commitment = ''; search = ''; open = false; applyNewJobFilters()" tabindex="0">All types</li>
+                      <template x-for="ct in newFilterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase()))" :key="ct">
+                        <li class="combobox-item" :class="{ selected: newFilters.commitment === ct }" x-text="ct" @click="newFilters.commitment = ct; search = ''; open = false; applyNewJobFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="newFilterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <template x-if="newJobsTotal === 0 && !jobsLoading">
+              <p style="margin-top:1rem">No new positions found in the last sync.</p>
+            </template>
+
+            <div x-show="newJobsTotal > 0 || jobsLoading">
+              <!-- Pagination controls top -->
+              <div class="pagination-bar">
+                <div class="pagination-info">
+                  <span x-show="jobsLoading" aria-busy="true" style="display:inline-block;width:1em;height:1em;vertical-align:middle"></span>
+                  Showing <span x-text="showingFrom(newCurrentPage, newPageSize, newJobsTotal)"></span>–<span x-text="showingTo(newCurrentPage, newPageSize, newJobsTotal)"></span>
+                  of <span x-text="newJobsTotal"></span> new jobs
+                </div>
+                <div class="pagination-controls">
+                  <label style="margin:0;display:inline-flex;align-items:center;gap:0.3rem;font-size:0.85em">
+                    Per page:
+                    <select class="page-size-select" x-model.number="newPageSize" @change="setNewPageSize(Number($event.target.value))">
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </label>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage <= 1" @click="goToNewPage(1)">«</button>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage <= 1" @click="goToNewPage(newCurrentPage - 1)">‹</button>
+                  <span class="pagination-page" x-text="newCurrentPage + ' / ' + newTotalPages()"></span>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage >= newTotalPages()" @click="goToNewPage(newCurrentPage + 1)">›</button>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage >= newTotalPages()" @click="goToNewPage(newTotalPages())">»</button>
+                </div>
+              </div>
+
+              <div class="table-scroll">
+              <table class="jobs-table">
+                <thead>
+                  <tr>
+                    <th class="col-select" x-show="selectMode"><input type="checkbox" @change="$event.target.checked ? selectedJobIds = newJobs.map(j=>j.id) : selectedJobIds = []" style="margin:0"></th>
+                    <th class="col-company">Company</th>
+                    <th class="col-title">Title</th>
+                    <th class="col-location">Location</th>
+                    <th class="col-department">Department</th>
+                    <th class="col-workplace">Workplace</th>
+                    <th class="col-type">Type</th>
+                    <th class="col-date">First Seen</th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="job in newJobs" :key="job.id">
+                    <template x-if="true">
+                      <tr class="expandable"
+                          @click="selectMode ? toggleJobSelection(job.id) : toggleNewJob(job.id)"
+                          :class="{ 'row-selected': selectMode && isJobSelected(job.id) }">
+                        <td x-show="selectMode" @click.stop><input type="checkbox" :checked="isJobSelected(job.id)" @change="toggleJobSelection(job.id)" style="margin:0"></td>
+                        <td x-text="job.company"></td>
+                        <td>
+                          <strong x-text="job.title"></strong>
+                          <!-- Shortened JD from server (500 chars) -->
+                          <div class="job-short-description" x-show="!expandedNewJobs[job.id]" x-text="shortenJD(job.description_short)"></div>
+                          <!-- Full JD shown when expanded (fetched on demand) -->
+                          <div class="job-full-description" x-show="expandedNewJobs[job.id] === 'full'" x-html="renderMD(getJobDescription(job.id) || 'Loading…')"></div>
+                          <div class="jd-hint" x-show="expandedNewJobs[job.id] === 'full'">Click row to collapse</div>
+                        </td>
+                        <td x-text="job.location ?? '—'"></td>
+                        <td x-text="job.department ?? '—'"></td>
+                        <td x-text="job.workplace_type ?? '—'"></td>
+                        <td x-text="job.commitment ?? '—'"></td>
+                        <td x-text="formatDate(job.first_seen)"></td>
+                        <td @click.stop class="actions-cell">
+                          <a :href="job.url" target="_blank" rel="noopener" class="outline action-btn" title="Open job page">Open ↗</a>
+                          <button class="outline action-btn" @click="copyJD(job.id)" title="Copy job description">JD</button>
+                          <template x-if="crmStatusMap[job.id]">
+                            <span class="crm-badge" :class="'crm-badge-' + crmStatusMap[job.id].bucket"
+                              @click="navigateToCrmJob(job.id)"
+                              x-text="formatCrmBadge(crmStatusMap[job.id])"></span>
+                          </template>
+                          <template x-if="!crmStatusMap[job.id]">
+                            <div class="crm-add-dropdown" x-data="{ open: false }" @click.outside="open = false">
+                              <button class="outline action-btn" @click="open = !open">+ CRM ▾</button>
+                              <ul class="crm-add-menu" x-show="open" x-transition.opacity @click.stop>
+                                <li @click="addToCrm(job.id, 'sourced'); open = false">📥 Sourced</li>
+                                <li @click="addToCrm(job.id, 'applied'); open = false">✅ Applied</li>
+                                <li @click="open = false; disqualifyJob(job.id)">🚫 Disqualified</li>
+                              </ul>
+                            </div>
+                          </template>
+                        </td>
+                      </tr>
+                    </template>
+                  </template>
+                </tbody>
+              </table>
+              </div>
+
+              <!-- Bulk action bar for multi-select -->
+              <template x-if="selectMode && selectedJobIds.length > 0">
+                <div class="crm-bulk-bar">
+                  <span><strong x-text="selectedJobIds.length"></strong> job(s) selected</span>
+                  <button @click="addToCrmBulk(selectedJobIds, 'sourced')">📥 Sourced</button>
+                  <button @click="addToCrmBulk(selectedJobIds, 'applied')">✅ Applied</button>
+                  <button @click="disqualifyJobsBulk(selectedJobIds)">🚫 Disqualified</button>
+                  <button class="outline" @click="selectedJobIds = []">Clear</button>
+                </div>
+              </template>
+
+              <!-- Pagination controls bottom -->
+              <div class="pagination-bar">
+                <div class="pagination-info">
+                  Showing <span x-text="showingFrom(newCurrentPage, newPageSize, newJobsTotal)"></span>–<span x-text="showingTo(newCurrentPage, newPageSize, newJobsTotal)"></span>
+                  of <span x-text="newJobsTotal"></span> new jobs
+                </div>
+                <div class="pagination-controls">
+                  <button class="outline pagination-btn" :disabled="newCurrentPage <= 1" @click="goToNewPage(1)">«</button>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage <= 1" @click="goToNewPage(newCurrentPage - 1)">‹</button>
+                  <span class="pagination-page" x-text="newCurrentPage + ' / ' + newTotalPages()"></span>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage >= newTotalPages()" @click="goToNewPage(newCurrentPage + 1)">›</button>
+                  <button class="outline pagination-btn" :disabled="newCurrentPage >= newTotalPages()" @click="goToNewPage(newTotalPages())">»</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           CRM PIPELINE TAB
+           ═══════════════════════════════════════════════════════════════════ -->
+      <section x-show="activeTab === 'crm'" x-init="$watch('activeTab', v => { if (v === 'crm') { loadCrmJobs(); loadCrmFilters(); loadCrmBucketCounts(); startCrmPolling(); } else { stopCrmPolling(); } })">
+        <template x-if="activeTab === 'crm'">
+          <div>
+
+            <!-- ── Processing Status Bar ──────────────────────────────── -->
+            <div class="crm-status-bar">
+              <div class="crm-status-indicator">
+                <span x-show="crmProcessingStatus.state === 'idle'" class="crm-status-dot idle"></span>
+                <span x-show="crmProcessingStatus.state === 'processing'" class="crm-status-dot processing"></span>
+                <span x-show="crmProcessingStatus.state === 'error'" class="crm-status-dot error"></span>
+                <strong x-text="crmProcessingStatus.state === 'idle' ? 'Pipeline Idle' : crmProcessingStatus.state === 'processing' ? 'Processing…' : 'Error'"></strong>
+                <template x-if="crmProcessingStatus.error_count > 0">
+                  <small style="margin-left:0.5rem;color:var(--pico-del-color)">
+                    (<span x-text="crmProcessingStatus.error_count"></span> error<span x-show="crmProcessingStatus.error_count > 1">s</span>)
+                  </small>
+                </template>
+              </div>
+              <div class="crm-status-actions">
+                <button class="outline" style="padding:0.2rem 0.75rem" @click="triggerProcessing()" :disabled="crmProcessingStatus.state === 'processing'">
+                  ▶ Process Jobs
+                </button>
+                <button class="outline" style="padding:0.2rem 0.75rem;margin-left:0.5rem" @click="crmShowFilters = !crmShowFilters">
+                  🔍 Filters
+                </button>
+                <button class="outline" style="padding:0.2rem 0.75rem;margin-left:0.5rem" @click="crmShowSettings = !crmShowSettings">
+                  ⚙ Settings
+                </button>
+                <button :class="analyticsMode ? '' : 'outline'" style="padding:0.2rem 0.75rem;margin-left:0.5rem" @click="toggleAnalyticsMode()">
+                  📊 Analytics
+                </button>
+              </div>
+            </div>
+
+            <!-- ── CRM Filter Toolbar (shared between bucket view and analytics) ── -->
+            <div class="filter-toolbar" style="margin-bottom:0.75rem">
+              <div class="filter-toolbar-row">
+                <!-- Search -->
+                <div class="filter-field filter-field-search">
+                  <div class="search-with-mode">
+                    <input type="search" x-model="crmFilters_.query" placeholder="Search title, location, dept…" @input="onCrmSearchInput()" class="filter-input" />
+                    <div class="search-mode-toggle" role="group">
+                      <button type="button" :class="crmSearchMode === 'fuzzy' ? 'active' : ''" @click="crmSearchMode = 'fuzzy'; applyCrmFilters()" title="Fuzzy">Fuzzy</button>
+                      <button type="button" :class="crmSearchMode === 'regex' ? 'active' : ''" @click="crmSearchMode = 'regex'; applyCrmFilters()" title="Regex">Regex</button>
+                      <button type="button" :class="crmSearchMode === 'exact' ? 'active' : ''" @click="crmSearchMode = 'exact'; applyCrmFilters()" title="Exact">Exact</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Toggle extra filters -->
+                <button class="outline filter-toggle-btn" @click="crmFiltersExpanded = !crmFiltersExpanded">
+                  <span x-text="crmFiltersExpanded ? '▲ Filters' : '▼ Filters'"></span>
+                  <span class="filter-active-badge" x-show="hasActiveCrmFilters()" title="Filters active">●</span>
+                </button>
+                <button class="outline secondary filter-clear-btn" @click="clearCrmFilters()" x-show="hasActiveCrmFilters()">✕ Clear</button>
+              </div>
+
+              <!-- Expandable extra filters -->
+              <div class="filter-extra-row" x-show="crmFiltersExpanded" x-transition.opacity>
+                <!-- Company combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.company || 'Company'" :class="{ 'has-value': crmFilters_.company }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.company" @click.stop="crmFilters_.company = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.company }" @click="crmFilters_.company = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All companies</li>
+                      <template x-for="c in crmFilterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase()))" :key="c">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.company === c }" x-text="c" @click="crmFilters_.company = c; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="crmFilterOptions.companies.filter(c => !search || c.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Title combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.title || 'Title'" :class="{ 'has-value': crmFilters_.title }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.title" @click.stop="crmFilters_.title = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.title }" @click="crmFilters_.title = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All titles</li>
+                      <li class="combobox-empty" x-show="!search">Type to filter titles…</li>
+                      <li class="combobox-item" x-show="search.length >= 1" @click="crmFilters_.title = search; open = false; applyCrmFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Location combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.location || 'Location'" :class="{ 'has-value': crmFilters_.location }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.location" @click.stop="crmFilters_.location = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.location }" @click="crmFilters_.location = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All locations</li>
+                      <template x-for="loc in crmFilterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="loc">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.location === loc }" x-text="loc" @click="crmFilters_.location = loc; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-item" x-show="search.length >= 1 && !crmFilterOptions.locations.some(l => l.toLowerCase() === search.toLowerCase())" @click="crmFilters_.location = search; open = false; applyCrmFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                      <li class="combobox-empty" x-show="crmFilterOptions.locations.filter(l => !search || l.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No locations</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Department combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.department || 'Department'" :class="{ 'has-value': crmFilters_.department }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.department" @click.stop="crmFilters_.department = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.department }" @click="crmFilters_.department = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All departments</li>
+                      <template x-for="d in crmFilterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).slice(0, 100)" :key="d">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.department === d }" x-text="d" @click="crmFilters_.department = d; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-item" x-show="search.length >= 1 && !crmFilterOptions.departments.some(d => d.toLowerCase() === search.toLowerCase())" @click="crmFilters_.department = search; open = false; applyCrmFilters()" tabindex="0">
+                        Filter by: "<span x-text="search"></span>"
+                      </li>
+                      <li class="combobox-empty" x-show="crmFilterOptions.departments.filter(d => !search || d.toLowerCase().includes(search.toLowerCase())).length === 0 && search.length === 0">No departments</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Workplace combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.workplace_type || 'Workplace'" :class="{ 'has-value': crmFilters_.workplace_type }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.workplace_type" @click.stop="crmFilters_.workplace_type = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.workplace_type }" @click="crmFilters_.workplace_type = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All workplaces</li>
+                      <template x-for="w in crmFilterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase()))" :key="w">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.workplace_type === w }" x-text="w" @click="crmFilters_.workplace_type = w; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="crmFilterOptions.workplaceTypes.filter(w => !search || w.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Type (commitment) combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.commitment || 'Type'" :class="{ 'has-value': crmFilters_.commitment }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.commitment" @click.stop="crmFilters_.commitment = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.commitment }" @click="crmFilters_.commitment = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All types</li>
+                      <template x-for="ct in crmFilterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase()))" :key="ct">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.commitment === ct }" x-text="ct" @click="crmFilters_.commitment = ct; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="crmFilterOptions.commitmentTypes.filter(ct => !search || ct.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Auto-filter combobox -->
+                <div class="filter-field" x-data="{ open: false, search: '' }" @click.outside="open = false" @keydown.escape.window="open = false">
+                  <div class="combobox">
+                    <div class="combobox-input-wrap">
+                      <input type="text" class="combobox-input filter-input" :placeholder="crmFilters_.autoFilter || 'Auto-filter'" :class="{ 'has-value': crmFilters_.autoFilter }" x-model="search" @focus="open = true; search = ''" @input="open = true" autocomplete="off" />
+                      <button type="button" class="combobox-clear" x-show="crmFilters_.autoFilter" @click.stop="crmFilters_.autoFilter = ''; search = ''; applyCrmFilters()" title="Clear">&times;</button>
+                    </div>
+                    <ul class="combobox-list" x-show="open" x-transition.opacity>
+                      <li class="combobox-item" :class="{ selected: !crmFilters_.autoFilter }" @click="crmFilters_.autoFilter = ''; search = ''; open = false; applyCrmFilters()" tabindex="0">All auto-filters</li>
+                      <template x-for="af in crmFilterOptions.autoFilterNames.filter(af => !search || af.toLowerCase().includes(search.toLowerCase()))" :key="af">
+                        <li class="combobox-item" :class="{ selected: crmFilters_.autoFilter === af }" x-text="af" @click="crmFilters_.autoFilter = af; search = ''; open = false; applyCrmFilters()" tabindex="0"></li>
+                      </template>
+                      <li class="combobox-empty" x-show="crmFilterOptions.autoFilterNames.filter(af => !search || af.toLowerCase().includes(search.toLowerCase())).length === 0">No matches</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Settings Panel ─────────────────────────────────────── -->
+            <template x-if="crmShowSettings">
+              <div class="crm-panel crm-settings-panel">
+                <h4>Gemini & Processing Settings</h4>
+                <div class="grid" style="grid-template-columns: 1fr 1fr auto; gap:0.75rem; align-items:end">
+                  <label>
+                    Gemini API Key
+                    <input type="password" x-model="crmSettings.gemini_api_key" placeholder="AIza…" autocomplete="off">
+                  </label>
+                  <label>
+                    Gemini Model
+                    <input type="text" x-model="crmSettings.llm_model" placeholder="gemini-2.5-flash">
+                  </label>
+                  <div style="display:flex;gap:0.5rem">
+                    <button class="outline" @click="testLlmConnection()" :disabled="crmSettingsLoading">Test</button>
+                    <button @click="saveCrmSettings()" :disabled="crmSettingsLoading">Save</button>
+                  </div>
+                </div>
+                <label style="margin-top:0.5rem">
+                  <input type="checkbox" :checked="crmSettings.auto_process === 'true'" @change="crmSettings.auto_process = $event.target.checked ? 'true' : 'false'">
+                  Auto-process newly sourced jobs
+                </label>
+                <template x-if="crmConnectionTestResult">
+                  <div class="crm-test-result" :class="crmConnectionTestResult.ok ? 'ok' : 'fail'">
+                    <template x-if="crmConnectionTestResult.ok">
+                      <span>✅ Connected — <span x-text="crmConnectionTestResult.message || 'OK'"></span></span>
+                    </template>
+                    <template x-if="!crmConnectionTestResult.ok">
+                      <span>❌ Failed — <span x-text="crmConnectionTestResult.error || 'Connection error'"></span></span>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <!-- ── Filters Panel ──────────────────────────────────────── -->
+            <template x-if="crmShowFilters">
+              <div class="crm-panel crm-filters-panel">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+                  <h4 style="margin:0">Filters</h4>
+                  <button class="outline" style="padding:0.2rem 0.75rem" @click="openFilterForm()">+ Add Filter</button>
+                </div>
+
+                <!-- Filter list -->
+                <template x-if="crmFilters.length === 0">
+                  <p class="crm-empty">No filters configured. Add a keyword or LLM filter to auto-screen jobs.</p>
+                </template>
+                <template x-for="filter in crmFilters" :key="filter.id">
+                  <div class="crm-filter-card" :class="{ inactive: !filter.is_active }">
+                    <div class="crm-filter-header">
+                      <label style="margin:0;display:flex;align-items:center;gap:0.4rem;cursor:pointer">
+                        <input type="checkbox" :checked="filter.is_active" @change="toggleCrmFilter(filter.id)" style="margin:0">
+                        <strong x-text="filter.name"></strong>
+                      </label>
+                      <span class="crm-filter-type" x-text="filterTypeLabel(filter.filter_type)"></span>
+                    </div>
+                    <div class="crm-filter-actions">
+                      <button class="outline" style="padding:0.15rem 0.5rem;font-size:0.85em" @click="openFilterForm(filter)">Edit</button>
+                      <button class="btn-danger" @click="deleteCrmFilter(filter.id)">Delete</button>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Filter form modal -->
+                <template x-if="crmFilterFormOpen">
+                  <div class="crm-filter-form">
+                    <h5 x-text="crmFilterEditing ? 'Edit Filter' : 'New Filter'"></h5>
+                    <label>
+                      Name
+                      <input type="text" x-model="crmFilterForm.name" placeholder="Filter name">
+                    </label>
+                    <label>
+                      Type
+                      <select x-model="crmFilterForm.filter_type" @change="crmFilterForm.config = getDefaultConfig(crmFilterForm.filter_type)">
+                        <option value="keyword">Keyword</option>
+                        <option value="llm_filter">LLM Filter</option>
+                        <option value="llm_tier">LLM Tier</option>
+                      </select>
+                    </label>
+
+                    <!-- Keyword config -->
+                    <template x-if="crmFilterForm.filter_type === 'keyword'">
+                      <div>
+                        <label>Match Mode
+                          <select x-model="crmFilterForm.config.match_mode">
+                            <option value="any">Any keyword (OR)</option>
+                            <option value="all">All keywords (AND)</option>
+                          </select>
+                        </label>
+                        <label>Fields to search
+                          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                            <label style="display:flex;align-items:center;gap:0.3rem">
+                              <input type="checkbox" value="title" :checked="crmFilterForm.config.fields?.includes('title')"
+                                @change="if($event.target.checked){crmFilterForm.config.fields.push('title')}else{crmFilterForm.config.fields=crmFilterForm.config.fields.filter(f=>f!=='title')}"> Title
+                            </label>
+                            <label style="display:flex;align-items:center;gap:0.3rem">
+                              <input type="checkbox" value="description" :checked="crmFilterForm.config.fields?.includes('description')"
+                                @change="if($event.target.checked){crmFilterForm.config.fields.push('description')}else{crmFilterForm.config.fields=crmFilterForm.config.fields.filter(f=>f!=='description')}"> Description
+                            </label>
+                            <label style="display:flex;align-items:center;gap:0.3rem">
+                              <input type="checkbox" value="company" :checked="crmFilterForm.config.fields?.includes('company')"
+                                @change="if($event.target.checked){crmFilterForm.config.fields.push('company')}else{crmFilterForm.config.fields=crmFilterForm.config.fields.filter(f=>f!=='company')}"> Company
+                            </label>
+                          </div>
+                        </label>
+                        <label>Keywords</label>
+                        <template x-for="(kw, idx) in crmFilterForm.config.keywords" :key="idx">
+                          <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem">
+                            <input type="text" x-model="crmFilterForm.config.keywords[idx]" placeholder="keyword" style="margin:0">
+                            <button class="outline" style="padding:0.15rem 0.5rem" @click="removeKeyword(idx)">✕</button>
+                          </div>
+                        </template>
+                        <button class="outline" style="padding:0.15rem 0.5rem;font-size:0.85em" @click="addKeyword()">+ Keyword</button>
+                      </div>
+                    </template>
+
+                    <!-- LLM filter config -->
+                    <template x-if="crmFilterForm.filter_type === 'llm_filter'">
+                      <div>
+                        <label>
+                          Prompt (use <code>{job_data}</code> where the job details should be injected)
+                          <textarea x-model="crmFilterForm.config.prompt" rows="4" placeholder='Evaluate if this job is relevant for a senior backend engineer.
+
+{job_data}
+
+Reply with JSON {"pass":true/false,"reason":"..."}'></textarea>
+                        </label>
+                      </div>
+                    </template>
+
+                    <!-- LLM tier config -->
+                    <template x-if="crmFilterForm.filter_type === 'llm_tier'">
+                      <div>
+                        <label>
+                          Prompt (use <code>{job_data}</code> where the job details should be injected)
+                          <textarea x-model="crmFilterForm.config.prompt" rows="4" placeholder='Classify this job as A, B, or C tier based on fit for a senior backend engineer.
+
+{job_data}
+
+Reply with JSON {"tier":"A"|"B"|"C","reasoning":"...","strengths":"...","gaps":"..."}'></textarea>
+                        </label>
+                      </div>
+                    </template>
+
+                    <!-- Test filter -->
+                    <div style="margin-top:0.5rem;display:flex;gap:0.5rem;align-items:end">
+                      <label style="flex:1">
+                        Test with CRM Job ID
+                        <input type="number" x-model="crmFilterTestJobId" placeholder="CRM job ID" style="margin:0">
+                      </label>
+                      <button class="outline" @click="testCrmFilter(crmFilterEditing || 0, crmFilterTestJobId)" :disabled="!crmFilterTestJobId">Test</button>
+                    </div>
+                    <template x-if="crmFilterTestResult">
+                      <div class="crm-test-result" :class="crmFilterTestResult.passed ? 'ok' : 'fail'" style="margin-top:0.5rem">
+                        <strong x-text="crmFilterTestResult.passed ? 'PASSED' : 'FILTERED OUT'"></strong>
+                        <span x-show="crmFilterTestResult.reason"> — <span x-text="crmFilterTestResult.reason"></span></span>
+                        <template x-if="crmFilterTestResult.details && (crmFilterTestResult.details.tokens_in != null || crmFilterTestResult.details.elapsed_ms != null)">
+                          <span style="margin-left:0.75rem;opacity:0.75;font-size:0.85em">
+                            <template x-if="crmFilterTestResult.details.tokens_in != null">
+                              <span>🔢 in: <strong x-text="crmFilterTestResult.details.tokens_in"></strong></span>
+                            </template>
+                            <template x-if="crmFilterTestResult.details.tokens_out != null">
+                              <span style="margin-left:0.4em">out: <strong x-text="crmFilterTestResult.details.tokens_out"></strong></span>
+                            </template>
+                            <template x-if="crmFilterTestResult.details.elapsed_ms != null">
+                              <span style="margin-left:0.4em">⏱ <strong x-text="crmFilterTestResult.details.elapsed_ms + 'ms'"></strong></span>
+                            </template>
+                          </span>
+                        </template>
+                      </div>
+                    </template>
+
+                    <div style="margin-top:0.75rem;display:flex;gap:0.5rem;justify-content:flex-end">
+                      <button class="outline" @click="closeFilterForm()">Cancel</button>
+                      <button @click="saveCrmFilter()">Save Filter</button>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <!-- ══════ ANALYTICS MODE ══════════════════════════════════ -->
+            <template x-if="analyticsMode">
+              <div class="crm-analytics-section">
+                <div class="analytics-header">
+                  <h3 style="margin:0">📊 CRM Funnel Analytics</h3>
+                  <div style="display:flex;gap:0.5rem">
+                    <button class="outline" style="padding:0.2rem 0.75rem" @click="loadAnalytics()" :aria-busy="analyticsLoading">↻ Refresh</button>
+                    <button class="outline" style="padding:0.2rem 0.75rem" @click="copyFunnelText()">📋 Copy Text</button>
+                  </div>
+                </div>
+
+                <template x-if="analyticsLoading">
+                  <p aria-busy="true" style="text-align:center;padding:2rem">Loading analytics…</p>
+                </template>
+
+                <template x-if="!analyticsLoading && analyticsData">
+                  <div>
+                    <!-- Bucket counts summary -->
+                    <div class="analytics-summary-grid">
+                      <template x-for="b in ['sourced','filtered','processed','applied','disqualified','auto_disqualified']" :key="b">
+                        <div class="analytics-stat-card" :class="'stat-' + b">
+                          <div class="analytics-stat-count" x-text="analyticsData.bucketCounts[b] || 0"></div>
+                          <div class="analytics-stat-label" x-text="bucketLabelFull(b)"></div>
+                          <div class="analytics-stat-pct" x-text="analyticsData.totalJobs > 0 ? (((analyticsData.bucketCounts[b] || 0) / analyticsData.totalJobs) * 100).toFixed(1) + '%' : '—'"></div>
+                        </div>
+                      </template>
+                    </div>
+
+                    <!-- Sankey chart -->
+                    <article class="analytics-chart-card">
+                      <h4 style="margin:0 0 0.5rem">Stage Flow (Sankey)</h4>
+                      <div id="sankey-chart" style="width:100%;min-height:300px;"></div>
+                      <p x-show="!analyticsData.flows || analyticsData.flows.length === 0" style="text-align:center;opacity:0.6;padding:2rem">
+                        No stage transitions recorded yet. Add jobs to CRM and process them to see the funnel flow.
+                      </p>
+                    </article>
+
+                    <!-- Filter disqualification analysis -->
+                    <article class="analytics-filter-card">
+                      <h4 style="margin:0 0 0.75rem">🔍 Filter Disqualification Analysis</h4>
+                      <template x-if="analyticsData.filterStats && analyticsData.filterStats.length > 0">
+                        <div>
+                          <p style="margin:0 0 0.5rem;font-size:0.9em;opacity:0.8">
+                            Shows which filters disqualified how many jobs — analyze how your automated filters and manual filtering effort are working.
+                          </p>
+                          <table class="analytics-filter-table">
+                            <thead>
+                              <tr>
+                                <th>Filter Name</th>
+                                <th>Type</th>
+                                <th style="text-align:right">Disqualified</th>
+                                <th style="text-align:right">% of Total</th>
+                                <th style="width:30%">Impact</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <template x-for="fs in analyticsData.filterStats" :key="fs.filterName">
+                                <tr>
+                                  <td x-text="fs.filterName"></td>
+                                  <td>
+                                    <span class="analytics-filter-type-badge" :class="fs.filterType === 'keyword' ? 'type-keyword' : 'type-llm'"
+                                          x-text="fs.filterType === 'keyword' ? 'Keyword' : 'LLM'"></span>
+                                  </td>
+                                  <td style="text-align:right;font-weight:600" x-text="fs.count"></td>
+                                  <td style="text-align:right" x-text="analyticsData.totalJobs > 0 ? ((fs.count / analyticsData.totalJobs) * 100).toFixed(1) + '%' : '—'"></td>
+                                  <td>
+                                    <div class="analytics-bar-container">
+                                      <div class="analytics-bar"
+                                           :style="{width: Math.max(2, (fs.count / Math.max(...analyticsData.filterStats.map(f=>f.count))) * 100) + '%'}"
+                                           :class="fs.filterType === 'keyword' ? 'bar-keyword' : 'bar-llm'"></div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </template>
+                            </tbody>
+                            <tfoot>
+                              <tr style="font-weight:700;border-top:2px solid var(--pico-form-element-border-color)">
+                                <td>Total</td>
+                                <td></td>
+                                <td style="text-align:right" x-text="analyticsData.filterStats.reduce((s,f) => s + f.count, 0)"></td>
+                                <td style="text-align:right" x-text="analyticsData.totalJobs > 0 ? ((analyticsData.filterStats.reduce((s,f)=>s+f.count,0) / analyticsData.totalJobs) * 100).toFixed(1) + '%' : '—'"></td>
+                                <td></td>
+                              </tr>
+                            </tfoot>
+                          </table>
+
+                          <!-- Effectiveness summary -->
+                          <div class="analytics-effectiveness">
+                            <h5 style="margin:0 0 0.5rem">📈 Effectiveness Summary</h5>
+                            <div class="analytics-effectiveness-grid">
+                              <div class="effectiveness-item">
+                                <span class="effectiveness-label">Auto-disqualified (filters)</span>
+                                <span class="effectiveness-value" x-text="(analyticsData.bucketCounts.auto_disqualified || 0) + ' jobs'"></span>
+                              </div>
+                              <div class="effectiveness-item">
+                                <span class="effectiveness-label">Manually disqualified</span>
+                                <span class="effectiveness-value" x-text="(analyticsData.bucketCounts.disqualified || 0) + ' jobs'"></span>
+                              </div>
+                              <div class="effectiveness-item">
+                                <span class="effectiveness-label">Passed to Processed/Applied</span>
+                                <span class="effectiveness-value" x-text="((analyticsData.bucketCounts.processed || 0) + (analyticsData.bucketCounts.applied || 0)) + ' jobs'"></span>
+                              </div>
+                              <div class="effectiveness-item">
+                                <span class="effectiveness-label">Auto-filter rate</span>
+                                <span class="effectiveness-value" x-text="analyticsData.totalJobs > 0 ? (((analyticsData.bucketCounts.auto_disqualified || 0) / analyticsData.totalJobs) * 100).toFixed(1) + '%' : '—'"></span>
+                              </div>
+                              <div class="effectiveness-item">
+                                <span class="effectiveness-label">Manual effort ratio</span>
+                                <span class="effectiveness-value" x-text="analyticsData.totalJobs > 0 ? (((analyticsData.bucketCounts.disqualified || 0) / Math.max(1, (analyticsData.bucketCounts.disqualified || 0) + (analyticsData.bucketCounts.auto_disqualified || 0))) * 100).toFixed(1) + '% manual vs auto' : '—'"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template x-if="!analyticsData.filterStats || analyticsData.filterStats.length === 0">
+                        <p style="text-align:center;opacity:0.6;padding:1rem">
+                          No filter disqualifications recorded yet. Configure keyword or LLM filters and process jobs to see analysis.
+                        </p>
+                      </template>
+                    </article>
+
+                    <!-- Text representation -->
+                    <article class="analytics-text-card">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+                        <h4 style="margin:0">📝 Text Report</h4>
+                        <button class="outline" style="padding:0.2rem 0.75rem" @click="copyFunnelText()">📋 Copy to Clipboard</button>
+                      </div>
+                      <pre class="analytics-text-pre" x-text="generateFunnelText()"></pre>
+                    </article>
+                  </div>
+                </template>
+
+                <template x-if="!analyticsLoading && !analyticsData">
+                  <p style="text-align:center;opacity:0.6;padding:2rem">No analytics data available. Add jobs to CRM to start tracking your pipeline.</p>
+                </template>
+              </div>
+            </template>
+
+            <!-- ══════ NORMAL CRM BUCKET VIEW ═══════════════════════════ -->
+            <div x-show="!analyticsMode">
+
+            <!-- ── Bucket Tabs ────────────────────────────────────────── -->
+            <nav class="crm-bucket-tabs">
+              <template x-for="b in allBuckets()" :key="b">
+                <a href="#" class="crm-bucket-tab" :class="{ active: crmBucket === b }" @click.prevent="switchCrmBucket(b)">
+                  <span x-text="bucketLabel(b)"></span>
+                  <span class="crm-bucket-count" x-text="crmBucketCounts[b] || 0"></span>
+                </a>
+              </template>
+            </nav>
+
+            <!-- ── Job List ───────────────────────────────────────────── -->
+            <template x-if="crmJobs.length === 0 && !crmLoading">
+              <p class="crm-empty">No jobs in this bucket.</p>
+            </template>
+            <template x-if="crmLoading">
+              <p aria-busy="true">Loading…</p>
+            </template>
+
+            <div class="crm-job-list" x-show="crmJobs.length > 0 && !crmLoading">
+              <template x-for="job in crmJobs" :key="job.id">
+                <div>
+                  <div class="crm-job-card" :class="{ expanded: crmExpandedJob?.id === job.id }"
+                       @click="crmExpandedJob?.id === job.id ? (crmExpandedJob = null) : loadCrmJobDetail(job.id)">
+                    <div class="crm-job-row">
+                      <div class="crm-job-info">
+                        <strong x-text="job.title || '(untitled)'"></strong>
+                        <span class="crm-job-company" x-text="job.company || ''"></span>
+                        <span class="crm-job-bucket-date" x-text="formatDateTime(job.last_moved_at)"></span>
+                      </div>
+                      <div class="crm-job-meta">
+                        <template x-if="job.tier">
+                          <span class="crm-tier-badge" :class="'tier-' + job.tier" x-text="'Tier ' + job.tier"></span>
+                        </template>
+                        <template x-if="job.processing_status && job.processing_status !== 'completed'">
+                          <span class="crm-processing-badge" x-text="job.processing_status"></span>
+                        </template>
+                      </div>
+                    </div>
+                    <template x-if="job.disqualify_reason">
+                      <div class="crm-job-reason">🚫 <span x-text="job.disqualify_reason"></span></div>
+                    </template>
+                  </div>
+
+                  <!-- Inline detail panel (appears right after the clicked job) -->
+                  <template x-if="crmExpandedJob && crmExpandedJob.id === job.id">
+                    <div class="crm-detail-panel">
+                      <div class="crm-detail-header">
+                        <div>
+                          <h3 style="margin:0" x-text="crmExpandedJob.title || '(untitled)'"></h3>
+                          <p style="margin:0.25rem 0 0">
+                            <strong x-text="crmExpandedJob.company || ''"></strong>
+                            <span x-show="crmExpandedJob.location"> — <span x-text="crmExpandedJob.location"></span></span>
+                          </p>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;align-items:start">
+                          <a :href="crmExpandedJob.url" target="_blank" rel="noopener" class="outline" style="padding:0.2rem 0.75rem;white-space:nowrap">Open ↗</a>
+                          <button class="outline" style="padding:0.2rem 0.75rem;white-space:nowrap" @click="copyJobJD()">📋 Copy JD</button>
+                          <button class="outline" style="padding:0.2rem 0.75rem" @click="crmExpandedJob = null">✕ Close</button>
+                        </div>
+                      </div>
+
+                      <!-- Job meta fields -->
+                      <div class="crm-detail-meta">
+                        <template x-if="crmExpandedJob.location">
+                          <span class="crm-meta-tag">📍 <span x-text="crmExpandedJob.location"></span></span>
+                        </template>
+                        <template x-if="crmExpandedJob.department">
+                          <span class="crm-meta-tag">🏢 <span x-text="crmExpandedJob.department"></span></span>
+                        </template>
+                        <template x-if="crmExpandedJob.team">
+                          <span class="crm-meta-tag">👥 <span x-text="crmExpandedJob.team"></span></span>
+                        </template>
+                        <template x-if="crmExpandedJob.workplace_type">
+                          <span class="crm-meta-tag">🖥️ <span x-text="crmExpandedJob.workplace_type"></span></span>
+                        </template>
+                        <template x-if="crmExpandedJob.commitment">
+                          <span class="crm-meta-tag">⏰ <span x-text="crmExpandedJob.commitment"></span></span>
+                        </template>
+                        <template x-if="crmExpandedJob.application_date">
+                          <span class="crm-meta-tag">📅 Applied: <span x-text="formatDate(crmExpandedJob.application_date)"></span></span>
+                        </template>
+                        <span class="crm-meta-tag" style="opacity:0.55;font-size:0.8em">🆔 CRM ID: <span x-text="crmExpandedJob.id"></span></span>
+                      </div>
+
+                      <!-- Bucket + Tier badges -->
+                      <div class="crm-detail-badges">
+                        <span class="crm-badge" :class="'crm-badge-' + crmExpandedJob.bucket" x-text="bucketLabel(crmExpandedJob.bucket)"></span>
+                        <template x-if="crmExpandedJob.tier">
+                          <span class="crm-tier-badge" :class="'tier-' + crmExpandedJob.tier" x-text="'Tier ' + crmExpandedJob.tier"></span>
+                        </template>
+                        <template x-if="crmExpandedJob.processing_status && crmExpandedJob.processing_status !== 'completed'">
+                          <span class="crm-processing-badge" x-text="crmExpandedJob.processing_status"></span>
+                        </template>
+                      </div>
+
+                      <!-- Reason -->
+                      <template x-if="crmExpandedJob.reason">
+                        <div class="crm-detail-reason">
+                          <strong>Reason:</strong> <span x-text="crmExpandedJob.reason"></span>
+                        </div>
+                      </template>
+
+                      <!-- Description (click to expand/collapse) -->
+                      <div class="crm-detail-description" x-data="{ descExpanded: false }" @click="descExpanded = !descExpanded" style="cursor:pointer">
+                        <div x-show="!descExpanded" class="job-short-description" x-text="shortenJD(crmExpandedJob.description || 'No description available')"></div>
+                        <div x-show="descExpanded" class="job-full-description" x-html="renderMD(crmExpandedJob.description || 'No description available')"></div>
+                        <div class="jd-hint" x-text="descExpanded ? 'Click to collapse' : 'Click to expand full description'"></div>
+                      </div>
+
+                      <!-- Move controls -->
+                      <div class="crm-move-section">
+                        <strong>Move to:</strong>
+                        <div style="display:flex;gap:0.5rem;align-items:end;flex-wrap:wrap">
+                          <select x-model="moveTarget" style="margin:0;max-width:12rem">
+                            <option value="">— select bucket —</option>
+                            <template x-for="b in allBuckets().filter(x => x !== crmExpandedJob.bucket)" :key="b">
+                              <option :value="b" x-text="bucketLabel(b)"></option>
+                            </template>
+                          </select>
+                          <input type="text" x-model="moveComment" placeholder="Comment (optional)" style="margin:0;max-width:16rem">
+                          <button @click="moveCrmJob(crmExpandedJob.id, moveTarget, moveComment)" :disabled="!moveTarget">Move</button>
+                        </div>
+                      </div>
+
+                      <!-- Comment -->
+                      <div class="crm-comment-section">
+                        <strong>Comment:</strong>
+                        <textarea x-model="crmExpandedJob.comment" rows="2" placeholder="Add a note…" style="margin-top:0.25rem"></textarea>
+                        <button class="outline" style="padding:0.2rem 0.75rem;font-size:0.85em;margin-top:0.25rem" @click="saveCrmComment(crmExpandedJob.id, crmExpandedJob.comment)">💾 Save Comment</button>
+                      </div>
+
+                      <!-- History Timeline -->
+                      <div class="crm-history">
+                        <strong>History</strong>
+                        <template x-if="crmJobHistory.length === 0">
+                          <p class="crm-empty">No events yet.</p>
+                        </template>
+                        <div class="crm-timeline">
+                          <template x-for="evt in crmJobHistory" :key="evt.id">
+                            <div class="crm-timeline-item">
+                              <span class="crm-timeline-icon" x-text="eventIcon(evt.event_type)"></span>
+                              <div class="crm-timeline-content">
+                                <strong x-text="eventLabel(evt.event_type)"></strong>
+                                <template x-if="formatEventDetail(evt).length > 0">
+                                  <div class="crm-timeline-detail">
+                                    <template x-for="(line, i) in formatEventDetail(evt)" :key="i">
+                                      <div class="crm-timeline-detail-line" :class="'crm-detail-' + line.type">
+                                        <template x-if="line.label">
+                                          <span class="crm-detail-label" x-text="line.label + ':'"></span>
+                                        </template>
+                                        <span class="crm-detail-value" x-text="line.value"></span>
+                                      </div>
+                                    </template>
+                                  </div>
+                                </template>
+                                <span class="crm-timeline-date" x-text="formatDate(evt.created_at)"></span>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+
+                      <!-- Remove -->
+                      <div style="margin-top:1rem;text-align:right">
+                        <button class="btn-danger" @click="removeCrmJob(crmExpandedJob.id)">🗑 Remove from CRM</button>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+
+            <!-- ── CRM Pagination ─────────────────────────────────────── -->
+            <div class="pagination-bar" x-show="crmJobsTotal > crmPageSize">
+              <div class="pagination-info">
+                Page <span x-text="crmPage"></span> of <span x-text="crmTotalPages()"></span>
+                (<span x-text="crmJobsTotal"></span> jobs)
+              </div>
+              <div class="pagination-controls">
+                <button class="outline pagination-btn" :disabled="crmPage <= 1" @click="goToCrmPage(1)">«</button>
+                <button class="outline pagination-btn" :disabled="crmPage <= 1" @click="goToCrmPage(crmPage - 1)">‹</button>
+                <span class="pagination-page" x-text="crmPage + ' / ' + crmTotalPages()"></span>
+                <button class="outline pagination-btn" :disabled="crmPage >= crmTotalPages()" @click="goToCrmPage(crmPage + 1)">›</button>
+                <button class="outline pagination-btn" :disabled="crmPage >= crmTotalPages()" @click="goToCrmPage(crmTotalPages())">»</button>
+              </div>
+            </div>
+
+            </div><!-- end x-show="!analyticsMode" -->
+
+          </div>
+        </template>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>JobScan — local careers page aggregator</p>
+    </footer>
+  </body>
+</html>

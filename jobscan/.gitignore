@@ -1,0 +1,17 @@
+node_modules/
+dist/
+data/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+htpasswd
+emails.txt
+
+# Test fixtures — large cached HTML/JSON from live ATS pages
+# Regenerate with: npx tsx src/__tests__/helpers/cache-fixtures.ts
+src/__tests__/fixtures/

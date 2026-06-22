@@ -1,0 +1,311 @@
+import { ParsedJob } from '../types';
+import { fetchHtml, randomDelay } from '../fetch-utils';
+
+/**
+ * Picnic careers parser.
+ *
+ * URL pattern: https://jobs.picnic.app/en/
+ *              https://jobs.picnic.app/en/jobs
+ *              https://jobs.picnic.app/  (any path/locale under jobs.picnic.app)
+ *
+ * ── How it works ─────────────────────────────────────────────────────────────
+ *
+ * Picnic hosts a fully custom careers portal at jobs.picnic.app, built with
+ * Next.js App Router and server-side rendering (SSR). There is no publicly
+ * accessible ATS API — job data is embedded directly in the SSR HTML as part
+ * of the React Server Components (RSC) streaming payload:
+ *
+ *   <script>self.__next_f.push([1,"...escaped JSON..."])</script>
+ *
+ * The RSC payload contains a serialised React component tree where each open
+ * position is represented as a JSON object with this shape:
+ *
+ *   {
+ *     "injectables": null,
+ *     "data": {
+ *       "location": { "city": "Amsterdam", "state": "North Holland", "country": "Netherlands" },
+ *       "teams":    "Engineering",
+ *       "search_string": "...",
+ *       "custom_search_string": ""
+ *     },
+ *     "_id":       "JY6OH1V",           // 7-char internal ID (note: URL uses J+_id = 8 chars)
+ *     "name":      " Tech Lead (Java)", // may have a leading space
+ *     "visibility": "external",
+ *     "template":  "auto",
+ *     "locales":   ["en"],              // locale(s) this entry covers
+ *     "url":       "/en/vacancies/JJY6OH1V/engineering/tech-lead-java/amsterdam/..."
+ *   }
+ *
+ * The same physical job is posted in multiple locale variants (en/de/nl). We
+ * deduplicate by the job ID embedded in the URL path and prefer the English
+ * locale; German/Dutch entries are kept only when no English variant exists.
+ *
+ * A single GET to https://jobs.picnic.app/en/jobs returns all open positions
+ * (300+) as SSR HTML in one shot — no pagination is required.
+ *
+ * Field mapping:
+ *   title          ← name (trimmed)
+ *   url            ← https://jobs.picnic.app + url
+ *   location       ← data.location.city + ", " + data.location.country
+ *   department     ← data.teams
+ *
+ * Notes:
+ *   - workplace_type and commitment are not available in the listing data.
+ *   - The English jobs-list page is always used regardless of the input URL
+ *     so that the locale of the returned job URLs is consistent (en).
+ */
+
+const JOBS_PAGE_URL = 'https://jobs.picnic.app/en/jobs';
+const BASE_URL = 'https://jobs.picnic.app';
+
+// Locale path segments used by Picnic's URL scheme
+const LOCALE_PATH_SEGMENTS: Record<string, string> = {
+  en: 'vacancies',
+  de: 'jobangebot',
+  nl: 'vacatures',
+  fr: 'offres',
+};
+
+// ── URL helpers ───────────────────────────────────────────────────────────────
+
+/**
+ * Return true if the URL belongs to the Picnic careers site.
+ */
+export function isPicnicUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.hostname.toLowerCase() === 'jobs.picnic.app';
+  } catch {
+    return false;
+  }
+}
+
+// ── RSC payload extraction ────────────────────────────────────────────────────
+
+/**
+ * Extract and concatenate all RSC streaming payloads from the page HTML.
+ *
+ * Next.js App Router pages embed server-component data in one or more script
+ * blocks of the form:
+ *   <script>self.__next_f.push([1,"<escaped JSON string>"])</script>
+ *
+ * We decode each push call's string (via JSON.parse) and concatenate them.
+ */
+function extractRscPayload(html: string): string {
+  const chunks: string[] = [];
+  // Match self.__next_f.push([1,"..."]) — the string can contain escaped chars
+  const re = /self\.__next_f\.push\(\[1,"((?:[^"\\]|\\.)*)"\]\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    try {
+      // The inner value is a JSON-escaped string literal — decode it
+      const decoded = JSON.parse(`"${m[1]}"`);
+      chunks.push(decoded);
+    } catch {
+      // If JSON.parse fails, push the raw (escaped) string — still searchable
+      chunks.push(m[1]);
+    }
+  }
+  return chunks.join('');
+}
+
+// ── Job entry shape ───────────────────────────────────────────────────────────
+
+interface PicnicRawEntry {
+  /** Picnic's internal 7-char job ID */
+  id: string;
+  /** Job title — may have a leading space */
+  name: string;
+  /** Locale of this entry (e.g. "en", "de", "nl") */
+  locale: string;
+  /** Relative URL path — e.g. "/en/vacancies/JABCDE12/engineering/..." */
+  url: string;
+  /** City from data.location */
+  city: string;
+  /** Country from data.location */
+  country: string;
+  /** Team / department name */
+  team: string;
+}
+
+/**
+ * Parse all job entries out of the RSC payload text.
+ *
+ * The regex matches the fixed structure of each job object:
+ *
+ *   "data":{"location":{"city":"<city>","state":"<state>","country":"<country>"},...
+ *   "teams":"<team>",...},"_id":"<id>","name":"<name>","visibility":"external",
+ *   "template":"auto","locales":["<locale>"],"url":"<path>"
+ *
+ * Field order is stable (generated by the same Next.js server code path each
+ * time), so positional capture is reliable.
+ */
+function parseRscJobs(rscText: string): PicnicRawEntry[] {
+  const entries: PicnicRawEntry[] = [];
+
+  /**
+   * Pattern breakdown:
+   *  1. "data":{"location":{"city":"(city)","state":"..."
+   *  2. ... "country":"(country)"}
+   *  3. ... "teams":"(team)"...}
+   *  4. "_id":"(id)","name":"(name)","visibility":"external","template":"..."
+   *  5. "locales":["(locale)"],"url":"(url)"
+   *
+   * The `[^}]*` spans let us skip over variable-length content (state, search_string,
+   * custom_search_string) while tolerating minor field-order variations.
+   */
+  const re = new RegExp(
+    '"data":\\{"location":\\{"city":"([^"]*)"[^}]*"country":"([^"]*)"[^}]*\\}[^}]*"teams":"([^"]*)"[^}]*\\}[^}]*' +
+    '"_id":"([^"]+)"[^"]*' +
+    '"name":"([^"]+)"[^"]*' +
+    '"visibility":"external"[^"]*"template":"[^"]+"[^"]*' +
+    '"locales":\\["([^"]+)"(?:,"[^"]+")? *\\][^"]*' +
+    '"url":"([^"]+)"',
+    'g',
+  );
+
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(rscText)) !== null) {
+    const [, city, country, team, id, name, locale, url] = m;
+
+    entries.push({
+      id,
+      name,
+      locale,
+      url,
+      city,
+      country,
+      team,
+    });
+  }
+
+  return entries;
+}
+
+// ── Job deduplication ─────────────────────────────────────────────────────────
+
+/**
+ * Extract the job ID from a Picnic URL path.
+ *
+ * URL path format: /en/vacancies/JJY6OH1V/engineering/...
+ *                  index:  0=locale  1=path-type  2=jobId  3+=slug
+ *
+ * Returns the job-ID segment (e.g. "JJY6OH1V") or null if not a valid job URL.
+ */
+function extractJobIdFromPath(urlPath: string): string | null {
+  const parts = urlPath.replace(/^\//, '').split('/');
+  // parts[0] = locale, parts[1] = 'vacancies'|'jobangebot'|..., parts[2] = jobId
+  if (parts.length < 3) return null;
+  const pathType = parts[1];
+  if (!Object.values(LOCALE_PATH_SEGMENTS).includes(pathType)) return null;
+  return parts[2] || null;
+}
+
+/**
+ * Deduplicate raw entries keeping one per physical job.
+ *
+ * Priority: English locale entry → any other locale entry.
+ * Within the same locale, the first occurrence wins (they are identical).
+ */
+function deduplicateEntries(entries: PicnicRawEntry[]): PicnicRawEntry[] {
+  // Map job ID → best entry seen so far
+  const best = new Map<string, PicnicRawEntry>();
+
+  for (const entry of entries) {
+    const jobId = extractJobIdFromPath(entry.url);
+    if (!jobId) continue;
+
+    const existing = best.get(jobId);
+    if (!existing) {
+      best.set(jobId, entry);
+    } else if (entry.locale === 'en' && existing.locale !== 'en') {
+      // Upgrade to English variant
+      best.set(jobId, entry);
+    }
+  }
+
+  return Array.from(best.values());
+}
+
+// ── Parser (HTML → ParsedJob[]) ───────────────────────────────────────────────
+
+/**
+ * Parse Picnic job listings from SSR HTML.
+ *
+ * Extracts all open positions from the Next.js RSC payload embedded in the
+ * page's script tags.
+ *
+ * @param html     Raw HTML of a jobs.picnic.app page (typically /en/jobs).
+ * @param _baseUrl Ignored — all URLs are resolved relative to jobs.picnic.app.
+ */
+export function picnicParser(html: string, _baseUrl: string): ParsedJob[] {
+  if (!html) return [];
+
+  const rscText = extractRscPayload(html);
+  if (!rscText) return [];
+
+  const rawEntries = parseRscJobs(rscText);
+  if (rawEntries.length === 0) return [];
+
+  const deduplicated = deduplicateEntries(rawEntries);
+
+  const jobs: ParsedJob[] = [];
+
+  for (const entry of deduplicated) {
+    const title = entry.name.trim();
+    if (!title) continue;
+
+    const urlPath = entry.url;
+    const jobUrl = `${BASE_URL}${urlPath}`;
+
+    // Build location string: "City, Country" or just city / country
+    const locationParts = [entry.city.trim(), entry.country.trim()].filter(Boolean);
+    const location = locationParts.length > 0 ? locationParts.join(', ') : undefined;
+
+    const department = entry.team.trim() || undefined;
+
+    jobs.push({ title, url: jobUrl, location, department });
+  }
+
+  return jobs;
+}
+
+// ── API-style fetch ───────────────────────────────────────────────────────────
+
+/**
+ * Fetch all Picnic job listings by scraping the SSR HTML from /en/jobs.
+ *
+ * Although there is no public REST API, all open positions are embedded in the
+ * server-rendered HTML in a single request.
+ *
+ * A small random delay (200–600 ms) is applied before the fetch to reduce the
+ * chance of rate-limiting on repeated calls.
+ *
+ * @param _url  The source URL (ignored — always fetches the canonical /en/jobs).
+ */
+export async function picnicApiFetch(_url: string): Promise<{ jobs: ParsedJob[]; error?: string }> {
+  await randomDelay(200, 600);
+
+  const { html, error: fetchError } = await fetchHtml(JOBS_PAGE_URL);
+
+  if (fetchError || !html) {
+    return { jobs: [], error: fetchError ?? 'Failed to fetch Picnic jobs page' };
+  }
+
+  const jobs = picnicParser(html, JOBS_PAGE_URL);
+
+  if (jobs.length === 0) {
+    return { jobs: [], error: 'No jobs found in Picnic RSC payload — page structure may have changed' };
+  }
+
+  return { jobs };
+}
+
+// ── Detect ────────────────────────────────────────────────────────────────────
+
+/**
+ * Detect company name for Picnic — always returns "Picnic".
+ */
+export async function picnicDetect(_url: string): Promise<{ company: string; error?: string }> {
+  return { company: 'Picnic' };
+}

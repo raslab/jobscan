@@ -1,0 +1,1608 @@
+/* ── Tab navigation ─────────────────────────────────────────────────────── */
+nav a {
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--pico-border-radius);
+}
+
+nav a.active-tab {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+/* ── Filters row ─────────────────────────────────────────────────────────── */
+.filters {
+  margin-bottom: 0.5rem;
+}
+
+/* ── Compact Filter Toolbar ──────────────────────────────────────────────── */
+.filter-toolbar {
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.filter-toolbar-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.filter-extra-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--pico-form-element-border-color);
+}
+
+.filter-field {
+  position: relative;
+  min-width: 8rem;
+  flex: 1 1 8rem;
+  max-width: 14rem;
+}
+
+.filter-field-search {
+  flex: 2 1 14rem;
+  max-width: 22rem;
+}
+
+.filter-field-crm {
+  flex: 0 0 auto;
+  min-width: 7rem;
+  max-width: 9rem;
+}
+
+.filter-field-date {
+  flex: 0 0 auto;
+  min-width: 9rem;
+  max-width: 10rem;
+}
+
+.filter-input {
+  margin: 0 !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.85em !important;
+  height: auto !important;
+}
+
+.filter-crm-select {
+  width: 100%;
+  padding-right: 1.6rem !important;
+  height: 100%;
+}
+
+.filter-crm-label {
+  margin: 0 !important;
+  height: 100%;
+}
+
+.filter-field-crm {
+  flex: 0 0 auto;
+  min-width: 7rem;
+  max-width: 9rem;
+  display: flex;
+  align-items: stretch;
+}
+
+.filter-toggle-btn {
+  padding: 0.25rem 0.6rem !important;
+  margin: 0 !important;
+  font-size: 0.82em !important;
+  white-space: nowrap;
+  min-width: auto;
+  position: relative;
+  align-self: center;
+}
+
+.filter-clear-btn {
+  padding: 0.25rem 0.6rem !important;
+  margin: 0 !important;
+  font-size: 0.82em !important;
+  white-space: nowrap;
+  min-width: auto;
+  align-self: center;
+}
+
+.filter-select-btn {
+  padding: 0.25rem 0.6rem !important;
+  margin: 0 !important;
+  font-size: 0.82em !important;
+  white-space: nowrap;
+  min-width: auto;
+  align-self: center;
+}
+
+.filter-active-badge {
+  color: var(--pico-primary);
+  font-size: 0.7em;
+  margin-left: 0.15rem;
+}
+
+/* Compact combobox inside filter toolbar */
+.filter-toolbar .combobox-input {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.85em !important;
+  height: auto !important;
+  margin-bottom: 0 !important;
+  padding-right: 1.8rem !important;
+}
+
+.filter-toolbar .combobox-clear {
+  right: 0.35rem;
+  font-size: 0.95em;
+  padding: 0.1rem 0.25rem;
+}
+
+.filter-toolbar .combobox-list {
+  font-size: 0.88em;
+  max-height: 12rem;
+}
+
+.filter-toolbar .combobox-item {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.88em;
+}
+
+.filter-toolbar .search-with-mode input[type="search"] {
+  margin-bottom: 0;
+  padding: 0.25rem 0.5rem;
+  padding-inline-start: 0.5rem;
+  font-size: 0.85em;
+  height: auto;
+  background-image: none;
+  border-radius: var(--pico-border-radius);
+}
+
+.filter-toolbar .search-mode-toggle button {
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72em;
+}
+
+/* ── Searchable combobox (company picker) ────────────────────────────────── */
+.combobox {
+  position: relative;
+}
+
+.combobox-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.combobox-input {
+  width: 100%;
+  margin-bottom: 0 !important;
+  padding-right: 2rem;
+}
+
+.combobox-input.has-value::placeholder {
+  color: var(--pico-color);
+  opacity: 1;
+}
+
+.combobox-clear {
+  all: unset;
+  position: absolute;
+  right: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1em;
+  color: var(--pico-muted-color);
+  padding: 0.15rem 0.35rem;
+  line-height: 1;
+  border-radius: 50%;
+  transition: color 0.15s, background 0.15s;
+}
+
+.combobox-clear:hover {
+  color: var(--pico-del-color, #c62828);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.combobox-list {
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0.15rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--pico-card-background-color, var(--pico-background-color));
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.combobox-item {
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.92em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  outline: none;
+}
+
+.combobox-item:hover,
+.combobox-item:focus {
+  background: var(--pico-card-sectioning-background-color, rgba(0, 0, 0, 0.05));
+}
+
+.combobox-item.selected {
+  font-weight: 600;
+  color: var(--pico-primary);
+}
+
+.combobox-empty {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.88em;
+  color: var(--pico-muted-color);
+  font-style: italic;
+}
+
+/* ── Search mode toggle ──────────────────────────────────────────────────── */
+.search-with-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.search-with-mode input[type="search"] {
+  margin-bottom: 0;
+}
+
+.search-mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.search-mode-toggle button {
+  all: unset;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78em;
+  cursor: pointer;
+  color: var(--pico-muted-color);
+  background: transparent;
+  border-right: 1px solid var(--pico-form-element-border-color);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.search-mode-toggle button:last-child {
+  border-right: none;
+}
+
+.search-mode-toggle button:hover {
+  background: var(--pico-card-sectioning-background-color);
+  color: var(--pico-color);
+}
+
+.search-mode-toggle button.active {
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+/* ── Table scrolling on small screens ───────────────────────────────────── */
+.table-scroll {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+/* Sources table — adaptive fixed layout, truncates only the URL column */
+.sources-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* URL cell: truncate with ellipsis */
+.sources-table .col-url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* All other cells: wrap naturally */
+.sources-table th,
+.sources-table td {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.sources-table .col-company   { width: 20%; }
+.sources-table .col-url       { width: 18%; }
+.sources-table .col-parser    { width: 8%; }
+.sources-table .col-added     { width: 10%; }
+.sources-table .col-synced    { width: 10%; }
+.sources-table .col-status    { width: 8%; }
+.sources-table .col-jobs      { width: 7%; }
+.sources-table .col-actions   { width: 13%; }
+
+/* Force jobs tables to fill container width and not overflow */
+.jobs-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.jobs-table td,
+.jobs-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Column widths for the jobs table */
+.jobs-table .col-company    { width: 10%; }
+.jobs-table .col-title      { width: 30%; }
+.jobs-table .col-location   { width: 10%; }
+.jobs-table .col-department { width: 10%; }
+.jobs-table .col-workplace  { width: 8%; }
+.jobs-table .col-type       { width: 8%; }
+.jobs-table .col-date       { width: 9%; }
+.jobs-table .col-actions    { width: 15%; }
+
+/* ── Expandable job rows ─────────────────────────────────────────────────── */
+tr.expandable {
+  cursor: pointer;
+}
+
+tr.expandable:hover td {
+  background: var(--pico-card-sectioning-background-color);
+}
+
+tr.job-detail td {
+  background: var(--pico-card-background-color);
+  border-top: none;
+  padding-top: 0;
+}
+
+/* ── Job description preview (collapsed) ────────────────────────────────── */
+.job-preview {
+  color: var(--pico-muted-color);
+  font-size: 0.82em;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40ch;
+}
+
+/* ── Full job description (expanded) ────────────────────────────────────── */
+.job-full-description {
+  font-size: 0.9em;
+  max-height: 40rem;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: var(--pico-code-background-color);
+  border-radius: var(--pico-border-radius);
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.job-full-description h1,
+.job-full-description h2,
+.job-full-description h3 {
+  margin-top: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.job-full-description ul,
+.job-full-description ol {
+  padding-left: 1.5rem;
+  margin: 0.3rem 0;
+}
+
+.job-full-description li {
+  margin-bottom: 0.2rem;
+}
+
+.job-full-description p {
+  margin: 0.4rem 0;
+}
+
+/* ── Shortened job description ─────────────────────────────────────────── */
+.job-short-description {
+  white-space: pre-wrap;
+  font-size: 0.88em;
+  color: var(--pico-muted-color);
+  max-height: 10rem;
+  overflow: hidden;
+  padding: 0.5rem;
+  background: var(--pico-code-background-color);
+  border-radius: var(--pico-border-radius);
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+/* ── Hint text under JD ────────────────────────────────────────────────── */
+.jd-hint {
+  font-size: 0.75em;
+  color: var(--pico-muted-color);
+  text-align: center;
+  padding: 0.15rem 0 0.25rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* ── Sync banner ─────────────────────────────────────────────────────────── */
+.sync-banner {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+}
+
+/* ── Add-source form card ────────────────────────────────────────────────── */
+.add-form-card {
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.add-result {
+  margin: 0.5rem 0;
+  font-size: 0.9em;
+}
+
+/* ── Status badges ───────────────────────────────────────────────────────── */
+.badge-ok {
+  color: var(--pico-color-jade-500, #2eb87a);
+}
+
+.badge-warning {
+  color: var(--pico-color-amber-500, #e8a000);
+}
+
+.badge-error {
+  color: var(--pico-color-red-500, #e53935);
+}
+
+.badge-new {
+  font-size: 0.75em;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  border-radius: 1rem;
+  padding: 0.1em 0.4em;
+  margin-left: 0.25rem;
+}
+
+.badge-parser {
+  font-size: 0.75em;
+  background: var(--pico-secondary-background, #e9ecef);
+  color: var(--pico-secondary-inverse, #343a40);
+  border-radius: 0.75rem;
+  padding: 0.1em 0.5em;
+  white-space: nowrap;
+}
+
+.badge-method {
+  font-size: 0.73em;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 0.75rem;
+  padding: 0.1em 0.5em;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-method { background: #1565c044; color: #90caf9; }
+  .badge-parser { background: #ffffff18; color: #e0e0e0; }
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.88em;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.pagination-info {
+  color: var(--pico-muted-color);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-btn {
+  padding: 0.15rem 0.5rem !important;
+  margin: 0 !important;
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.pagination-page {
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+/* Per-page select — enough right-padding for the dropdown arrow */
+.page-size-select {
+  width: auto !important;
+  min-width: 4.5rem;
+  margin: 0 !important;
+  padding: 0.2rem 1.6rem 0.2rem 0.4rem !important;
+  display: inline-block;
+  font-size: inherit;
+}
+
+/* ── Sortable column headers ─────────────────────────────────────────────── */
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sortable-th:hover {
+  color: var(--pico-primary);
+}
+
+.sort-icon {
+  font-size: 0.75em;
+  opacity: 0.6;
+  margin-left: 0.2rem;
+}
+
+/* ── Batch import results ────────────────────────────────────────────────── */
+.batch-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  border: 1px solid var(--pico-table-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 0.5rem;
+  background: var(--pico-card-background-color);
+}
+
+.batch-result-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.batch-result-company {
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.batch-result-detail {
+  white-space: nowrap;
+  color: var(--pico-muted-color);
+  font-size: 0.95em;
+}
+
+/* ── Source error detail (in sources table) ──────────────────────────────── */
+.source-error-detail {
+  font-size: 0.78em;
+  color: var(--pico-color-red-500, #e53935);
+  margin-top: 0.15rem;
+  line-height: 1.3;
+  word-break: break-word;
+  max-width: 20ch;
+}
+
+/* ── Source action buttons (Sync + Delete) ───────────────────────────────── */
+.source-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.source-action-btns button {
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* ── Sources filter bar ──────────────────────────────────────────────────── */
+.sources-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.sources-filter-input {
+  flex: 1 1 14rem;
+  max-width: 26rem;
+  margin: 0 !important;
+  padding: 0.3rem 0.5rem !important;
+  font-size: 0.875em !important;
+  height: auto !important;
+  background-image: none !important;
+  padding-inline-start: 0.5rem !important;
+}
+
+.sources-filter-select {
+  margin: 0 !important;
+  padding: 0.3rem 0.5rem !important;
+  font-size: 0.875em !important;
+  height: auto !important;
+  width: auto !important;
+  min-width: 9rem;
+}
+
+.sources-filter-clear {
+  padding: 0.3rem 0.6rem !important;
+  margin: 0 !important;
+  font-size: 0.82em !important;
+  white-space: nowrap;
+}
+
+.sources-filter-count {
+  font-size: 0.82em;
+  color: var(--pico-muted-color);
+  white-space: nowrap;
+}
+
+.sources-filter-note {
+  font-size: 0.78em;
+  color: var(--pico-muted-color);
+  white-space: nowrap;
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+/* ── Sync summary error rows ─────────────────────────────────────────────── */
+.sync-error-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.9em;
+  margin: 0.15rem 0;
+  padding-left: 0.5rem;
+}
+
+/* ── Sync dot-grid panel ─────────────────────────────────────────────────── */
+.sync-dot-panel {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+}
+
+.sync-dot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+
+.sync-dot-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.sync-stat {
+  white-space: nowrap;
+}
+
+.sync-stat-label {
+  color: var(--pico-muted-color);
+}
+
+.sync-close-btn {
+  padding: 0.15rem 0.5rem !important;
+  margin: 0 !important;
+  font-size: 0.85em;
+  line-height: 1;
+  min-width: auto;
+}
+
+.sync-dot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dot-gap, 4px);
+}
+
+.sync-dot {
+  width: var(--dot-size, 8px);
+  height: var(--dot-size, 8px);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s;
+}
+
+.sync-dot:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* Dot states */
+.dot-pending {
+  background: var(--pico-color-red-500, #e53935);
+}
+
+.dot-syncing {
+  background: var(--pico-color-amber-500, #ffc107);
+  animation: dot-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.dot-done {
+  background: var(--pico-color-green-500, #43a047);
+}
+
+.dot-error {
+  background: var(--pico-color-red-500, #e53935);
+  box-shadow: 0 0 0 2px var(--pico-color-red-200, #ffcdd2);
+}
+
+.dot-zero {
+  background: var(--pico-color-amber-500, #ffc107);
+}
+
+@keyframes dot-pulse {
+  from { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+  to   { box-shadow: 0 0 0 2px rgba(255, 193, 7, 0); }
+}
+
+/* Tooltip */
+.sync-dot-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pico-card-background-color, #222);
+  color: var(--pico-color, #eee);
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78em;
+  white-space: nowrap;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  flex-direction: column;
+  gap: 0.15rem;
+  line-height: 1.35;
+}
+
+.sync-dot-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--pico-form-element-border-color);
+}
+
+.sync-dot:hover .sync-dot-tooltip {
+  display: flex;
+}
+
+.dot-tip-parser {
+  color: var(--pico-muted-color);
+}
+
+.dot-tip-status {
+  font-weight: 500;
+}
+
+.dot-tip-count {
+  color: var(--pico-muted-color);
+  font-size: 0.92em;
+}
+
+/* ── Actions cell (merged column) ────────────────────────────────────────── */
+.actions-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: stretch;
+  min-width: 5.5rem;
+  overflow: visible !important;
+  position: relative;
+}
+
+.action-btn {
+  padding: 0.2rem 0.5rem !important;
+  font-size: 0.85em;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* ── CRM add-to-bucket dropdown ──────────────────────────────────────────── */
+.crm-add-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.crm-add-menu {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  z-index: 100;
+  margin: 0 0 0.15rem 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--pico-card-background-color, var(--pico-background-color));
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 10rem;
+}
+
+.crm-add-menu li {
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85em;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.crm-add-menu li:hover {
+  background: var(--pico-primary-focus);
+}
+
+/* ── Multi-select checkbox column ────────────────────────────────────────── */
+.col-select {
+  width: 2.8rem !important;
+  min-width: 2.8rem;
+  text-align: center;
+}
+
+/* ── Multi-select row highlight ──────────────────────────────────────────── */
+.row-selected {
+  background: color-mix(in srgb, var(--pico-primary) 10%, transparent) !important;
+}
+
+/* ── Toast notifications ─────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+  font-size: 0.9em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-width: 24rem;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   CRM PIPELINE STYLES
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── CRM Badges (inline in job tables) ───────────────────────────────────── */
+.crm-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78em;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.crm-badge-sourced       { background: #e3f2fd; color: #1565c0; }
+.crm-badge-filtered      { background: #fff3e0; color: #e65100; }
+.crm-badge-processed     { background: #e8f5e9; color: #2e7d32; }
+.crm-badge-applied       { background: #ede7f6; color: #4527a0; }
+.crm-badge-disqualified  { background: #fce4ec; color: #c62828; }
+.crm-badge-auto_disqualified { background: #fbe9e7; color: #bf360c; }
+
+@media (prefers-color-scheme: dark) {
+  .crm-badge-sourced       { background: #1565c044; color: #90caf9; }
+  .crm-badge-filtered      { background: #e6510044; color: #ffcc80; }
+  .crm-badge-processed     { background: #2e7d3244; color: #a5d6a7; }
+  .crm-badge-applied       { background: #4527a044; color: #ce93d8; }
+  .crm-badge-disqualified  { background: #c6282844; color: #ef9a9a; }
+  .crm-badge-auto_disqualified { background: #bf360c44; color: #ffab91; }
+}
+
+.col-crm { width: 6rem; text-align: center; }
+
+/* ── CRM Status Bar ──────────────────────────────────────────────────────── */
+.crm-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.crm-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.crm-status-dot {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+}
+.crm-status-dot.idle       { background: #9e9e9e; }
+.crm-status-dot.processing { background: #43a047; animation: crm-pulse 1.2s infinite; }
+.crm-status-dot.error      { background: #e53935; }
+
+@keyframes crm-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+.crm-status-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* ── CRM Panels (Settings & Filters) ────────────────────────────────────── */
+.crm-panel {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.crm-test-result {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.9em;
+  margin-top: 0.5rem;
+}
+.crm-test-result.ok   { background: #e8f5e9; color: #2e7d32; }
+.crm-test-result.fail  { background: #fce4ec; color: #c62828; }
+@media (prefers-color-scheme: dark) {
+  .crm-test-result.ok   { background: #2e7d3233; color: #a5d6a7; }
+  .crm-test-result.fail  { background: #c6282833; color: #ef9a9a; }
+}
+
+/* ── CRM Filter Cards ───────────────────────────────────────────────────── */
+.crm-filter-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.4rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  transition: opacity 0.2s;
+}
+.crm-filter-card.inactive { opacity: 0.5; }
+
+.crm-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.crm-filter-type {
+  font-size: 0.78em;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-muted-border-color);
+}
+
+.crm-filter-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.crm-filter-form {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--pico-primary-focus);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+/* ── CRM Bucket Tabs ─────────────────────────────────────────────────────── */
+.crm-bucket-tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid var(--pico-muted-border-color);
+  padding-bottom: 0;
+}
+
+.crm-bucket-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  text-decoration: none;
+  font-size: 0.9em;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: border-color 0.15s, color 0.15s;
+  color: var(--pico-muted-color);
+}
+
+.crm-bucket-tab:hover {
+  color: var(--pico-color);
+  border-bottom-color: var(--pico-muted-border-color);
+}
+
+.crm-bucket-tab.active {
+  color: var(--pico-primary);
+  border-bottom-color: var(--pico-primary);
+  font-weight: 600;
+}
+
+.crm-bucket-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  font-size: 0.78em;
+  font-weight: 600;
+  background: var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+}
+.crm-bucket-tab.active .crm-bucket-count {
+  background: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+}
+
+.crm-toolbar-row {
+  margin-bottom: 0.5rem;
+}
+
+/* ── CRM Empty State ─────────────────────────────────────────────────────── */
+.crm-empty {
+  color: var(--pico-muted-color);
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+/* ── CRM Job Cards (list) ────────────────────────────────────────────────── */
+.crm-job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.crm-job-card {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.crm-job-card:hover {
+  border-color: var(--pico-primary-focus);
+  background: var(--pico-primary-background);
+  background: color-mix(in srgb, var(--pico-primary) 5%, transparent);
+}
+.crm-job-card.expanded {
+  border-color: var(--pico-primary);
+  background: color-mix(in srgb, var(--pico-primary) 8%, transparent);
+}
+.crm-job-card.selected {
+  border-color: var(--pico-primary);
+  background: color-mix(in srgb, var(--pico-primary) 12%, transparent);
+}
+
+.crm-job-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.crm-job-info {
+  flex: 1;
+  min-width: 0;
+}
+.crm-job-info strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crm-job-company {
+  font-size: 0.88em;
+  color: var(--pico-muted-color);
+}
+
+.crm-job-bucket-date {
+  display: block;
+  font-size: 0.78em;
+  color: var(--pico-muted-color);
+  margin-top: 0.1rem;
+  opacity: 0.75;
+}
+
+.crm-job-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.crm-job-date {
+  font-size: 0.82em;
+  color: var(--pico-muted-color);
+}
+
+.crm-job-reason {
+  font-size: 0.82em;
+  color: var(--pico-del-color, #c0392b);
+  margin-top: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  background: color-mix(in srgb, var(--pico-del-color, #c0392b) 8%, transparent);
+  border-left: 2px solid var(--pico-del-color, #c0392b);
+  border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (prefers-color-scheme: dark) {
+  .crm-job-reason {
+    color: #ff8a80;
+    background: rgba(192, 57, 43, 0.15);
+    border-left-color: #ff8a80;
+  }
+}
+
+/* ── CRM Tier Badges ─────────────────────────────────────────────────────── */
+.crm-tier-badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.78em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tier-A { background: #ffd600; color: #3e2723; }
+.tier-B { background: #b0bec5; color: #263238; }
+.tier-C { background: #d7ccc8; color: #4e342e; }
+@media (prefers-color-scheme: dark) {
+  .tier-A { background: #ffd60066; color: #fff9c4; }
+  .tier-B { background: #546e7a66; color: #cfd8dc; }
+  .tier-C { background: #5d4037aa; color: #d7ccc8; }
+}
+
+.crm-processing-badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.75em;
+  background: var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+  text-transform: uppercase;
+}
+
+/* ── CRM Detail Panel ────────────────────────────────────────────────────── */
+.crm-detail-panel {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 2px solid var(--pico-primary);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.crm-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.crm-detail-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.crm-detail-reason {
+  font-size: 0.92em;
+  padding: 0.4rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--pico-primary);
+  background: color-mix(in srgb, var(--pico-primary) 5%, transparent);
+  border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0;
+}
+
+.crm-detail-description {
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 0.5rem 0.75rem;
+}
+.crm-detail-description .job-short-description {
+  color: var(--pico-muted-color);
+  font-size: 0.9em;
+}
+.crm-detail-description .job-full-description {
+  max-height: 20rem;
+  overflow-y: auto;
+  font-size: 0.92em;
+}
+.crm-detail-description .jd-hint {
+  font-size: 0.8em;
+  color: var(--pico-muted-color);
+  margin-top: 0.25rem;
+}
+
+/* ── CRM Meta Tags ──────────────────────────────────────────────────────── */
+.crm-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.crm-meta-tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.82em;
+  background: var(--pico-muted-border-color);
+  white-space: nowrap;
+}
+
+/* ── Danger / destructive buttons ─────────────────────────────────────── */
+.btn-danger {
+  padding: 0.2rem 0.75rem !important;
+  font-size: 0.85em !important;
+  background: #fce4ec !important;
+  color: #c62828 !important;
+  border: 1px solid #ef9a9a !important;
+  border-radius: var(--pico-border-radius);
+  cursor: pointer;
+}
+.btn-danger:hover {
+  background: #ffcdd2 !important;
+  border-color: #e57373 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-danger {
+    background: rgba(198, 40, 40, 0.2) !important;
+    color: #ef9a9a !important;
+    border-color: rgba(239, 154, 154, 0.4) !important;
+  }
+  .btn-danger:hover {
+    background: rgba(198, 40, 40, 0.35) !important;
+    border-color: rgba(239, 154, 154, 0.6) !important;
+  }
+}
+
+.crm-move-section {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.crm-comment-section {
+  margin-bottom: 0.75rem;
+}
+.crm-comment-section textarea {
+  font-size: 0.9em;
+}
+
+/* ── CRM History Timeline ────────────────────────────────────────────────── */
+.crm-history {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.crm-timeline {
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.crm-timeline-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-left: 2px solid var(--pico-muted-border-color);
+  padding-left: 0.75rem;
+  margin-left: 0.35rem;
+}
+
+.crm-timeline-icon {
+  flex-shrink: 0;
+  font-size: 0.9em;
+}
+
+.crm-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.88em;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Container for the structured multi-line detail block */
+.crm-timeline-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.1rem;
+}
+
+/* Each individual line inside the detail block */
+.crm-timeline-detail-line {
+  display: flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  color: var(--pico-muted-color);
+  line-height: 1.4;
+}
+
+.crm-detail-label {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--pico-secondary);
+  min-width: 5.5rem;
+  font-size: 0.9em;
+}
+
+.crm-detail-value {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* Type-specific colour hints */
+.crm-detail-reason   .crm-detail-value,
+.crm-detail-snippet  .crm-detail-value { font-style: italic; }
+.crm-detail-tier     .crm-detail-value { font-weight: 700; color: var(--pico-primary); }
+.crm-detail-error    .crm-detail-value { color: var(--pico-del-color, #c0392b); }
+.crm-detail-stats    .crm-detail-value { font-size: 0.85em; opacity: 0.8; }
+.crm-detail-move     .crm-detail-value { font-weight: 600; }
+
+.crm-timeline-date {
+  font-size: 0.82em;
+  color: var(--pico-muted-color);
+  opacity: 0.75;
+}
+
+/* ── CRM Bulk Action Bar ─────────────────────────────────────────────────── */
+.crm-bulk-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--pico-primary);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
+
+/* ── CRM Analytics ───────────────────────────────────────────────────────── */
+
+.crm-analytics-section {
+  margin-top: 0.5rem;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.analytics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.analytics-stat-card {
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 0.75rem;
+  text-align: center;
+  background: var(--pico-card-background-color, var(--pico-background-color));
+  transition: transform 0.15s;
+}
+
+.analytics-stat-card:hover {
+  transform: translateY(-1px);
+}
+
+.analytics-stat-count {
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.analytics-stat-label {
+  font-size: 0.82em;
+  color: var(--pico-muted-color);
+  margin-top: 0.15rem;
+}
+
+.analytics-stat-pct {
+  font-size: 0.78em;
+  color: var(--pico-muted-color);
+  opacity: 0.75;
+}
+
+/* Stat card colour accents */
+.stat-sourced { border-left: 3px solid #4285F4; }
+.stat-sourced .analytics-stat-count { color: #4285F4; }
+.stat-filtered { border-left: 3px solid #34A853; }
+.stat-filtered .analytics-stat-count { color: #34A853; }
+.stat-processed { border-left: 3px solid #9C27B0; }
+.stat-processed .analytics-stat-count { color: #9C27B0; }
+.stat-applied { border-left: 3px solid #00BCD4; }
+.stat-applied .analytics-stat-count { color: #00BCD4; }
+.stat-disqualified { border-left: 3px solid #FF9800; }
+.stat-disqualified .analytics-stat-count { color: #FF9800; }
+.stat-auto_disqualified { border-left: 3px solid #EA4335; }
+.stat-auto_disqualified .analytics-stat-count { color: #EA4335; }
+
+.analytics-chart-card,
+.analytics-filter-card,
+.analytics-text-card {
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.analytics-filter-table {
+  width: 100%;
+  font-size: 0.9em;
+}
+
+.analytics-filter-table th {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--pico-muted-color);
+}
+
+.analytics-filter-type-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.type-keyword {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.type-llm {
+  background: #E3F2FD;
+  color: #1565C0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .type-keyword {
+    background: #3E2723;
+    color: #FFB74D;
+  }
+  .type-llm {
+    background: #0D47A1;
+    color: #90CAF9;
+  }
+}
+
+.analytics-bar-container {
+  height: 1rem;
+  background: var(--pico-form-element-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.analytics-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.bar-keyword {
+  background: linear-gradient(90deg, #FF9800, #F44336);
+}
+
+.bar-llm {
+  background: linear-gradient(90deg, #2196F3, #9C27B0);
+}
+
+.analytics-effectiveness {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color, var(--pico-background-color));
+}
+
+.analytics-effectiveness-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.effectiveness-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  background: var(--pico-background-color);
+}
+
+.effectiveness-label {
+  font-size: 0.85em;
+  color: var(--pico-muted-color);
+}
+
+.effectiveness-value {
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.analytics-text-pre {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.82em;
+  padding: 1rem;
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-code-background-color, #f5f5f5);
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 30rem;
+  overflow-y: auto;
+  margin: 0;
+}
