@@ -1,9 +1,29 @@
-# Fresh fixture capture replay
+# Repository-owned genuine live fixtures
 
-These are genuine live captures from October 12, 2026, not historical or synthetic fixture originals. `live-fixture-provenance.json` records original/final URLs, redirects, HTTP status, byte count, capture time and SHA256. Valid type/hash does not imply legacy assertion compatibility.
+Normal fixture loading is filesystem-only and uses the checked-in `src/__tests__/fixtures/` assets. There is no default download hook. Full integration tests retain their original network behavior; no tests, assertions or application parsers were changed.
 
-The amended `src/__tests__/helpers/cache-fixtures.ts` is a diagnostic sandbox downloader: four workers, 20-second requests, at most six HTTP responses per redirect chain, 8MiB per body, hostname approval and nonzero exit when any of the 76 required paths remains absent. Its current diagnostic configuration reads `/home/coder/{manual-sources,allowed-hosts,expected}.json` and writes evidence under `/home/coder`. Copies of those three JSON files are under `src/__tests__/helpers/live-capture-settings/` for replay. The controller diagnostic uploads them; no credentials are used. OTTO requires the public constant environment values `OTTO_CONSUMER=9814723 OTTO_MEDIUM=2740` for anonymous session creation. Session cookie values are not logged. `ONLY_PATHS` optionally limits attempts to a JSON array of relative fixture paths.
+These October 12, 2026 captures are raw complete public-source response bodies, not historical or synthetic originals. `live-fixture-provenance.json` records source/final URL, timestamp, HTTP method/status, redirects, bytes and SHA256. Complete live sitemaps are not trimmed. Alternative live vacancies/company boards retain loader filenames without pretending their content matches historical titles/entities. `FIXTURE-PRD.json` defines the eight-field scoped specification; SHA256: `eb2c5c0f427d4f6830f6ca70c20620a0e34c6b93ffbbc93022b4313058e711e0`.
 
-Failure-response bodies are retained separately by the controller, never staged as working fixtures. Full sitemaps were not trimmed. Personio's genuine XML is not the Acme Corp synthetic sample expected by historical assertions. All application parsers and test assertions remain unchanged. Further assertion/parser repair requires an owner-approved PRD.
+## Explicit maintenance refresh
 
-Acquisition checks ran on the exact baseline plus the downloaded fixture bytes and sandbox downloader overlay. The final local fixture commit was created afterward; no claim of candidate-pinned independent review is made.
+From the `jobscan` directory, after installing dependencies:
+
+```sh
+OTTO_CONSUMER=9814723 OTTO_MEDIUM=2740 npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh
+# Optional parser filter:
+npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh greenhouse
+# Optional exact relative paths:
+ONLY_PATHS='["dvinci/krones-listing.html"]' npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh
+```
+
+Without `--refresh` the downloader exits 2 before any network request. Settings are resolved relative to the helper, not the current working directory. Capture evidence is written to `jobscan/live-capture-evidence/`; HTTP error bodies go to its `failures/` directory and are never installed as valid job fixtures. Existing valid fixtures are not replaced by failed requests. Inspect refreshed evidence and update the tracked provenance only after verifying hashes and scope; a refresh does not automatically certify the committed provenance manifest.
+
+The downloader uses four workers, 20-second request bounds, six redirect responses, 8MiB response limits, explicit related public-host approval and private-address rejection. Anonymous OTTO session cookies are not logged. These are bounded acquisition safeguards, not immutable DNS-rebinding protection. Exit 2 means required paths remain missing, not success. Settings permit direct approved related redirect services. The public `careers.ptc.com` alternative failed DNS resolution; original Eightfold PTC endpoints returned 404.
+
+## Preserved failures and acceptance
+
+`live-capture-failures/initial/` and `live-capture-failures/final/` contain actual error bodies, outside all loader fixture paths. Their manifest records retain HTTP404 status even when the body parses as HTML/JSON. One intermediate retry's failure bodies were not archived due to an evidence-path packaging defect; its raw recorded metadata remains and original/final responses are retained separately. The evidence path was corrected before the final candidate, then exercised in a fresh sandbox.
+
+69 of 76 expected paths are captured and verified. Remaining seven: PTC HTML/API; Protocol Labs company HTML/sitemap (approved redirects followed, final404); Hightouch HTML/API and legacy synthetic filename (final404). No missing response was reconstructed.
+
+Unchanged real website schema/data-drift test failures are explicitly allowed **only for this fixture-storage PR** and must be reported as failing, never green or normal PR_READY. Missing captures and introduced fixture packaging/code regressions are not waived. Required exact-candidate unit/full/build/MCP evidence and independent fixture-only review precede parent publication. No historical-restoration or assertion/parser migration approval is required for this scoped deliverable.

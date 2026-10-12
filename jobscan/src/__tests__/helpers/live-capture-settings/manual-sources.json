@@ -64,13 +64,6 @@
   },
   {
     "parser": "personio",
-    "filename": "sample-board.html",
-    "url": "https://personio.jobs.personio.de/?language=en",
-    "type": "html",
-    "extraHeaders": {}
-  },
-  {
-    "parser": "personio",
     "filename": "sample-board.xml",
     "url": "https://personio.jobs.personio.de/xml?language=en",
     "type": "html",
@@ -100,6 +93,40 @@
       "Accept-Language": "DE",
       "DataServiceVersion": "2.0",
       "MaxDataServiceVersion": "2.0"
+    }
+  },
+  {
+    "parser": "personio",
+    "filename": "sample-board.html",
+    "url": "https://open.jobs.personio.de/?language=en",
+    "type": "html"
+  },
+  {
+    "parser": "dvinci",
+    "filename": "cenit-job-detail.html",
+    "url": "https://cenit.dvinci-hr.com/en/jobs/30530/senior-sales-manager-product-lifecycle-management-plm-mwd",
+    "type": "html"
+  },
+  {
+    "parser": "ycombinator",
+    "filename": "taktile-job-detail.html",
+    "url": "https://www.ycombinator.com/companies/taktile/jobs/nUa2xkt-senior-business-development-representative",
+    "type": "html"
+  },
+  {
+    "parser": "eightfold",
+    "filename": "ptc-careers.html",
+    "url": "https://careers.ptc.com/careers?domain=ptc.com",
+    "type": "html"
+  },
+  {
+    "parser": "eightfold",
+    "filename": "ptc-pcsx-page1.json",
+    "url": "https://careers.ptc.com/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+    "type": "json",
+    "extraHeaders": {
+      "Accept": "application/json",
+      "Referer": "https://careers.ptc.com/careers?domain=ptc.com"
     }
   }
 ]

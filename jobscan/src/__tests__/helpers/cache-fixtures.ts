@@ -2,8 +2,8 @@
  * Cache HTML/JSON fixtures from live ATS pages to the fixtures directory.
  * 
  * Usage:
- *   npx tsx src/__tests__/helpers/cache-fixtures.ts
- *   npx tsx src/__tests__/helpers/cache-fixtures.ts greenhouse   # only greenhouse
+ *   npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh
+ *   npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh greenhouse   # only greenhouse
  * 
  * This fetches real pages and saves them for offline test usage.
  * Run this periodically to update fixtures if ATS page format changes.
@@ -254,8 +254,8 @@ const FIXTURES: FixtureSpec[] = [
   },
 
   // NEWWORK Software — WordPress REST API (jobs CPT; currently 0 published,
-  // fixture is synthetic — see fixtures/newwork/jobs-api.json)
-  // When the company publishes jobs, uncomment and run to refresh:
+  // checked-in fixture is now a genuine live response)
+  // This source is maintained in live-capture-settings/manual-sources.json:
   // {
   //   parser: 'newwork',
   //   filename: 'jobs-api.json',
@@ -537,11 +537,11 @@ const FIXTURES: FixtureSpec[] = [
   },
   // Note: Sitemap fixtures (cherryvc-sitemap.xml, hvcapital-sitemap.xml,
   // earlybird-sitemap.xml, playvc-sitemap.xml, femtechinsider-sitemap.xml,
-  // protocolai-sitemap.xml) are trimmed versions created manually.
+  // protocolai-sitemap.xml) historically used trimmed manual samples; live captures are complete.
   // Re-cache by fetching from the live sitemaps if needed.
 
   // Personio corporate careers — JSON API (all open positions)
-  // Note: sample-board.html and sample-board.xml are synthetic (hand-crafted).
+  // Historical assertions used synthetic samples; checked-in replacements are genuine live captures.
   {
     parser: 'personio',
     filename: 'personio-com-api.json',
@@ -555,7 +555,14 @@ const provenance: any[] = [];
 const crypto = require('node:crypto');
 const dns = require('node:dns/promises');
 const net = require('node:net');
-const allowed = new Set<string>(JSON.parse(fs.readFileSync('/home/coder/allowed-hosts.json', 'utf8')));
+const SETTINGS_DIR = path.join(__dirname, 'live-capture-settings');
+const EVIDENCE_DIR = path.join(__dirname, '..', '..', '..', 'live-capture-evidence');
+if (!process.argv.includes('--refresh')) {
+  console.error('Live network refresh is opt-in: pass --refresh. Normal tests use checked-in fixtures.');
+  process.exit(2);
+}
+fs.mkdirSync(EVIDENCE_DIR, {recursive: true});
+const allowed = new Set<string>(JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR, 'allowed-hosts.json'), 'utf8')));
 async function checkUrl(url: string) {
   const u = new URL(url);
   if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password || !allowed.has(u.hostname) || (u.port && !['80','443'].includes(u.port))) throw new Error('unapproved URL: '+url);
@@ -609,18 +616,20 @@ async function fetchFixture(spec: FixtureSpec): Promise<void> {
     if(spec.filename.endsWith('.html')) valid=valid && /<!doctype html|<html[\s>]/i.test(text);
     record.typeValid=valid;
     if(res.ok && valid) {const dest=path.join(FIXTURES_DIR,spec.parser,spec.filename);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);record.saved=true;}
-    else {const dest=path.join('/home/coder/capture-failures',spec.parser,spec.filename);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);record.failureCapture=dest;}
+    else {const dest=path.join(EVIDENCE_DIR,'failures',spec.parser,spec.filename);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);record.failureCapture=path.relative(path.dirname(EVIDENCE_DIR),dest);}
   } catch(e) {record.error=String(e);}
-  fs.writeFileSync('/home/coder/provenance.json',JSON.stringify(provenance,null,2));
+  fs.writeFileSync(path.join(EVIDENCE_DIR,'provenance.json'),JSON.stringify(provenance,null,2));
   console.log(JSON.stringify(record));
 }
 async function main() {
-  const extra: FixtureSpec[] = JSON.parse(fs.readFileSync('/home/coder/manual-sources.json','utf8'));
+  const extra: FixtureSpec[] = JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR,'manual-sources.json'),'utf8'));
   const only=process.env.ONLY_PATHS ? JSON.parse(process.env.ONLY_PATHS) as string[] : undefined;
-  const specs=[...FIXTURES,...extra].filter(s=>!only || only.includes(`${s.parser}/${s.filename}`));
+  const merged=new Map([...FIXTURES,...extra].map(s=>[`${s.parser}/${s.filename}`,s]));
+  const parser=process.argv.slice(2).find(a=>!a.startsWith('--'));
+  const specs=[...merged.values()].filter(s=>(!only || only.includes(`${s.parser}/${s.filename}`)) && (!parser || s.parser===parser));
   let next=0;
   await Promise.all(Array.from({length:4},async()=>{while(next<specs.length) await fetchFixture(specs[next++]);}));
-  const expected:string[]=JSON.parse(fs.readFileSync('/home/coder/expected.json','utf8'));
+  const expected:string[]=JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR,'expected.json'),'utf8'));
   const missing=expected.filter(p=>!fs.existsSync(path.join(FIXTURES_DIR,p)));
   console.log(JSON.stringify({attempted:specs.length,saved:provenance.filter(p=>p.saved).length,expected:expected.length,missing}));
   if(missing.length) process.exitCode=2;
