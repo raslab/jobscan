@@ -2,7 +2,7 @@
 
 Normal fixture loading is filesystem-only and uses the checked-in `src/__tests__/fixtures/` assets. There is no default download hook. Full integration tests retain their original network behavior; no tests, assertions or application parsers were changed.
 
-These October 12, 2026 captures are raw complete public-source response bodies, not historical or synthetic originals. `live-fixture-provenance.json` records source/final URL, timestamp, HTTP method/status, redirects, bytes and SHA256. Complete live sitemaps are not trimmed. Alternative live vacancies/company boards retain loader filenames without pretending their content matches historical titles/entities. `FIXTURE-PRD.json` defines the eight-field scoped specification; SHA256: `eb2c5c0f427d4f6830f6ca70c20620a0e34c6b93ffbbc93022b4313058e711e0`.
+These October 12, 2026 captures are raw complete public-source response bodies, not historical or synthetic originals. `live-fixture-provenance.json` records source/final URL, timestamp, HTTP method/status, redirects, bytes and SHA256. Complete live sitemaps are not trimmed. Alternative live vacancies/company boards retain loader filenames without pretending their content matches historical titles/entities. `PRDs/fixture-storage/FIXTURE-PRD.json` defines the eight-field scoped specification; SHA256: `6b1834eacd2436d710d27fe106af5718d6e20d244541c5b039a41c88711d7c44`.
 
 ## Explicit maintenance refresh
 
@@ -22,7 +22,7 @@ The downloader uses four workers, 20-second request bounds, six redirect respons
 
 ## Preserved failures and acceptance
 
-`live-capture-failures/initial/` and `live-capture-failures/final/` contain actual error bodies, outside all loader fixture paths. Their manifest records retain HTTP404 status even when the body parses as HTML/JSON. One intermediate retry's failure bodies were not archived due to an evidence-path packaging defect; its raw recorded metadata remains and original/final responses are retained separately. The evidence path was corrected before the final candidate, then exercised in a fresh sandbox.
+Failure bodies are recorded in the provenance manifests (`failureCapture` paths in `live-fixture-provenance.json`) but are intentionally **not committed**: this PR adds only test fixtures, not temporary intermediate capture data. The manifest records retain HTTP404 status even when the body parses as HTML/JSON, and the recorded paths point at the capture workspace's evidence directory rather than tracked repository files. One intermediate retry's failure bodies were not archived due to an evidence-path packaging defect; its raw recorded metadata remains and original/final responses are retained separately. The evidence path was corrected before the final candidate, then exercised in a fresh sandbox.
 
 69 of 76 expected paths are captured and verified. Remaining seven: PTC HTML/API; Protocol Labs company HTML/sitemap (approved redirects followed, final404); Hightouch HTML/API and legacy synthetic filename (final404). No missing response was reconstructed.
 

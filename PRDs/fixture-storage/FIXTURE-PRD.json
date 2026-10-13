@@ -11,9 +11,8 @@
     "jobscan/src/__tests__/helpers/fixture-loader.ts",
     "jobscan/src/__tests__/helpers/live-capture-settings/**",
     "jobscan/live-fixture-provenance.json",
-    "jobscan/live-capture-failures/**",
     "jobscan/LIVE-FIXTURES.md",
-    "jobscan/FIXTURE-PRD.json"
+    "PRDs/fixture-storage/FIXTURE-PRD.json"
   ],
   "non_goals": [
     "No test/assertion/parser/application changes",
