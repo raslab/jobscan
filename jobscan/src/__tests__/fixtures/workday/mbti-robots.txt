@@ -1,0 +1,5 @@
+Sitemap: https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/MBTI_JOBPORTAL/siteMap.xml
+
+User-agent: *
+Allow: /MBTI_JOBPORTAL/
+Disallow: /refreshFacet/

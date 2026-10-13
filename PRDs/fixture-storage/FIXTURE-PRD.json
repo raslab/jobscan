@@ -1,0 +1,52 @@
+{
+  "objective": "Store genuine raw downloaded fixture bytes for filesystem-default tests; opt-in portable refresh.",
+  "authority": "Owner conversation fixture-storage scope and unchanged schema/data-drift exception only; no fabricated approval or PR_READY.",
+  "baseline_and_branch": {
+    "baseline": "a15790d4484567350a0cda087949b927c13cbbf9",
+    "branch": "fixtures/live-captures-20261012"
+  },
+  "approved_paths": [
+    "jobscan/src/__tests__/fixtures/**",
+    "jobscan/src/__tests__/helpers/cache-fixtures.ts",
+    "jobscan/src/__tests__/helpers/fixture-loader.ts",
+    "jobscan/src/__tests__/helpers/live-capture-settings/**",
+    "jobscan/live-fixture-provenance.json",
+    "jobscan/LIVE-FIXTURES.md",
+    "PRDs/fixture-storage/FIXTURE-PRD.json"
+  ],
+  "non_goals": [
+    "No test/assertion/parser/application changes",
+    "No synthetic or trimmed snapshots",
+    "No hooks, credentials, profiles, cron, GitHub writes or test-contract migration"
+  ],
+  "acceptance_and_failure_policy": [
+    "Verify genuine capture bytes/hash/provenance and failure-body separation",
+    "Run required unit/full/build/MCP on exact frozen candidate in fresh credential-free sandbox",
+    "Unchanged current website schema/data assertion failures may remain red for this fixture-storage PR only",
+    "Missing captures remain explicit gaps; introduced packaging/code regression is not waived",
+    "Independent fixture-only review and parent publication still required; no claim of all-green or normal PR_READY"
+  ],
+  "capture_gaps": {
+    "expected": 76,
+    "captured": 69,
+    "missing": [
+      "eightfold/ptc-careers.html",
+      "eightfold/ptc-pcsx-page1.json",
+      "getro/protocolai-pljobboard.html",
+      "getro/protocolai-sitemap.xml",
+      "greenhouse/hightouch-api.json",
+      "greenhouse/hightouch.html",
+      "greenhouse/legacy-synthetic.html"
+    ],
+    "semantics": "Fresh alternative vacancy/board captures are not historical expected titles or entities; paths preserved without assertions changed."
+  },
+  "stop_limits": {
+    "acquisition_minutes": 8,
+    "total_minutes": 12,
+    "workers": 4,
+    "request_seconds": 20,
+    "max_redirect_responses": 6,
+    "max_response_bytes": 8388608,
+    "boundaries": "Public declared/necessary related hosts only; never credentials/private/control endpoints; stop at budget or remaining unavailable sources."
+  }
+}

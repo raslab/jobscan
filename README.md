@@ -105,18 +105,18 @@ See `SECURITY.md` for vulnerability reporting and deployment cautions.
 
 ## Development commands
 
-```bash
-cd jobscan
-npm ci
-npm run build
+From the repository root, everything is bound through npm scripts:
 
-cd ../jobscan-mcp
-npm ci
-npm run build
-npm test
+```bash
+npm run check:env    # one-time sandbox bootstrap: Postgres + install/build + dev server
+npm run check:build  # jobscan install + build
+npm run check:unit   # jobscan unit tests (no services needed)
+npm run check:full   # jobscan full Jest suite (needs Postgres + running dev server)
+npm run check:mcp    # jobscan-mcp install + build + tests
+npm run check        # all four canonical checks in order
 ```
 
-The full JobScan Jest suite needs generated parser fixtures and a running dev server. A future CI workflow should at least verify a clean JobScan build and the MCP build/tests.
+`npm run check:env` runs `tools/canonical-check.sh`, which starts Postgres, installs dependencies, builds the app and starts the dev server on `http://localhost:3000` so `check:full` can run. The full JobScan Jest suite uses the checked-in parser fixtures under `jobscan/src/__tests__/fixtures/` and expects that dev server; see `jobscan/LIVE-FIXTURES.md` for the opt-in fixture refresh path. A future CI workflow should at least verify a clean JobScan build and the MCP build/tests.
 
 ## Documentation
 

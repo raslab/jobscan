@@ -1,0 +1,2948 @@
+{
+  "baseline": "a15790d4484567350a0cda087949b927c13cbbf9",
+  "freshNotHistorical": true,
+  "captures": [
+    {
+      "path": "greenhouse/hightouch.html",
+      "sourceUrl": "https://job-boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:13.924Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/greenhouse/hightouch.html",
+      "batch": "initial"
+    },
+    {
+      "path": "greenhouse/nuitee.html",
+      "sourceUrl": "https://job-boards.eu.greenhouse.io/nuitee",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:13.931Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://job-boards.eu.greenhouse.io/nuitee",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://job-boards.eu.greenhouse.io/nuitee",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 43209,
+      "sha256": "c62b350264e229bc387154cb74da80cb519d4d30137e224ce379dd6fad5f4cb0",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "greenhouse/hightouch-api.json",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:13.932Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "status": 404,
+      "contentType": "application/json",
+      "bytes": 38,
+      "sha256": "76fe0d64c21edde1aa258ae01c07a04323d95ab31b21822348d9e3f1f400dffe",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/greenhouse/hightouch-api.json",
+      "batch": "initial"
+    },
+    {
+      "path": "smartrecruiters/polygon-api.json",
+      "sourceUrl": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings?limit=100&offset=0",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:13.932Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings?limit=100&offset=0",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings?limit=100&offset=0",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 2471,
+      "sha256": "3e3f98cd8d32c4318941b49a4decd79acb387b33853c6330ab87cf876f3d2b65",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "smartrecruiters/polygon-job-detail.json",
+      "sourceUrl": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings/744000112031467",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.145Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings/744000112031467",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.smartrecruiters.com/v1/companies/PolygonTechnology/postings/744000112031467",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 6425,
+      "sha256": "a18743dbfcc7a0878d0e83689d16c565322bda37f0a622458e435cb8295cdbf1",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "smartrecruiters/polygon.html",
+      "sourceUrl": "https://careers.smartrecruiters.com/PolygonTechnology",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.216Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.smartrecruiters.com/PolygonTechnology",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.smartrecruiters.com/PolygonTechnology",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 99086,
+      "sha256": "de2c27e8caa2f9a33b9397b802bf1c9f23ad37c28c04fb81c8261ad923b3a92a",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "smartrecruiters/root-page.html",
+      "sourceUrl": "https://jobs.smartrecruiters.com/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.243Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.smartrecruiters.com/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.smartrecruiters.com/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 33160,
+      "sha256": "5f313b3065867a75e08703742f4f6d1757c3553bf2b5c391780cdb79a444dc4c",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/payfit.html",
+      "sourceUrl": "https://careers.payfit.com/jobs",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.287Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.payfit.com/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.payfit.com/jobs",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 109830,
+      "sha256": "600d9d7d5eb5b08f5cb658ec2778c2f55fc75c1fadfa1121003e78514286e9b8",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/payfit-rss.xml",
+      "sourceUrl": "https://careers.payfit.com/jobs.rss?per_page=500",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.422Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.payfit.com/jobs.rss?per_page=500",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.payfit.com/jobs.rss?per_page=500",
+      "status": 200,
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 134458,
+      "sha256": "140bd7051f91fedd1e009b37c3657a25c226a6a60b64799795d15823b2d84c38",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/doccla-root.html",
+      "sourceUrl": "https://careers.doccla.com/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.433Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.doccla.com/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.doccla.com/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67654,
+      "sha256": "26eb66251bec96d628c5e07e7fc08b9746057e6939f404f7b5676b3cd82afe83",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/doccla-jobs.html",
+      "sourceUrl": "https://careers.doccla.com/jobs",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.485Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.doccla.com/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.doccla.com/jobs",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 92388,
+      "sha256": "ca043db020491dc9c63a5e1bceaa9789df1704f81bfcd1e1fca720b7c5a863df",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/doccla-rss.xml",
+      "sourceUrl": "https://careers.doccla.com/jobs.rss?per_page=500",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.548Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.doccla.com/jobs.rss?per_page=500",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.doccla.com/jobs.rss?per_page=500",
+      "status": 200,
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 50034,
+      "sha256": "13cee78183f63f20ed918ade2fa0f8b0cd9f883a63335b6bf9b3d770bf7c5445",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "ycombinator/taktile.html",
+      "sourceUrl": "https://www.ycombinator.com/companies/taktile/jobs",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.563Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.ycombinator.com/companies/taktile/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.ycombinator.com/companies/taktile/jobs",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 144673,
+      "sha256": "fac47f5e20d5f0ce4e9833ad660676b5a13a687b012d713178ccde1888d67f6a",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "ycombinator/doordash.html",
+      "sourceUrl": "https://www.ycombinator.com/companies/doordash/jobs",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.567Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.ycombinator.com/companies/doordash/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.ycombinator.com/companies/doordash/jobs",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 159177,
+      "sha256": "f495d4a00992305c0455c21950a7589ab9d69659d62a039e7172329fbf2ccb63",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "ycombinator/taktile-job-detail.html",
+      "sourceUrl": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.616Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 1152,
+      "sha256": "0331dd450070851ae4c367295ac4adfdef08ebb05258ba5d39ff4dd3bc0b6554",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/ycombinator/taktile-job-detail.html",
+      "batch": "initial"
+    },
+    {
+      "path": "dynatrace/dynatrace-api.json",
+      "sourceUrl": "https://www.dynatrace.com/api/coveo/search/",
+      "method": "POST",
+      "capturedAt": "2026-10-12T06:11:14.664Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.dynatrace.com/api/coveo/search/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.dynatrace.com/api/coveo/search/",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 139616,
+      "sha256": "606f03f2d5b49c29a5eb59bedc7f03ceb4ab457f52593451c654695f463d99ed",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "picnic/jobs.html",
+      "sourceUrl": "https://jobs.picnic.app/en/jobs",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:14.961Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.picnic.app/en/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.picnic.app/en/jobs",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 530237,
+      "sha256": "bc28da91f749a3d81749fe9c126c0ed8af3a32ed2375ca70a145c934e8716e91",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "freenow/freenow-api.json",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/freenow/jobs?content=true",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.004Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/freenow/jobs?content=true",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://boards-api.greenhouse.io/v1/boards/freenow/jobs?content=true",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 252810,
+      "sha256": "4d2e6f9e13dd1379595081c7626b619e755561ee23a624cf1c3fa66fe5e79cfb",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/ptc-careers.html",
+      "sourceUrl": "https://ptc.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.031Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ptc.eightfold.ai/careers",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://ptc.eightfold.ai/careers",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 3421,
+      "sha256": "d6658da353b8c85e66e1db4a43a0a27017611ebb7715329c666e9a8be9ecaf9a",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/eightfold/ptc-careers.html",
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/ptc-pcsx-page1.json",
+      "sourceUrl": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.137Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 3397,
+      "sha256": "e0ce512ad17211ae0321b06075a5ee3e38517709e412d0ed0033217361201dc4",
+      "typeValid": false,
+      "failureCapture": "live-capture-failures/initial/eightfold/ptc-pcsx-page1.json",
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/morganstanley-careers.html",
+      "sourceUrl": "https://morganstanley.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.147Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://morganstanley.eightfold.ai/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://morganstanley.eightfold.ai/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 230960,
+      "sha256": "b44375b3e9d773676292eaeaa78bb4b7011a1481329c2c38838d7ce1c3dd99b6",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/morganstanley-pcsx-page1.json",
+      "sourceUrl": "https://morganstanley.eightfold.ai/api/pcsx/search?domain=morganstanley.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.211Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://morganstanley.eightfold.ai/api/pcsx/search?domain=morganstanley.com&num_jobs=10&start=0&query=",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://morganstanley.eightfold.ai/api/pcsx/search?domain=morganstanley.com&num_jobs=10&start=0&query=",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 17456,
+      "sha256": "535a909f2ab9a0daae40a4dbf048ad69fc55a3b034a3002f074539a4e434a647",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/telekom-growthhub-careers.html",
+      "sourceUrl": "https://telekom-growthhub.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.674Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://telekom-growthhub.eightfold.ai/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://telekom-growthhub.eightfold.ai/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 210710,
+      "sha256": "cfe3ee3ff5751dcc6d309ba7a2863d95d3ab7b8d6e905afa80ea104fb581b75a",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/telekom-growthhub-pcsx-page1.json",
+      "sourceUrl": "https://telekom-growthhub.eightfold.ai/api/pcsx/search?domain=telekom-growthhub.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.715Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://telekom-growthhub.eightfold.ai/api/pcsx/search?domain=telekom-growthhub.com&num_jobs=10&start=0&query=",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://telekom-growthhub.eightfold.ai/api/pcsx/search?domain=telekom-growthhub.com&num_jobs=10&start=0&query=",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 35984,
+      "sha256": "de536ef0e113fa8b6cec188103a779a49d7c7336f925d72317fc308d2b256f9e",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/app-careers.html",
+      "sourceUrl": "https://app.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.830Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://app.eightfold.ai/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://app.eightfold.ai/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 161014,
+      "sha256": "1200fb898e28c3097abef7365c9f5101f94738f2a7f2599a0a05c08366229b61",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/app-pcsx-page1.json",
+      "sourceUrl": "https://app.eightfold.ai/api/pcsx/search?domain=volkscience.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.950Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://app.eightfold.ai/api/pcsx/search?domain=volkscience.com&num_jobs=10&start=0&query=",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://app.eightfold.ai/api/pcsx/search?domain=volkscience.com&num_jobs=10&start=0&query=",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 7679,
+      "sha256": "e04d1c5459f7f9c5faeac7783c1dce38b1f41f6fd3814620cf3caf1afc2a1ed5",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/ngc-careers.html",
+      "sourceUrl": "https://ngc.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:15.952Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ngc.eightfold.ai/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://ngc.eightfold.ai/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 238757,
+      "sha256": "05bcca1c4c7498debbc0c6c907f35ce3ff1d512970583e10515d6bdf002f99be",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/ngc-pcsx-page1.json",
+      "sourceUrl": "https://ngc.eightfold.ai/api/pcsx/search?domain=ngc.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.048Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ngc.eightfold.ai/api/pcsx/search?domain=ngc.com&num_jobs=10&start=0&query=",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://ngc.eightfold.ai/api/pcsx/search?domain=ngc.com&num_jobs=10&start=0&query=",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 19325,
+      "sha256": "d2367881622c3584b4f80ecec1e34dd1948465f99cc4c34098549418b6955886",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/netflix-careers.html",
+      "sourceUrl": "http://netflix.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.394Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "http://netflix.eightfold.ai/careers",
+          "status": 301,
+          "location": "https://netflix.eightfold.ai/careers"
+        },
+        {
+          "url": "https://netflix.eightfold.ai/careers",
+          "status": 307,
+          "location": "https://explore.jobs.netflix.net/careers"
+        }
+      ],
+      "saved": false,
+      "error": "Error: unapproved URL: https://explore.jobs.netflix.net/careers",
+      "batch": "initial"
+    },
+    {
+      "path": "eightfold/netflix-standard-page1.json",
+      "sourceUrl": "http://netflix.eightfold.ai/api/apply/v2/jobs?domain=netflix.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.396Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "http://netflix.eightfold.ai/api/apply/v2/jobs?domain=netflix.com&num_jobs=10&start=0&query=",
+          "status": 301,
+          "location": "https://netflix.eightfold.ai/api/apply/v2/jobs?domain=netflix.com&num_jobs=10&start=0&query="
+        },
+        {
+          "url": "https://netflix.eightfold.ai/api/apply/v2/jobs?domain=netflix.com&num_jobs=10&start=0&query=",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://netflix.eightfold.ai/api/apply/v2/jobs?domain=netflix.com&num_jobs=10&start=0&query=",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 21503,
+      "sha256": "f44e35da0609a1bdd3dbff5673013e8055821d6d0fcfdf4c271bf414f88179c9",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "otto/jobsearch-en.html",
+      "sourceUrl": "https://www.otto.de/jobs/en/jobsearch/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.802Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.otto.de/jobs/en/jobsearch/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.otto.de/jobs/en/jobsearch/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 345394,
+      "sha256": "4d95f2971d3d76bd887d116b993212073e740edcf6a813f8c5afb891413d3ac0",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "jobylon/withsecure-embed.js",
+      "sourceUrl": "https://cdn.jobylon.com/jobs/companies/505/embed/v1/?page_size=100",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.807Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cdn.jobylon.com/jobs/companies/505/embed/v1/?page_size=100",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://cdn.jobylon.com/jobs/companies/505/embed/v1/?page_size=100",
+      "status": 200,
+      "contentType": "text/javascript",
+      "bytes": 15387,
+      "sha256": "d3128b99b3958cfbc2d1726fbcff84d6e40770429c29f4466214b54d78c24074",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "jobylon/pwc-embed.js",
+      "sourceUrl": "https://cdn.jobylon.com/jobs/companies/502/embed/v1/?page_size=100",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.933Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cdn.jobylon.com/jobs/companies/502/embed/v1/?page_size=100",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://cdn.jobylon.com/jobs/companies/502/embed/v1/?page_size=100",
+      "status": 200,
+      "contentType": "text/javascript",
+      "bytes": 10205,
+      "sha256": "4768f7c5066ede9f066cf7ca1a57cbc950bfb77af8e9a801b46e4371ecd53929",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "jobylon/withsecure-job-detail.html",
+      "sourceUrl": "https://emp.jobylon.com/jobs/328902-withsecure-senior-sw-security-architect/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:16.999Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://emp.jobylon.com/jobs/328902-withsecure-senior-sw-security-architect/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://emp.jobylon.com/jobs/328902-withsecure-senior-sw-security-architect/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 102090,
+      "sha256": "a1529ef46cda2e5d44a6d6bfaea6564f676d77fd3299f95e8f93fbdf7adcdd1c",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "jobylon/withsecure-company.html",
+      "sourceUrl": "https://emp.jobylon.com/companies/505/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.083Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://emp.jobylon.com/companies/505/",
+          "status": 302,
+          "location": "/companies/505-withsecure/"
+        },
+        {
+          "url": "https://emp.jobylon.com/companies/505-withsecure/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://emp.jobylon.com/companies/505-withsecure/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 119796,
+      "sha256": "7a34f0d2d0077b05fbb3639574340f6b90ae7d157eae8245effa8eb5beeb34e9",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "dvinci/cenit-listing.html",
+      "sourceUrl": "https://cenit.dvinci-hr.com/en/jobs/iframe",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.200Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobs/iframe",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://cenit.dvinci-hr.com/en/jobs/iframe",
+      "status": 200,
+      "contentType": "text/html;charset=UTF-8",
+      "bytes": 7194,
+      "sha256": "86cd42dd63c56400dff814df70acdcb432271ffc07ba2119094524ec21aedb1a",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "dvinci/krones-listing.html",
+      "sourceUrl": "https://krones.dvinci-hr.com/en/jobs/iframe",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.206Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://krones.dvinci-hr.com/en/jobs/iframe",
+          "status": 301,
+          "location": "https://jobs.krones.group/en/jobs/iframe"
+        }
+      ],
+      "saved": false,
+      "error": "Error: unapproved URL: https://jobs.krones.group/en/jobs/iframe",
+      "batch": "initial"
+    },
+    {
+      "path": "dvinci/cenit-job-detail.html",
+      "sourceUrl": "https://cenit.dvinci-hr.com/en/jobs/30513/digital-manufacturing-application-engineer-mfd",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.272Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobs/30513/digital-manufacturing-application-engineer-mfd",
+          "status": 302,
+          "location": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513"
+        },
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513",
+      "status": 404,
+      "contentType": "text/html;charset=utf-8",
+      "bytes": 4165,
+      "sha256": "3ef0e8cb8378a75374373f1b20b83a55c25bc322aad228c981d6c6ec858bd3cd",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/dvinci/cenit-job-detail.html",
+      "batch": "initial"
+    },
+    {
+      "path": "dymatrix/listing-page1.html",
+      "sourceUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.346Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.dymatrix.de/de/unternehmen/stellenangebote",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 101033,
+      "sha256": "9e35371f0c6c79cbadab8e03ef782b0396e6a47f21c5c05947cd9a45998abc59",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "dymatrix/listing-page2.html",
+      "sourceUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=2",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.458Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=2",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=2",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 88613,
+      "sha256": "11c46e4804a4be837761179cc92d58dd86709746559edb1b9af68ca2f7045b4b",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "dymatrix/listing-page3.html",
+      "sourceUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=3",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.607Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=3",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote?tx_udgjobs_jobslist%5Bcontroller%5D=Jobs&tx_udgjobs_jobslist%5BcurrentPageNumber%5D=3",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 88601,
+      "sha256": "66889e2f36e3f2926b8b120e683ff21346ccfb635cafd65ab5ddf833e373a691",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "dymatrix/detail-technical-csm.html",
+      "sourceUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote/details/technical-customer-success-manager-all-genders",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:17.693Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.dymatrix.de/de/unternehmen/stellenangebote/details/technical-customer-success-manager-all-genders",
+          "status": 303,
+          "location": "https://www.dymatrix.de/de/unternehmen/stellenangebote"
+        },
+        {
+          "url": "https://www.dymatrix.de/de/unternehmen/stellenangebote",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.dymatrix.de/de/unternehmen/stellenangebote",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 101033,
+      "sha256": "9e35371f0c6c79cbadab8e03ef782b0396e6a47f21c5c05947cd9a45998abc59",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "rohdeschwarz/page-0.html",
+      "sourceUrl": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=0",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:18.549Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=0",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=0",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 168622,
+      "sha256": "f43d834f347f825491b7ee8fb5fa03c81527a4c6ea6c963be5e2a2a4a5849160",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "rohdeschwarz/page-30.html",
+      "sourceUrl": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=30",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:18.649Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=30",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.rohde-schwarz.com/de/karriere/stellenangebote/karriere-stellenangebote_251573.html?offset=30",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 169180,
+      "sha256": "4c880f01be54781b32f95f6e63ea960e48a6498e89042f1de2323cd74aefd3dc",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "schwarzit/schwarz-digits-api.json",
+      "sourceUrl": "https://schwarz-digits.de/en/api/v1/job/search",
+      "method": "POST",
+      "capturedAt": "2026-10-12T06:11:18.836Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://schwarz-digits.de/en/api/v1/job/search",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://schwarz-digits.de/en/api/v1/job/search",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 26078,
+      "sha256": "d38f72a178c91b5a611031e680491c2fdc62213ba246d83fe7778fb91a30dfd2",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "schwarzit/schwarz-digits.html",
+      "sourceUrl": "https://schwarz-digits.de/en/jobsearch?itemsPerPage=100",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:18.886Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://schwarz-digits.de/en/jobsearch?itemsPerPage=100",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://schwarz-digits.de/en/jobsearch?itemsPerPage=100",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 63325,
+      "sha256": "3398aa948c91bd5ebb0bf68df5d576e737166102f18860e28eb03295adc15f3c",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "schwarzit/jobs-schwarz-api.json",
+      "sourceUrl": "https://jobs.schwarz/en/api/v1/job/search",
+      "method": "POST",
+      "capturedAt": "2026-10-12T06:11:19.026Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.schwarz/en/api/v1/job/search",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.schwarz/en/api/v1/job/search",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 332,
+      "sha256": "060f03576ad8a82e560f9c90efc71ecf5ec359b439ab0c9e472695f6feff7a75",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "workday/mbti-career.html",
+      "sourceUrl": "https://www.mercedes-benz-techinnovation.com/en/career",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:19.178Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.mercedes-benz-techinnovation.com/en/career",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.mercedes-benz-techinnovation.com/en/career",
+      "status": 200,
+      "contentType": "text/html",
+      "bytes": 57727,
+      "sha256": "0b855f2cb19e1da1bece0b398c1e92b24583182b1e66810401b48e8aeb340da6",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "workday/mbti-api.json",
+      "sourceUrl": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/wday/cxs/mercedesbenztechinnovation/MBTI_JOBPORTAL/jobs",
+      "method": "POST",
+      "capturedAt": "2026-10-12T06:11:19.252Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/wday/cxs/mercedesbenztechinnovation/MBTI_JOBPORTAL/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/wday/cxs/mercedesbenztechinnovation/MBTI_JOBPORTAL/jobs",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 4795,
+      "sha256": "0515b026e03b967c72bea62aaa00d5286bbbb2ee02367ad3d2da519eafe4ebe3",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "workday/zalando-api.json",
+      "sourceUrl": "https://zalando.wd3.myworkdayjobs.com/wday/cxs/zalando/ZalandoSiteWD/jobs",
+      "method": "POST",
+      "capturedAt": "2026-10-12T06:11:19.581Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://zalando.wd3.myworkdayjobs.com/wday/cxs/zalando/ZalandoSiteWD/jobs",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://zalando.wd3.myworkdayjobs.com/wday/cxs/zalando/ZalandoSiteWD/jobs",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 9962,
+      "sha256": "6ea8614c177b9be9f84a12dc968694904923de3be122f328b8da6b15bbe0fda1",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/cherryvc-afilio.html",
+      "sourceUrl": "https://talent.cherry.vc/companies/afilio",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:19.755Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://talent.cherry.vc/companies/afilio",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://talent.cherry.vc/companies/afilio",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 131539,
+      "sha256": "1f8525461a9e64e51ceb12ade09c64cf5e88e4b49215531efb3539c14311d359",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/cherryvc-afilio-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/72434174-senior-software-engineer-f-m-d?collection_id=44081",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:19.796Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/72434174-senior-software-engineer-f-m-d?collection_id=44081",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/72434174-senior-software-engineer-f-m-d?collection_id=44081",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 13359,
+      "sha256": "a9baa1b082959d66bd0a3b6eab7acca49f5559ff1fb744d83662836432d1a46f",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/cherryvc-manual-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/72172025-growth-marketing-manager?collection_id=44081",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:19.838Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/72172025-growth-marketing-manager?collection_id=44081",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/72172025-growth-marketing-manager?collection_id=44081",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 8666,
+      "sha256": "15385c10908bfe63edd2a92b0381396324e1524fbad37c960f46889193be9f40",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/hvcapital-accessus.html",
+      "sourceUrl": "https://hv.getro.com/companies/accessus",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:19.987Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://hv.getro.com/companies/accessus",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://hv.getro.com/companies/accessus",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 106047,
+      "sha256": "19e45435aad4590ad6f7d5138ccdba797ac9e226f3ec1b082fa39003269bb31f",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/hvcapital-accessus-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/64706401-frontend-engineer?collection_id=234",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:20.283Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/64706401-frontend-engineer?collection_id=234",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/64706401-frontend-engineer?collection_id=234",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 6054,
+      "sha256": "ce0d7b06cb94ad670eca1595777719ccb50e0d710a784c565a6e1748d04fe59b",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/hvcapital-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/72231928-investment-intern-early-stage?collection_id=234",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:20.334Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/72231928-investment-intern-early-stage?collection_id=234",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/72231928-investment-intern-early-stage?collection_id=234",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 8707,
+      "sha256": "662c885c1d166cf982b405c8582f9c2560bd341df1edc49e860a867a13a20493",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/earlybird-finmid.html",
+      "sourceUrl": "https://jobs.earlybird.com/companies/finmid",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:20.503Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.earlybird.com/companies/finmid",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.earlybird.com/companies/finmid",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 601930,
+      "sha256": "edd8c8fa2de608ce72004f086c8f903f86cc3fb777cb7d7075411ce4386b1397",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/earlybird-finmid-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/70530489-senior-associate-operations-regulatory-infrastructure?collection_id=617",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:20.761Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/70530489-senior-associate-operations-regulatory-infrastructure?collection_id=617",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/70530489-senior-associate-operations-regulatory-infrastructure?collection_id=617",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 12934,
+      "sha256": "25e88ef6f4e3b924a08451e30c6c75ec3672898e1604f926f68c403cb398b97f",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/playvc-arya.html",
+      "sourceUrl": "https://careers.play.vc/companies/arya-2-7824848a-244e-4e51-acea-5f3f25c258e0",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:20.807Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.play.vc/companies/arya-2-7824848a-244e-4e51-acea-5f3f25c258e0",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.play.vc/companies/arya-2-7824848a-244e-4e51-acea-5f3f25c258e0",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 76067,
+      "sha256": "e70bd049e090a2d9ad80217bcf1b57b543b12867c2ff9b99375294be1673337f",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/playvc-arya-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/72043127-founding-finance-associate?collection_id=1624",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:21.021Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/72043127-founding-finance-associate?collection_id=1624",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/72043127-founding-finance-associate?collection_id=1624",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 6260,
+      "sha256": "5e410e4f9c8dd9d502d8f6f7bd4a9df54514dd49b62d7dca6180284b1463e8c6",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/femtechinsider-tia.html",
+      "sourceUrl": "https://jobs.femtechinsider.com/companies/tia",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:21.063Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.femtechinsider.com/companies/tia",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.femtechinsider.com/companies/tia",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 79329,
+      "sha256": "cc6b701d60aedc4be5db9091ece053a88ff2e87b22e941b317dc80b2d464dcb5",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/femtechinsider-tia-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/71959783-medical-assistant-williamsburg-on-site-full-time?collection_id=14612",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:21.200Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/71959783-medical-assistant-williamsburg-on-site-full-time?collection_id=14612",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/71959783-medical-assistant-williamsburg-on-site-full-time?collection_id=14612",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 14606,
+      "sha256": "48b570389403cd3697b3883da346f82380190e8ddccba7c93f87751307fef35e",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/protocolai-pljobboard.html",
+      "sourceUrl": "https://jobs.protocol.ai/companies/pl-job-board",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:21.557Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/companies/pl-job-board",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/companies/pl-job-board"
+        }
+      ],
+      "saved": false,
+      "error": "Error: unapproved URL: https://os.pl.xyz/jobs/companies/pl-job-board",
+      "batch": "initial"
+    },
+    {
+      "path": "getro/protocolai-pljobboard-job-detail.json",
+      "sourceUrl": "https://api.getro.com/api/v1/jobs/70490001-early-builder-group-ebg-programs-lead?collection_id=1336",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:21.582Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://api.getro.com/api/v1/jobs/70490001-early-builder-group-ebg-programs-lead?collection_id=1336",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://api.getro.com/api/v1/jobs/70490001-early-builder-group-ebg-programs-lead?collection_id=1336",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 14172,
+      "sha256": "14b5e645f9332c90953d7b7c87b21c0e23b6bf9ed4372357ffe61edfe3e165e6",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "personio/personio-com-api.json",
+      "sourceUrl": "https://www.personio.com/api/careers/jobs/list/",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:22.054Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.personio.com/api/careers/jobs/list/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.personio.com/api/careers/jobs/list/",
+      "status": 200,
+      "contentType": "application/json",
+      "bytes": 32047,
+      "sha256": "ef87e8ed17e3cff30af8a113682d2cec468806a8737cd27561427933c92fa145",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/cherryvc-sitemap.xml",
+      "sourceUrl": "https://talent.cherry.vc/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:22.250Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://talent.cherry.vc/sitemap.xml",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://talent.cherry.vc/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "bytes": 265558,
+      "sha256": "2311ee9b0d1ba90d586a40a14751707c73777228b3019130e0be14fe8a22a039",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/earlybird-sitemap.xml",
+      "sourceUrl": "https://jobs.earlybird.com/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:22.502Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.earlybird.com/sitemap.xml",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.earlybird.com/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "bytes": 147880,
+      "sha256": "2ca653791da2e01665e25162064a096815ad268d8efc0c405057511c8f0acbf6",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/femtechinsider-sitemap.xml",
+      "sourceUrl": "https://jobs.femtechinsider.com/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:22.728Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.femtechinsider.com/sitemap.xml",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.femtechinsider.com/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "bytes": 292231,
+      "sha256": "3576263ea323b59bcf7e3ae2f7bb3bb877cb8998ce6991c78c52c0e54a5b496c",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/hvcapital-sitemap.xml",
+      "sourceUrl": "https://hv.getro.com/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:23.234Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://hv.getro.com/sitemap.xml",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://hv.getro.com/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "bytes": 696775,
+      "sha256": "dde7db0841e82068b23781c1c56b0f005e5419d245157a717b617b482a1f5173",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/playvc-sitemap.xml",
+      "sourceUrl": "https://careers.play.vc/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:23.502Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.play.vc/sitemap.xml",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.play.vc/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "bytes": 52734,
+      "sha256": "571cf71d3e9f3dddac28792865619a88110219880fe861fb4675e3c9d7578925",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "getro/protocolai-sitemap.xml",
+      "sourceUrl": "https://jobs.protocol.ai/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:23.579Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/sitemap.xml",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/sitemap.xml"
+        }
+      ],
+      "saved": false,
+      "error": "Error: unapproved URL: https://os.pl.xyz/jobs/sitemap.xml",
+      "batch": "initial"
+    },
+    {
+      "path": "newwork/jobs-api.json",
+      "sourceUrl": "https://www.newwork.com/wp-json/wp/v2/jobs?per_page=100&_fields=id,title,link,content,excerpt,meta",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:23.906Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.newwork.com/wp-json/wp/v2/jobs?per_page=100&_fields=id,title,link,content,excerpt,meta",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.newwork.com/wp-json/wp/v2/jobs?per_page=100&_fields=id,title,link,content,excerpt,meta",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/hadrian-careers.html",
+      "sourceUrl": "https://hadrian.io/company/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:23.965Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://hadrian.io/company/careers",
+          "status": 301,
+          "location": "https://careers.hadrian.io"
+        },
+        {
+          "url": "https://careers.hadrian.io/",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.hadrian.io/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 153038,
+      "sha256": "d43d18e6cc7e111d65283092a84f6746593a6e92d9b8371f2555068c102feca1",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "teamtailor/hadrian-rss.xml",
+      "sourceUrl": "https://careers.hadrian.io/jobs.rss?per_page=500",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:24.240Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://careers.hadrian.io/jobs.rss?per_page=500",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://careers.hadrian.io/jobs.rss?per_page=500",
+      "status": 200,
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 78616,
+      "sha256": "028664a8f47fd492ee175508135f8df21a887549ecccb93e8c0d93643d6c9572",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "personio/sample-board.html",
+      "sourceUrl": "https://personio.jobs.personio.de/?language=en",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:24.437Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://personio.jobs.personio.de/?language=en",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://personio.jobs.personio.de/?language=en",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 2472,
+      "sha256": "ea90f29408ed36defc2ef1576acbbd7d9a46a34fa5400672c9144fdd2837a371",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/personio/sample-board.html",
+      "batch": "initial"
+    },
+    {
+      "path": "personio/sample-board.xml",
+      "sourceUrl": "https://personio.jobs.personio.de/xml?language=en",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:24.544Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://personio.jobs.personio.de/xml?language=en",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://personio.jobs.personio.de/xml?language=en",
+      "status": 200,
+      "contentType": "text/xml",
+      "bytes": 8550,
+      "sha256": "d3fc39d51dadf5ce5372d59ad6d02353d17f8fa20d597a5e3bcfa457403478de",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "workday/mbti-robots.txt",
+      "sourceUrl": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/robots.txt",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:24.708Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/robots.txt",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/robots.txt",
+      "status": 200,
+      "contentType": "text/plain;charset=ISO-8859-1",
+      "bytes": 156,
+      "sha256": "b2fd8117544087fdd2909aee9e08c5b92a167cea40d0553107378a5455242ac0",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "greenhouse/legacy-synthetic.html",
+      "sourceUrl": "https://boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:24.755Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards.greenhouse.io/hightouch",
+          "status": 301,
+          "location": "https://job-boards.greenhouse.io/hightouch"
+        },
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/initial/greenhouse/legacy-synthetic.html",
+      "batch": "initial"
+    },
+    {
+      "path": "otto/otto-api-de.json",
+      "sourceUrl": "https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/AusschreibungSet?$filter=ConsumerId%20eq%20%279814723%27",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:11:25.039Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/AusschreibungSet?$filter=ConsumerId%20eq%20%279814723%27",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "session": {
+        "url": "https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/create?ConsumerId=%279814723%27&hash=%27%27&langu=%27DE%27&mediumId=%272740%27&sttag=%2720160223%27",
+        "status": 200
+      },
+      "finalUrl": "https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/AusschreibungSet?$filter=ConsumerId%20eq%20%279814723%27",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 89423,
+      "sha256": "61ee616b9ef75cdedd547293879291fb7d0838c79933ad0356664bbd0ab8b337",
+      "typeValid": true,
+      "batch": "initial"
+    },
+    {
+      "path": "greenhouse/hightouch-api.json",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.134Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "status": 404,
+      "contentType": "application/json",
+      "bytes": 38,
+      "sha256": "76fe0d64c21edde1aa258ae01c07a04323d95ab31b21822348d9e3f1f400dffe",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "greenhouse/hightouch.html",
+      "sourceUrl": "https://job-boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.106Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "eightfold/ptc-careers.html",
+      "sourceUrl": "https://ptc.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.134Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ptc.eightfold.ai/careers",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://ptc.eightfold.ai/careers",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 3421,
+      "sha256": "757f84c749e6e13d49c719e3bdc9d6e53edef6ed3d82220789ce3a8dcd92fa9d",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "ycombinator/taktile-job-detail.html",
+      "sourceUrl": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.134Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://www.ycombinator.com/companies/taktile/jobs/g2XSHHS-senior-product-marketing-manager",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 1152,
+      "sha256": "0331dd450070851ae4c367295ac4adfdef08ebb05258ba5d39ff4dd3bc0b6554",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "eightfold/ptc-pcsx-page1.json",
+      "sourceUrl": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.494Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 3397,
+      "sha256": "5ad198228ba1c120adcb575fda8b2c0144a5c485680fc3d522481a65042fa6fc",
+      "typeValid": false,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "dvinci/cenit-job-detail.html",
+      "sourceUrl": "https://cenit.dvinci-hr.com/en/jobs/30513/digital-manufacturing-application-engineer-mfd",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:30.149Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobs/30513/digital-manufacturing-application-engineer-mfd",
+          "status": 302,
+          "location": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513"
+        },
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://cenit.dvinci-hr.com/en/jobPublication/notFound/30513",
+      "status": 404,
+      "contentType": "text/html;charset=utf-8",
+      "bytes": 4165,
+      "sha256": "333d8d123860d2f2e90bc514c4ee3ae315d492420286d358a82abd1fcb774357",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "eightfold/netflix-careers.html",
+      "sourceUrl": "http://netflix.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.500Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "http://netflix.eightfold.ai/careers",
+          "status": 301,
+          "location": "https://netflix.eightfold.ai/careers"
+        },
+        {
+          "url": "https://netflix.eightfold.ai/careers",
+          "status": 307,
+          "location": "https://explore.jobs.netflix.net/careers"
+        },
+        {
+          "url": "https://explore.jobs.netflix.net/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://explore.jobs.netflix.net/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53886,
+      "sha256": "41d4d49459c114f4e72113b27806647ec0dfa94aa80710a9c2b3fabd7c49870d",
+      "typeValid": true,
+      "batch": "redirect-retry"
+    },
+    {
+      "path": "dvinci/krones-listing.html",
+      "sourceUrl": "https://krones.dvinci-hr.com/en/jobs/iframe",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:29.935Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://krones.dvinci-hr.com/en/jobs/iframe",
+          "status": 301,
+          "location": "https://jobs.krones.group/en/jobs/iframe"
+        },
+        {
+          "url": "https://jobs.krones.group/en/jobs/iframe",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.krones.group/en/jobs/iframe",
+      "status": 200,
+      "contentType": "text/html;charset=UTF-8",
+      "bytes": 106857,
+      "sha256": "3513c446f95e822c8a82059d82e5034b209ec12bedd79892adbb9b58060e6127",
+      "typeValid": true,
+      "batch": "redirect-retry"
+    },
+    {
+      "path": "personio/sample-board.html",
+      "sourceUrl": "https://open.jobs.personio.de/?language=en",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:30.910Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://open.jobs.personio.de/?language=en",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://open.jobs.personio.de/?language=en",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 114000,
+      "sha256": "112213c4f767e75d48da40d9f2c0b9587da04eeaed3a5db24f041d8623e29c5e",
+      "typeValid": true,
+      "batch": "redirect-retry"
+    },
+    {
+      "path": "greenhouse/legacy-synthetic.html",
+      "sourceUrl": "https://boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:30.877Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards.greenhouse.io/hightouch",
+          "status": 301,
+          "location": "https://job-boards.greenhouse.io/hightouch"
+        },
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "getro/protocolai-pljobboard.html",
+      "sourceUrl": "https://jobs.protocol.ai/companies/pl-job-board",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:30.170Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/companies/pl-job-board",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/companies/pl-job-board"
+        },
+        {
+          "url": "https://os.pl.xyz/jobs/companies/pl-job-board",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://os.pl.xyz/jobs/companies/pl-job-board",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 116865,
+      "sha256": "e0bc698f2eee68023481f1dfca315809250627bed5b0a602e1eb0b38d8690afc",
+      "typeValid": true,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "getro/protocolai-sitemap.xml",
+      "sourceUrl": "https://jobs.protocol.ai/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:44:30.452Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/sitemap.xml",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/sitemap.xml"
+        },
+        {
+          "url": "https://os.pl.xyz/jobs/sitemap.xml",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://os.pl.xyz/jobs/sitemap.xml",
+      "status": 404,
+      "contentType": "application/json",
+      "bytes": 21,
+      "sha256": "c8d3eae160a892e32837db3dcae515e843e5383fef52b8141940c8bcf8b6d59f",
+      "typeValid": false,
+      "failureCapture": null,
+      "batch": "redirect-retry",
+      "failureBodyRetention": "Not retained from this retry; original/final failure bytes retained separately where available"
+    },
+    {
+      "path": "greenhouse/hightouch.html",
+      "sourceUrl": "https://job-boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.417Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/final/greenhouse/hightouch.html",
+      "batch": "final"
+    },
+    {
+      "path": "greenhouse/hightouch-api.json",
+      "sourceUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.420Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://boards-api.greenhouse.io/v1/boards/hightouch/jobs?content=true",
+      "status": 404,
+      "contentType": "application/json",
+      "bytes": 38,
+      "sha256": "76fe0d64c21edde1aa258ae01c07a04323d95ab31b21822348d9e3f1f400dffe",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/final/greenhouse/hightouch-api.json",
+      "batch": "final"
+    },
+    {
+      "path": "ycombinator/taktile-job-detail.html",
+      "sourceUrl": "https://www.ycombinator.com/companies/taktile/jobs/nUa2xkt-senior-business-development-representative",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.420Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://www.ycombinator.com/companies/taktile/jobs/nUa2xkt-senior-business-development-representative",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://www.ycombinator.com/companies/taktile/jobs/nUa2xkt-senior-business-development-representative",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 167346,
+      "sha256": "8fce734177468e6ecb1f477e9c19a399454159b114c0f2330114d861d3147d3b",
+      "typeValid": true,
+      "batch": "final"
+    },
+    {
+      "path": "eightfold/ptc-careers.html",
+      "sourceUrl": "https://careers.ptc.com/careers?domain=ptc.com",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.420Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [],
+      "saved": false,
+      "error": "Error: getaddrinfo ENOTFOUND careers.ptc.com",
+      "batch": "final"
+    },
+    {
+      "path": "eightfold/ptc-pcsx-page1.json",
+      "sourceUrl": "https://careers.ptc.com/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.530Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [],
+      "saved": false,
+      "error": "Error: getaddrinfo ENOTFOUND careers.ptc.com",
+      "batch": "final"
+    },
+    {
+      "path": "eightfold/netflix-careers.html",
+      "sourceUrl": "http://netflix.eightfold.ai/careers",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.601Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "http://netflix.eightfold.ai/careers",
+          "status": 301,
+          "location": "https://netflix.eightfold.ai/careers"
+        },
+        {
+          "url": "https://netflix.eightfold.ai/careers",
+          "status": 307,
+          "location": "https://explore.jobs.netflix.net/careers"
+        },
+        {
+          "url": "https://explore.jobs.netflix.net/careers",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://explore.jobs.netflix.net/careers",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53886,
+      "sha256": "f57e95463233707ccb13f3e80ba5edc5f2b9f8e87881bc2bf6753f03a20c87bc",
+      "typeValid": true,
+      "batch": "final"
+    },
+    {
+      "path": "dvinci/krones-listing.html",
+      "sourceUrl": "https://krones.dvinci-hr.com/en/jobs/iframe",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.773Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://krones.dvinci-hr.com/en/jobs/iframe",
+          "status": 301,
+          "location": "https://jobs.krones.group/en/jobs/iframe"
+        },
+        {
+          "url": "https://jobs.krones.group/en/jobs/iframe",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://jobs.krones.group/en/jobs/iframe",
+      "status": 200,
+      "contentType": "text/html;charset=UTF-8",
+      "bytes": 106857,
+      "sha256": "3513c446f95e822c8a82059d82e5034b209ec12bedd79892adbb9b58060e6127",
+      "typeValid": true,
+      "batch": "final"
+    },
+    {
+      "path": "dvinci/cenit-job-detail.html",
+      "sourceUrl": "https://cenit.dvinci-hr.com/en/jobs/30530/senior-sales-manager-product-lifecycle-management-plm-mwd",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.792Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://cenit.dvinci-hr.com/en/jobs/30530/senior-sales-manager-product-lifecycle-management-plm-mwd",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://cenit.dvinci-hr.com/en/jobs/30530/senior-sales-manager-product-lifecycle-management-plm-mwd",
+      "status": 200,
+      "contentType": "text/html;charset=UTF-8",
+      "bytes": 34976,
+      "sha256": "f3a5b2362d27a5e4551170c8cff1e5632ff121e7618c1278a9c8474fbe98e788",
+      "typeValid": true,
+      "batch": "final"
+    },
+    {
+      "path": "getro/protocolai-pljobboard.html",
+      "sourceUrl": "https://jobs.protocol.ai/companies/pl-job-board",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:35.949Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/companies/pl-job-board",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/companies/pl-job-board"
+        },
+        {
+          "url": "https://os.pl.xyz/jobs/companies/pl-job-board",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://os.pl.xyz/jobs/companies/pl-job-board",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 116865,
+      "sha256": "e0bc698f2eee68023481f1dfca315809250627bed5b0a602e1eb0b38d8690afc",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/final/getro/protocolai-pljobboard.html",
+      "batch": "final"
+    },
+    {
+      "path": "getro/protocolai-sitemap.xml",
+      "sourceUrl": "https://jobs.protocol.ai/sitemap.xml",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:36.255Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://jobs.protocol.ai/sitemap.xml",
+          "status": 301,
+          "location": "https://os.pl.xyz/jobs/sitemap.xml"
+        },
+        {
+          "url": "https://os.pl.xyz/jobs/sitemap.xml",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://os.pl.xyz/jobs/sitemap.xml",
+      "status": 404,
+      "contentType": "application/json",
+      "bytes": 21,
+      "sha256": "c8d3eae160a892e32837db3dcae515e843e5383fef52b8141940c8bcf8b6d59f",
+      "typeValid": false,
+      "failureCapture": "live-capture-failures/final/getro/protocolai-sitemap.xml",
+      "batch": "final"
+    },
+    {
+      "path": "greenhouse/legacy-synthetic.html",
+      "sourceUrl": "https://boards.greenhouse.io/hightouch",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:36.695Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://boards.greenhouse.io/hightouch",
+          "status": 301,
+          "location": "https://job-boards.greenhouse.io/hightouch"
+        },
+        {
+          "url": "https://job-boards.greenhouse.io/hightouch",
+          "status": 404,
+          "location": null
+        }
+      ],
+      "saved": false,
+      "finalUrl": "https://job-boards.greenhouse.io/hightouch",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 12249,
+      "sha256": "3294bb358dc768eff1ffc61eec8061a0d45736ea61b8b39f53a2057f077aee23",
+      "typeValid": true,
+      "failureCapture": "live-capture-failures/final/greenhouse/legacy-synthetic.html",
+      "batch": "final"
+    },
+    {
+      "path": "personio/sample-board.html",
+      "sourceUrl": "https://open.jobs.personio.de/?language=en",
+      "method": "GET",
+      "capturedAt": "2026-10-12T06:46:36.833Z",
+      "source": "genuine-live-web-not-historical",
+      "redirects": [
+        {
+          "url": "https://open.jobs.personio.de/?language=en",
+          "status": 200,
+          "location": null
+        }
+      ],
+      "saved": true,
+      "finalUrl": "https://open.jobs.personio.de/?language=en",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 114000,
+      "sha256": "df69faa3edbbf221067ac3baf6165333a89514cb25611ce8a08271fdb1ad82b7",
+      "typeValid": true,
+      "batch": "final"
+    }
+  ],
+  "validation": [
+    {
+      "path": "dvinci/cenit-job-detail.html",
+      "present": true,
+      "bytes": 34976,
+      "sha256": "f3a5b2362d27a5e4551170c8cff1e5632ff121e7618c1278a9c8474fbe98e788",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dvinci/cenit-listing.html",
+      "present": true,
+      "bytes": 7194,
+      "sha256": "86cd42dd63c56400dff814df70acdcb432271ffc07ba2119094524ec21aedb1a",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dvinci/krones-listing.html",
+      "present": true,
+      "bytes": 106857,
+      "sha256": "3513c446f95e822c8a82059d82e5034b209ec12bedd79892adbb9b58060e6127",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dymatrix/detail-technical-csm.html",
+      "present": true,
+      "bytes": 101033,
+      "sha256": "9e35371f0c6c79cbadab8e03ef782b0396e6a47f21c5c05947cd9a45998abc59",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dymatrix/listing-page1.html",
+      "present": true,
+      "bytes": 101033,
+      "sha256": "9e35371f0c6c79cbadab8e03ef782b0396e6a47f21c5c05947cd9a45998abc59",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dymatrix/listing-page2.html",
+      "present": true,
+      "bytes": 88613,
+      "sha256": "11c46e4804a4be837761179cc92d58dd86709746559edb1b9af68ca2f7045b4b",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dymatrix/listing-page3.html",
+      "present": true,
+      "bytes": 88601,
+      "sha256": "66889e2f36e3f2926b8b120e683ff21346ccfb635cafd65ab5ddf833e373a691",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "dynatrace/dynatrace-api.json",
+      "present": true,
+      "bytes": 139616,
+      "sha256": "606f03f2d5b49c29a5eb59bedc7f03ceb4ab457f52593451c654695f463d99ed",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/app-careers.html",
+      "present": true,
+      "bytes": 161014,
+      "sha256": "1200fb898e28c3097abef7365c9f5101f94738f2a7f2599a0a05c08366229b61",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/app-pcsx-page1.json",
+      "present": true,
+      "bytes": 7679,
+      "sha256": "e04d1c5459f7f9c5faeac7783c1dce38b1f41f6fd3814620cf3caf1afc2a1ed5",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/morganstanley-careers.html",
+      "present": true,
+      "bytes": 230960,
+      "sha256": "b44375b3e9d773676292eaeaa78bb4b7011a1481329c2c38838d7ce1c3dd99b6",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/morganstanley-pcsx-page1.json",
+      "present": true,
+      "bytes": 17456,
+      "sha256": "535a909f2ab9a0daae40a4dbf048ad69fc55a3b034a3002f074539a4e434a647",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/netflix-careers.html",
+      "present": true,
+      "bytes": 53886,
+      "sha256": "f57e95463233707ccb13f3e80ba5edc5f2b9f8e87881bc2bf6753f03a20c87bc",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/netflix-standard-page1.json",
+      "present": true,
+      "bytes": 21503,
+      "sha256": "f44e35da0609a1bdd3dbff5673013e8055821d6d0fcfdf4c271bf414f88179c9",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/ngc-careers.html",
+      "present": true,
+      "bytes": 238757,
+      "sha256": "05bcca1c4c7498debbc0c6c907f35ce3ff1d512970583e10515d6bdf002f99be",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/ngc-pcsx-page1.json",
+      "present": true,
+      "bytes": 19325,
+      "sha256": "d2367881622c3584b4f80ecec1e34dd1948465f99cc4c34098549418b6955886",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/ptc-careers.html",
+      "present": false
+    },
+    {
+      "path": "eightfold/ptc-pcsx-page1.json",
+      "present": false
+    },
+    {
+      "path": "eightfold/telekom-growthhub-careers.html",
+      "present": true,
+      "bytes": 210710,
+      "sha256": "cfe3ee3ff5751dcc6d309ba7a2863d95d3ab7b8d6e905afa80ea104fb581b75a",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "eightfold/telekom-growthhub-pcsx-page1.json",
+      "present": true,
+      "bytes": 35984,
+      "sha256": "de536ef0e113fa8b6cec188103a779a49d7c7336f925d72317fc308d2b256f9e",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "freenow/freenow-api.json",
+      "present": true,
+      "bytes": 252810,
+      "sha256": "4d2e6f9e13dd1379595081c7626b619e755561ee23a624cf1c3fa66fe5e79cfb",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/cherryvc-afilio-job-detail.json",
+      "present": true,
+      "bytes": 13359,
+      "sha256": "a9baa1b082959d66bd0a3b6eab7acca49f5559ff1fb744d83662836432d1a46f",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/cherryvc-afilio.html",
+      "present": true,
+      "bytes": 131539,
+      "sha256": "1f8525461a9e64e51ceb12ade09c64cf5e88e4b49215531efb3539c14311d359",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/cherryvc-manual-job-detail.json",
+      "present": true,
+      "bytes": 8666,
+      "sha256": "15385c10908bfe63edd2a92b0381396324e1524fbad37c960f46889193be9f40",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/cherryvc-sitemap.xml",
+      "present": true,
+      "bytes": 265558,
+      "sha256": "2311ee9b0d1ba90d586a40a14751707c73777228b3019130e0be14fe8a22a039",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/earlybird-finmid-job-detail.json",
+      "present": true,
+      "bytes": 12934,
+      "sha256": "25e88ef6f4e3b924a08451e30c6c75ec3672898e1604f926f68c403cb398b97f",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/earlybird-finmid.html",
+      "present": true,
+      "bytes": 601930,
+      "sha256": "edd8c8fa2de608ce72004f086c8f903f86cc3fb777cb7d7075411ce4386b1397",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/earlybird-sitemap.xml",
+      "present": true,
+      "bytes": 147880,
+      "sha256": "2ca653791da2e01665e25162064a096815ad268d8efc0c405057511c8f0acbf6",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/femtechinsider-sitemap.xml",
+      "present": true,
+      "bytes": 292231,
+      "sha256": "3576263ea323b59bcf7e3ae2f7bb3bb877cb8998ce6991c78c52c0e54a5b496c",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/femtechinsider-tia-job-detail.json",
+      "present": true,
+      "bytes": 14606,
+      "sha256": "48b570389403cd3697b3883da346f82380190e8ddccba7c93f87751307fef35e",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/femtechinsider-tia.html",
+      "present": true,
+      "bytes": 79329,
+      "sha256": "cc6b701d60aedc4be5db9091ece053a88ff2e87b22e941b317dc80b2d464dcb5",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/hvcapital-accessus-job-detail.json",
+      "present": true,
+      "bytes": 6054,
+      "sha256": "ce0d7b06cb94ad670eca1595777719ccb50e0d710a784c565a6e1748d04fe59b",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/hvcapital-accessus.html",
+      "present": true,
+      "bytes": 106047,
+      "sha256": "19e45435aad4590ad6f7d5138ccdba797ac9e226f3ec1b082fa39003269bb31f",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/hvcapital-job-detail.json",
+      "present": true,
+      "bytes": 8707,
+      "sha256": "662c885c1d166cf982b405c8582f9c2560bd341df1edc49e860a867a13a20493",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/hvcapital-sitemap.xml",
+      "present": true,
+      "bytes": 696775,
+      "sha256": "dde7db0841e82068b23781c1c56b0f005e5419d245157a717b617b482a1f5173",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/playvc-arya-job-detail.json",
+      "present": true,
+      "bytes": 6260,
+      "sha256": "5e410e4f9c8dd9d502d8f6f7bd4a9df54514dd49b62d7dca6180284b1463e8c6",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/playvc-arya.html",
+      "present": true,
+      "bytes": 76067,
+      "sha256": "e70bd049e090a2d9ad80217bcf1b57b543b12867c2ff9b99375294be1673337f",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/playvc-sitemap.xml",
+      "present": true,
+      "bytes": 52734,
+      "sha256": "571cf71d3e9f3dddac28792865619a88110219880fe861fb4675e3c9d7578925",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/protocolai-pljobboard-job-detail.json",
+      "present": true,
+      "bytes": 14172,
+      "sha256": "14b5e645f9332c90953d7b7c87b21c0e23b6bf9ed4372357ffe61edfe3e165e6",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "getro/protocolai-pljobboard.html",
+      "present": false
+    },
+    {
+      "path": "getro/protocolai-sitemap.xml",
+      "present": false
+    },
+    {
+      "path": "greenhouse/hightouch-api.json",
+      "present": false
+    },
+    {
+      "path": "greenhouse/hightouch.html",
+      "present": false
+    },
+    {
+      "path": "greenhouse/legacy-synthetic.html",
+      "present": false
+    },
+    {
+      "path": "greenhouse/nuitee.html",
+      "present": true,
+      "bytes": 43209,
+      "sha256": "c62b350264e229bc387154cb74da80cb519d4d30137e224ce379dd6fad5f4cb0",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "jobylon/pwc-embed.js",
+      "present": true,
+      "bytes": 10205,
+      "sha256": "4768f7c5066ede9f066cf7ca1a57cbc950bfb77af8e9a801b46e4371ecd53929",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "jobylon/withsecure-embed.js",
+      "present": true,
+      "bytes": 15387,
+      "sha256": "d3128b99b3958cfbc2d1726fbcff84d6e40770429c29f4466214b54d78c24074",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "newwork/jobs-api.json",
+      "present": true,
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "otto/jobsearch-en.html",
+      "present": true,
+      "bytes": 345394,
+      "sha256": "4d95f2971d3d76bd887d116b993212073e740edcf6a813f8c5afb891413d3ac0",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "otto/otto-api-de.json",
+      "present": true,
+      "bytes": 89423,
+      "sha256": "61ee616b9ef75cdedd547293879291fb7d0838c79933ad0356664bbd0ab8b337",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "personio/personio-com-api.json",
+      "present": true,
+      "bytes": 32047,
+      "sha256": "ef87e8ed17e3cff30af8a113682d2cec468806a8737cd27561427933c92fa145",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "personio/sample-board.html",
+      "present": true,
+      "bytes": 114000,
+      "sha256": "df69faa3edbbf221067ac3baf6165333a89514cb25611ce8a08271fdb1ad82b7",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "personio/sample-board.xml",
+      "present": true,
+      "bytes": 8550,
+      "sha256": "d3fc39d51dadf5ce5372d59ad6d02353d17f8fa20d597a5e3bcfa457403478de",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "picnic/jobs.html",
+      "present": true,
+      "bytes": 530237,
+      "sha256": "bc28da91f749a3d81749fe9c126c0ed8af3a32ed2375ca70a145c934e8716e91",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "rohdeschwarz/page-0.html",
+      "present": true,
+      "bytes": 168622,
+      "sha256": "f43d834f347f825491b7ee8fb5fa03c81527a4c6ea6c963be5e2a2a4a5849160",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "rohdeschwarz/page-30.html",
+      "present": true,
+      "bytes": 169180,
+      "sha256": "4c880f01be54781b32f95f6e63ea960e48a6498e89042f1de2323cd74aefd3dc",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "schwarzit/jobs-schwarz-api.json",
+      "present": true,
+      "bytes": 332,
+      "sha256": "060f03576ad8a82e560f9c90efc71ecf5ec359b439ab0c9e472695f6feff7a75",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "schwarzit/schwarz-digits-api.json",
+      "present": true,
+      "bytes": 26078,
+      "sha256": "d38f72a178c91b5a611031e680491c2fdc62213ba246d83fe7778fb91a30dfd2",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "schwarzit/schwarz-digits.html",
+      "present": true,
+      "bytes": 63325,
+      "sha256": "3398aa948c91bd5ebb0bf68df5d576e737166102f18860e28eb03295adc15f3c",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "smartrecruiters/polygon-api.json",
+      "present": true,
+      "bytes": 2471,
+      "sha256": "3e3f98cd8d32c4318941b49a4decd79acb387b33853c6330ab87cf876f3d2b65",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "smartrecruiters/polygon-job-detail.json",
+      "present": true,
+      "bytes": 6425,
+      "sha256": "a18743dbfcc7a0878d0e83689d16c565322bda37f0a622458e435cb8295cdbf1",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "smartrecruiters/polygon.html",
+      "present": true,
+      "bytes": 99086,
+      "sha256": "de2c27e8caa2f9a33b9397b802bf1c9f23ad37c28c04fb81c8261ad923b3a92a",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/doccla-jobs.html",
+      "present": true,
+      "bytes": 92388,
+      "sha256": "ca043db020491dc9c63a5e1bceaa9789df1704f81bfcd1e1fca720b7c5a863df",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/doccla-root.html",
+      "present": true,
+      "bytes": 67654,
+      "sha256": "26eb66251bec96d628c5e07e7fc08b9746057e6939f404f7b5676b3cd82afe83",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/doccla-rss.xml",
+      "present": true,
+      "bytes": 50034,
+      "sha256": "13cee78183f63f20ed918ade2fa0f8b0cd9f883a63335b6bf9b3d770bf7c5445",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/hadrian-careers.html",
+      "present": true,
+      "bytes": 153038,
+      "sha256": "d43d18e6cc7e111d65283092a84f6746593a6e92d9b8371f2555068c102feca1",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/hadrian-rss.xml",
+      "present": true,
+      "bytes": 78616,
+      "sha256": "028664a8f47fd492ee175508135f8df21a887549ecccb93e8c0d93643d6c9572",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/payfit-rss.xml",
+      "present": true,
+      "bytes": 134458,
+      "sha256": "140bd7051f91fedd1e009b37c3657a25c226a6a60b64799795d15823b2d84c38",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "teamtailor/payfit.html",
+      "present": true,
+      "bytes": 109830,
+      "sha256": "600d9d7d5eb5b08f5cb658ec2778c2f55fc75c1fadfa1121003e78514286e9b8",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "workday/mbti-api.json",
+      "present": true,
+      "bytes": 4795,
+      "sha256": "0515b026e03b967c72bea62aaa00d5286bbbb2ee02367ad3d2da519eafe4ebe3",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "workday/mbti-career.html",
+      "present": true,
+      "bytes": 57727,
+      "sha256": "0b855f2cb19e1da1bece0b398c1e92b24583182b1e66810401b48e8aeb340da6",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "workday/mbti-robots.txt",
+      "present": true,
+      "bytes": 156,
+      "sha256": "b2fd8117544087fdd2909aee9e08c5b92a167cea40d0553107378a5455242ac0",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "workday/zalando-api.json",
+      "present": true,
+      "bytes": 9962,
+      "sha256": "6ea8614c177b9be9f84a12dc968694904923de3be122f328b8da6b15bbe0fda1",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "ycombinator/doordash.html",
+      "present": true,
+      "bytes": 159177,
+      "sha256": "f495d4a00992305c0455c21950a7589ab9d69659d62a039e7172329fbf2ccb63",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "ycombinator/taktile-job-detail.html",
+      "present": true,
+      "bytes": 167346,
+      "sha256": "8fce734177468e6ecb1f477e9c19a399454159b114c0f2330114d861d3147d3b",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    },
+    {
+      "path": "ycombinator/taktile.html",
+      "present": true,
+      "bytes": 144673,
+      "sha256": "fac47f5e20d5f0ce4e9833ad660676b5a13a687b012d713178ccde1888d67f6a",
+      "hashMatchesCapture": true,
+      "typeValid": true
+    }
+  ],
+  "failureBodiesAreNotJobFixtures": true
+}

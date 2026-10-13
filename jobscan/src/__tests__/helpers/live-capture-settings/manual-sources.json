@@ -1,0 +1,132 @@
+[
+  {
+    "parser": "getro",
+    "filename": "cherryvc-sitemap.xml",
+    "url": "https://talent.cherry.vc/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "getro",
+    "filename": "earlybird-sitemap.xml",
+    "url": "https://jobs.earlybird.com/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "getro",
+    "filename": "femtechinsider-sitemap.xml",
+    "url": "https://jobs.femtechinsider.com/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "getro",
+    "filename": "hvcapital-sitemap.xml",
+    "url": "https://hv.getro.com/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "getro",
+    "filename": "playvc-sitemap.xml",
+    "url": "https://careers.play.vc/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "getro",
+    "filename": "protocolai-sitemap.xml",
+    "url": "https://jobs.protocol.ai/sitemap.xml",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "newwork",
+    "filename": "jobs-api.json",
+    "url": "https://www.newwork.com/wp-json/wp/v2/jobs?per_page=100&_fields=id,title,link,content,excerpt,meta",
+    "type": "json",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "teamtailor",
+    "filename": "hadrian-careers.html",
+    "url": "https://hadrian.io/company/careers",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "teamtailor",
+    "filename": "hadrian-rss.xml",
+    "url": "https://careers.hadrian.io/jobs.rss?per_page=500",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "personio",
+    "filename": "sample-board.xml",
+    "url": "https://personio.jobs.personio.de/xml?language=en",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "workday",
+    "filename": "mbti-robots.txt",
+    "url": "https://mercedesbenztechinnovation.wd3.myworkdayjobs.com/robots.txt",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "greenhouse",
+    "filename": "legacy-synthetic.html",
+    "url": "https://boards.greenhouse.io/hightouch",
+    "type": "html",
+    "extraHeaders": {}
+  },
+  {
+    "parser": "otto",
+    "filename": "otto-api-de.json",
+    "url": "https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/AusschreibungSet?$filter=ConsumerId%20eq%20%279814723%27",
+    "type": "json",
+    "extraHeaders": {
+      "Accept": "application/json",
+      "Accept-Language": "DE",
+      "DataServiceVersion": "2.0",
+      "MaxDataServiceVersion": "2.0"
+    }
+  },
+  {
+    "parser": "personio",
+    "filename": "sample-board.html",
+    "url": "https://open.jobs.personio.de/?language=en",
+    "type": "html"
+  },
+  {
+    "parser": "dvinci",
+    "filename": "cenit-job-detail.html",
+    "url": "https://cenit.dvinci-hr.com/en/jobs/30530/senior-sales-manager-product-lifecycle-management-plm-mwd",
+    "type": "html"
+  },
+  {
+    "parser": "ycombinator",
+    "filename": "taktile-job-detail.html",
+    "url": "https://www.ycombinator.com/companies/taktile/jobs/nUa2xkt-senior-business-development-representative",
+    "type": "html"
+  },
+  {
+    "parser": "eightfold",
+    "filename": "ptc-careers.html",
+    "url": "https://careers.ptc.com/careers?domain=ptc.com",
+    "type": "html"
+  },
+  {
+    "parser": "eightfold",
+    "filename": "ptc-pcsx-page1.json",
+    "url": "https://careers.ptc.com/api/pcsx/search?domain=ptc.com&num_jobs=10&start=0&query=",
+    "type": "json",
+    "extraHeaders": {
+      "Accept": "application/json",
+      "Referer": "https://careers.ptc.com/careers?domain=ptc.com"
+    }
+  }
+]

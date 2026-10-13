@@ -19,7 +19,8 @@ export function loadFixture(parser: string, filename: string): string {
     throw new Error(
       `Fixture not found: ${parser}/${filename}\n` +
       `Expected at: ${filePath}\n` +
-      `Run "npx tsx src/__tests__/helpers/cache-fixtures.ts" to fetch fixtures.`
+      `Restore the checked-in fixture from the approved repository revision. ` +
+      `Live refresh is opt-in and must be reviewed; tests never download fixtures.`
     );
   }
   return fs.readFileSync(filePath, 'utf-8');

@@ -2,8 +2,8 @@
  * Cache HTML/JSON fixtures from live ATS pages to the fixtures directory.
  * 
  * Usage:
- *   npx tsx src/__tests__/helpers/cache-fixtures.ts
- *   npx tsx src/__tests__/helpers/cache-fixtures.ts greenhouse   # only greenhouse
+ *   npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh
+ *   npx tsx src/__tests__/helpers/cache-fixtures.ts --refresh greenhouse   # only greenhouse
  * 
  * This fetches real pages and saves them for offline test usage.
  * Run this periodically to update fixtures if ATS page format changes.
@@ -254,8 +254,8 @@ const FIXTURES: FixtureSpec[] = [
   },
 
   // NEWWORK Software — WordPress REST API (jobs CPT; currently 0 published,
-  // fixture is synthetic — see fixtures/newwork/jobs-api.json)
-  // When the company publishes jobs, uncomment and run to refresh:
+  // checked-in fixture is now a genuine live response)
+  // This source is maintained in live-capture-settings/manual-sources.json:
   // {
   //   parser: 'newwork',
   //   filename: 'jobs-api.json',
@@ -537,11 +537,11 @@ const FIXTURES: FixtureSpec[] = [
   },
   // Note: Sitemap fixtures (cherryvc-sitemap.xml, hvcapital-sitemap.xml,
   // earlybird-sitemap.xml, playvc-sitemap.xml, femtechinsider-sitemap.xml,
-  // protocolai-sitemap.xml) are trimmed versions created manually.
+  // protocolai-sitemap.xml) historically used trimmed manual samples; live captures are complete.
   // Re-cache by fetching from the live sitemaps if needed.
 
   // Personio corporate careers — JSON API (all open positions)
-  // Note: sample-board.html and sample-board.xml are synthetic (hand-crafted).
+  // Historical assertions used synthetic samples; checked-in replacements are genuine live captures.
   {
     parser: 'personio',
     filename: 'personio-com-api.json',
@@ -550,54 +550,88 @@ const FIXTURES: FixtureSpec[] = [
   },
 ];
 
+// Live captures are not historical fixtures. Bounded, credential-free HTTP only.
+const provenance: any[] = [];
+const crypto = require('node:crypto');
+const dns = require('node:dns/promises');
+const net = require('node:net');
+const SETTINGS_DIR = path.join(__dirname, 'live-capture-settings');
+const EVIDENCE_DIR = path.join(__dirname, '..', '..', '..', 'live-capture-evidence');
+if (!process.argv.includes('--refresh')) {
+  console.error('Live network refresh is opt-in: pass --refresh. Normal tests use checked-in fixtures.');
+  process.exit(2);
+}
+fs.mkdirSync(EVIDENCE_DIR, {recursive: true});
+const allowed = new Set<string>(JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR, 'allowed-hosts.json'), 'utf8')));
+async function checkUrl(url: string) {
+  const u = new URL(url);
+  if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password || !allowed.has(u.hostname) || (u.port && !['80','443'].includes(u.port))) throw new Error('unapproved URL: '+url);
+  if (net.isIP(u.hostname) || u.hostname === 'localhost') throw new Error('numeric/private URL target');
+  const addresses = await dns.lookup(u.hostname, {all:true});
+  for (const a of addresses) {
+    const ip=a.address.replace(/^::ffff:/i,'');
+    if (net.isIP(ip)===4 && /^(0\.|10\.|127\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)) throw new Error('private address');
+    if (net.isIP(ip)===6 && (/^(fc|fd|fe80)/i.test(ip) || ip==='::' || ip==='::1')) throw new Error('private address');
+  }
+}
 async function fetchFixture(spec: FixtureSpec): Promise<void> {
-  const dir = path.join(FIXTURES_DIR, spec.parser);
-  fs.mkdirSync(dir, { recursive: true });
-
-  const filePath = path.join(dir, spec.filename);
-  console.log(`  Fetching ${spec.url} ...`);
-
+  const record: any = {path: `${spec.parser}/${spec.filename}`, sourceUrl: spec.url, method: spec.method??'GET', capturedAt: new Date().toISOString(), source: 'genuine-live-web-not-historical', redirects: [], saved:false};
+  provenance.push(record);
   try {
-    const res = await fetch(spec.url, {
-      method: spec.method ?? 'GET',
-      body: spec.body,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0',
-        ...(spec.extraHeaders ?? {}),
-      },
-    });
-
-    if (!res.ok) {
-      console.error(`  ✗ HTTP ${res.status} for ${spec.url}`);
-      return;
+    let url=spec.url, method=spec.method??'GET', body=spec.body;
+    let headers: Record<string,string> = {'User-Agent':'Mozilla/5.0 Jobscan-Fixture-Capture', ...(spec.extraHeaders??{})};
+    // OTTO public anonymous session; cookie values are never recorded.
+    if(spec.parser==='otto' && spec.filename==='otto-api-de.json') {
+      const create='https://www.otto.de/or/sap/opu/odata/OTTO/OR2JB_SCONTEXT_SRV/create?ConsumerId=%27'+process.env.OTTO_CONSUMER+'%27&hash=%27%27&langu=%27DE%27&mediumId=%27'+process.env.OTTO_MEDIUM+'%27&sttag=%2720160223%27';
+      await checkUrl(create);
+      const session=await fetch(create,{headers,redirect:'manual',signal:AbortSignal.timeout(20000)});
+      record.session={url:create,status:session.status};
+      if(!session.ok) throw new Error('session HTTP '+session.status);
+      headers.Cookie=session.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+      await session.body?.cancel();
     }
-
-    const content = await res.text();
-    fs.writeFileSync(filePath, content, 'utf-8');
-    const sizeKB = (Buffer.byteLength(content) / 1024).toFixed(1);
-    console.log(`  ✓ Saved ${spec.parser}/${spec.filename} (${sizeKB} KB)`);
-  } catch (err) {
-    console.error(`  ✗ Failed to fetch ${spec.url}:`, (err as Error).message);
-  }
+    let res: Response | undefined;
+    for(let i=0;i<6;i++) {
+      await checkUrl(url);
+      res=await fetch(url,{method,body,headers,redirect:'manual',signal:AbortSignal.timeout(20000)});
+      record.redirects.push({url,status:res.status,location:res.headers.get('location')});
+      if([301,302,303,307,308].includes(res.status) && res.headers.get('location')) {
+        const next=new URL(res.headers.get('location')!,url).href;
+        if(new URL(next).origin!==new URL(url).origin) {delete headers.Cookie;}
+        await res.body?.cancel();url=next;
+        if(res.status===303 || ((res.status===301||res.status===302)&&method==='POST')) {method='GET';body=undefined;}
+        continue;
+      }
+      break;
+    }
+    if(!res) throw new Error('no response');
+    record.finalUrl=url;record.status=res.status;record.contentType=res.headers.get('content-type');
+    const parts:Buffer[]=[];let count=0;
+    if(res.body) for await(const part of res.body as any) {count+=part.length;if(count>8*1024*1024) throw new Error('8MiB response cap');parts.push(Buffer.from(part));}
+    const bytes=Buffer.concat(parts);record.bytes=bytes.length;record.sha256=crypto.createHash('sha256').update(bytes).digest('hex');
+    const text=bytes.toString('utf8');
+    let valid=bytes.length>0;
+    if(spec.filename.endsWith('.json')) {try{JSON.parse(text);}catch{valid=false;}}
+    if(spec.filename.endsWith('.xml')) valid=valid && /^\s*(<\?xml|<rss|<urlset|<sitemapindex|<workzag-jobs)/i.test(text);
+    if(spec.filename.endsWith('.html')) valid=valid && /<!doctype html|<html[\s>]/i.test(text);
+    record.typeValid=valid;
+    if(res.ok && valid) {const dest=path.join(FIXTURES_DIR,spec.parser,spec.filename);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);record.saved=true;}
+    else {const dest=path.join(EVIDENCE_DIR,'failures',spec.parser,spec.filename);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,bytes);record.failureCapture=path.relative(path.dirname(EVIDENCE_DIR),dest);}
+  } catch(e) {record.error=String(e);}
+  fs.writeFileSync(path.join(EVIDENCE_DIR,'provenance.json'),JSON.stringify(provenance,null,2));
+  console.log(JSON.stringify(record));
 }
-
 async function main() {
-  const filterParser = process.argv[2];
-  const specs = filterParser
-    ? FIXTURES.filter((s) => s.parser === filterParser)
-    : FIXTURES;
-
-  if (specs.length === 0) {
-    console.log(`No fixtures defined for parser: ${filterParser}`);
-    console.log(`Available parsers: ${[...new Set(FIXTURES.map((s) => s.parser))].join(', ')}`);
-    process.exit(1);
-  }
-
-  console.log(`Caching ${specs.length} fixture(s)...\n`);
-  for (const spec of specs) {
-    await fetchFixture(spec);
-  }
-  console.log('\nDone.');
+  const extra: FixtureSpec[] = JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR,'manual-sources.json'),'utf8'));
+  const only=process.env.ONLY_PATHS ? JSON.parse(process.env.ONLY_PATHS) as string[] : undefined;
+  const merged=new Map([...FIXTURES,...extra].map(s=>[`${s.parser}/${s.filename}`,s]));
+  const parser=process.argv.slice(2).find(a=>!a.startsWith('--'));
+  const specs=[...merged.values()].filter(s=>(!only || only.includes(`${s.parser}/${s.filename}`)) && (!parser || s.parser===parser));
+  let next=0;
+  await Promise.all(Array.from({length:4},async()=>{while(next<specs.length) await fetchFixture(specs[next++]);}));
+  const expected:string[]=JSON.parse(fs.readFileSync(path.join(SETTINGS_DIR,'expected.json'),'utf8'));
+  const missing=expected.filter(p=>!fs.existsSync(path.join(FIXTURES_DIR,p)));
+  console.log(JSON.stringify({attempted:specs.length,saved:provenance.filter(p=>p.saved).length,expected:expected.length,missing}));
+  if(missing.length) process.exitCode=2;
 }
-
 main();
