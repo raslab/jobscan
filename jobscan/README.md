@@ -19,7 +19,7 @@ Current real-world target scale is roughly 10k sources across many ATSes/custom 
 ## Quick start: local development
 
 ```bash
-npm ci
+npm ci --include=dev
 npm run dev
 ```
 
@@ -122,7 +122,7 @@ jobscan/
 ## Development
 
 ```bash
-npm ci
+npm ci --include=dev
 npm run build
 ```
 
