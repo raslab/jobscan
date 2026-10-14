@@ -73,7 +73,7 @@ Do not expose the app directly to the public internet without authentication and
 
 ```bash
 cd jobscan
-npm ci
+npm ci --include=dev
 npm run dev
 ```
 

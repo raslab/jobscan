@@ -16,7 +16,7 @@ An MCP (Model Context Protocol) server that wraps the [JobScan](../jobscan/) RES
 
 ```bash
 cd jobscan-mcp
-npm install
+npm ci --include=dev
 npm run build
 # Output: dist/index.js
 ```
