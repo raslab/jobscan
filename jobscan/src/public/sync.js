@@ -95,14 +95,26 @@ function syncMixin() {
             src.state = 'zero-jobs';
             src.totalJobs = 0;
             src.newJobs = 0;
+          } else if (data.status === 'timed-out') {
+            src.state = 'timed-out';
+            src.newJobs = data.newJobs || 0;
+            src.totalJobs = data.totalJobs ?? null;
           } else {
             src.state = 'done';
             src.newJobs = data.newJobs || 0;
             src.totalJobs = data.totalJobs ?? null;
           }
         } catch (err) {
-          src.state = 'error';
-          src.error = err.name === 'AbortError' ? 'Timeout (5 min)' : String(err);
+          if (err.name === 'AbortError') {
+            // Browser gave up, but the backend keeps working until its own
+            // deadline; /api/sync/complete waits for it and the server
+            // computes the true totals.
+            src.state = 'timed-out';
+            src.error = 'Timeout (5 min) — backend work still finishing';
+          } else {
+            src.state = 'error';
+            src.error = String(err);
+          }
         } finally {
           const cnt = activeParsers.get(src.parser) || 1;
           if (cnt <= 1) activeParsers.delete(src.parser);
@@ -130,17 +142,24 @@ function syncMixin() {
       const totalNewJobs = panel.sources.reduce((sum, s) => sum + (s.newJobs || 0), 0);
       const sourcesChecked = panel.sources.filter(s => s.state !== 'pending').length;
 
-      // Complete the shared sync session
+      // Complete the shared sync session. The server waits for any in-flight
+      // backend source syncs, then returns the authoritative new-job count
+      // computed from jobs rows belonging to this sync (the client-side sum
+      // undercounts sources whose requests timed out).
+      let serverNewJobsTotal = totalNewJobs;
       try {
-        await fetch('/api/sync/complete', {
+        const res = await fetch('/api/sync/complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             syncId: sessionSyncId,
             sourcesCount: sourcesChecked,
-            newJobs: totalNewJobs,
           }),
         });
+        const data = await res.json();
+        if (res.ok && typeof data.newJobs === 'number') {
+          serverNewJobsTotal = data.newJobs;
+        }
       } catch (err) {
         console.error('Failed to complete sync session', err);
       }
@@ -154,7 +173,7 @@ function syncMixin() {
       }));
       this.syncSummary = {
         sourcesChecked: sourcesChecked,
-        newJobsTotal: totalNewJobs,
+        newJobsTotal: serverNewJobsTotal,
         results,
       };
 
@@ -177,7 +196,7 @@ function syncMixin() {
     },
 
     syncDoneCount() {
-      return this.syncPanel.sources.filter(s => s.state === 'done' || s.state === 'error' || s.state === 'zero-jobs').length;
+      return this.syncPanel.sources.filter(s => s.state === 'done' || s.state === 'error' || s.state === 'zero-jobs' || s.state === 'timed-out').length;
     },
 
     syncWithJobsCount() {

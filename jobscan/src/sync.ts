@@ -28,6 +28,17 @@ const DETAIL_CONCURRENCY: Record<string, number> = {
 const DEFAULT_DETAIL_CONCURRENCY = 3; // Jobvite, Lever, generic HTML
 
 /**
+ * Server-enforced per-source sync deadline.
+ *
+ * The browser aborts its fetch after 5 minutes, but the backend previously
+ * kept fetching/enriching long after that. This deadline makes the backend
+ * stop starting new detail fetches/writes once it expires, so a source's
+ * backend work is bounded and can be awaited before the sync session is
+ * marked complete. Already-inserted listing rows are preserved.
+ */
+export const SOURCE_SYNC_DEADLINE_MS = 5 * 60 * 1000;
+
+/**
  * Run up to `concurrency` async tasks at a time.
  * Stops immediately when a task throws {@link RateLimitError} — all in-flight
  * tasks are awaited but no new tasks are started. The partial results collected
@@ -36,13 +47,14 @@ const DEFAULT_DETAIL_CONCURRENCY = 3; // Jobvite, Lever, generic HTML
 async function pLimitAbortable<T>(
   tasks: Array<() => Promise<T>>,
   concurrency: number,
+  isAborted: () => boolean = () => false,
 ): Promise<{ results: Array<T>; rateLimited: boolean }> {
   const results: Array<T> = [];
   let idx = 0;
   let rateLimited = false;
 
   async function worker() {
-    while (idx < tasks.length && !rateLimited) {
+    while (idx < tasks.length && !rateLimited && !isAborted()) {
       const i = idx++;
       const result = await tasks[i](); // may throw RateLimitError
       results[i] = result;
@@ -71,8 +83,14 @@ async function pLimitAbortable<T>(
 
 export async function syncOneSource(
   source: { id: number; company: string; url: string; parser: string; last_count: number | null },
-  syncId: number
+  syncId: number,
+  deadlineMs: number = SOURCE_SYNC_DEADLINE_MS
 ): Promise<SyncSourceResult> {
+  // Server-side deadline: once expired, no further detail fetches or writes
+  // are started and the source is recorded as 'timed-out'.
+  const deadlineAt = Date.now() + deadlineMs;
+  const isExpired = () => Date.now() >= deadlineAt;
+
   console.log(`[sync] Scraping source: ${source.company} (${source.parser})`);
   const { jobs, html, error } = await scrapeSource(source as Parameters<typeof scrapeSource>[0]);
 
@@ -138,6 +156,7 @@ export async function syncOneSource(
   const concurrency = DETAIL_CONCURRENCY[source.parser] ?? DEFAULT_DETAIL_CONCURRENCY;
   const { rateLimited } = await pLimitAbortable(
     unseenJobs.map((job) => async () => {
+      if (isExpired()) return job; // deadline hit — start no further fetches/writes
       const enriched = await scrapeJobDetail(job); // may throw RateLimitError
       const id = urlToId.get(enriched.url);
       if (id !== undefined) {
@@ -160,7 +179,17 @@ export async function syncOneSource(
       return enriched;
     }),
     concurrency,
+    isExpired,
   );
+
+  if (isExpired()) {
+    // Server deadline expired: stop all further fetch/write work (backfill
+    // pass below is skipped) and record the source as timed out. Listing
+    // rows inserted above are preserved.
+    console.log(`[sync] ${source.company}: server deadline expired — stopping after ${newJobs} saved jobs`);
+    await db.updateSourceSync(source.id, 'timed-out', jobs.length);
+    return { sourceId: source.id, company: source.company, status: 'timed-out', newJobs, totalJobs: jobs.length };
+  }
 
   if (rateLimited) {
     console.log(`[sync] ${source.company}: rate-limited during detail fetches — ${newJobs} jobs are saved, descriptions will backfill on next sync`);
@@ -175,7 +204,7 @@ export async function syncOneSource(
   // subsequent sync so gaps gradually fill in without a manual trigger.
   // Rate-limited → stop early, same as the new-jobs pass above.
   const emptyDescJobs = await db.getJobsWithEmptyDescription(source.id);
-  if (emptyDescJobs.length > 0 && !rateLimited) {
+  if (emptyDescJobs.length > 0 && !rateLimited && !isExpired()) {
     console.log(`[sync] ${source.company}: ${emptyDescJobs.length} existing jobs missing descriptions — backfilling…`);
 
     // Build a url→id map so we can do a targeted UPDATE after enrichment
@@ -247,7 +276,7 @@ export async function runSyncOneSource(sourceId: number, existingSyncId?: number
   // Only complete the sync log if we created it ourselves (single-source sync).
   // When the frontend orchestrates a batch, it manages the session lifecycle.
   if (ownSession) {
-    await db.completeSyncLog(syncId, 1, result.newJobs);
+    await db.completeSyncLog(syncId, 1, await db.countJobsBySyncId(syncId));
   }
 
   return { ...result, syncId };
@@ -274,7 +303,9 @@ export async function runSync(): Promise<SyncSummary> {
     results.push(result);
   }
 
-  const newJobsTotal = results.reduce((sum, r) => sum + r.newJobs, 0);
+  // Server-side count: count the rows that actually belong to this sync,
+  // independent of what any per-source result (or client) reported.
+  const newJobsTotal = await db.countJobsBySyncId(syncId);
   await db.completeSyncLog(syncId, sources.length, newJobsTotal);
 
   return { syncId, sourcesChecked: sources.length, newJobsTotal, results };

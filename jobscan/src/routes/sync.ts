@@ -4,6 +4,47 @@ import * as db from '../db/index';
 
 const router = Router();
 
+/**
+ * In-flight per-source syncs keyed by shared syncId.
+ *
+ * The browser may abort its fetch for a slow source, but the backend keeps
+ * working on it. POST /api/sync/complete awaits these promises so the sync
+ * session is only marked complete after all its backend work has stopped
+ * (each source sync is itself bounded by the server-side deadline).
+ */
+const inFlightBySyncId = new Map<number, Set<Promise<unknown>>>();
+
+function trackInFlightSourceSync(syncId: number, promise: Promise<unknown>): void {
+  let set = inFlightBySyncId.get(syncId);
+  if (!set) {
+    set = new Set();
+    inFlightBySyncId.set(syncId, set);
+  }
+  // Settled-handler never rejects (cleanup cannot throw), so tracking an
+  // already-rejected work promise cannot produce an unhandled rejection.
+  const tracked: Promise<void> = promise.then(
+    (): void => removeTracked(syncId, tracked),
+    (): void => removeTracked(syncId, tracked),
+  );
+  set.add(tracked);
+}
+
+function removeTracked(syncId: number, tracked: Promise<unknown>): void {
+  const set = inFlightBySyncId.get(syncId);
+  if (!set) return;
+  set.delete(tracked);
+  if (set.size === 0) inFlightBySyncId.delete(syncId);
+}
+
+async function waitForInFlightSourceSyncs(syncId: number): Promise<void> {
+  // Snapshot-and-loop: a settled sync must not be raced by a late registration.
+  for (;;) {
+    const pending = inFlightBySyncId.get(syncId);
+    if (!pending || pending.size === 0) return;
+    await Promise.allSettled([...pending]);
+  }
+}
+
 // POST /api/sync — trigger full sync
 router.post('/', async (_req: Request, res: Response) => {
   try {
@@ -38,8 +79,15 @@ router.post('/complete', async (req: Request, res: Response) => {
     return;
   }
   try {
-    await db.completeSyncLog(syncId, sourcesCount ?? 0, newJobs ?? 0);
-    res.json({ ok: true });
+    // Do not mark the session complete while its backend source syncs are
+    // still running (they drain, bounded by the server-side deadline).
+    await waitForInFlightSourceSyncs(syncId);
+    // Server-side new-job count: rows that actually belong to this sync.
+    // The client-supplied newJobs (which undercounts timed-out sources) is
+    // deliberately ignored.
+    const serverNewJobs = await db.countJobsBySyncId(syncId);
+    await db.completeSyncLog(syncId, sourcesCount ?? 0, serverNewJobs);
+    res.json({ ok: true, syncId, newJobs: serverNewJobs });
   } catch (err) {
     res
       .status(500)
@@ -60,8 +108,16 @@ router.post('/:sourceId', async (req: Request, res: Response) => {
     ? bodySyncId
     : undefined;
   try {
-    const result = await runSyncOneSource(sourceId, existingSyncId);
-    res.json(result);
+    if (existingSyncId !== undefined) {
+      // Track the work so /api/sync/complete can wait for it before closing
+      // the session, even if the browser aborts this request.
+      const work = runSyncOneSource(sourceId, existingSyncId);
+      trackInFlightSourceSync(existingSyncId, work);
+      res.json(await work);
+    } else {
+      const result = await runSyncOneSource(sourceId);
+      res.json(result);
+    }
   } catch (err) {
     // Return 200 with error payload so OAuth proxies don't treat it as their own error
     const errorMsg = err instanceof Error ? err.message : String(err);

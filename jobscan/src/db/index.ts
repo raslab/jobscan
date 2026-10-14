@@ -32,6 +32,7 @@ export const updateJobDetails            = adapter.updateJobDetails;
 export const getJobs              = adapter.getJobs;
 export const getJobById           = adapter.getJobById;
 export const getJobsBySyncId      = adapter.getJobsBySyncId;
+export const countJobsBySyncId   = adapter.countJobsBySyncId;
 export const getDistinctCompanies = adapter.getDistinctCompanies;
 export const startSyncLog         = adapter.startSyncLog;
 export const completeSyncLog      = adapter.completeSyncLog;

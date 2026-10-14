@@ -137,6 +137,8 @@ function sourcesMixin() {
           this.showToast('Sync failed: ' + (data.error || res.status), 5000);
         } else if (data.status === 'zero-jobs') {
           this.showToast('Sync complete — 0 jobs found', 3000);
+        } else if (data.status === 'timed-out') {
+          this.showToast('Sync timed out — saved jobs preserved, will resume next sync', 5000);
         } else {
           const newJobs = data.newJobs || 0;
           this.showToast('Sync complete — ' + (newJobs > 0 ? '+' + newJobs + ' new jobs' : 'no new jobs'), 3000);
