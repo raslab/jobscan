@@ -41,6 +41,7 @@ export const insertHtmlBackup     = adapter.insertHtmlBackup;
 export const getExistingJobUrls          = adapter.getExistingJobUrls;
 export const getJobsWithEmptyDescription = adapter.getJobsWithEmptyDescription;
 export const updateJobDescription        = adapter.updateJobDescription;
+export const setJobNeedsBackfill         = adapter.setJobNeedsBackfill;
 export const getJobsPaginated     = adapter.getJobsPaginated;
 export const getJobsCount         = adapter.getJobsCount;
 export const getSourcesCount      = adapter.getSourcesCount;

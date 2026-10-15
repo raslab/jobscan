@@ -19,6 +19,28 @@ export class RateLimitError extends Error {
   }
 }
 
+/**
+ * Thrown by scrapeJobDetail when a detail fetch fails with a definitive 4xx
+ * status (other than the 403/429 rate-limit codes handled by {@link
+ * RateLimitError}) — e.g. 404: the job posting no longer exists. The sync
+ * layer catches this to clear the row's needs_backfill flag so dead records
+ * are permanently retired from the backfill backlog instead of being retried
+ * on every sync (review comment rc:4283312025, owner comment 6195486910).
+ */
+export class JobGoneError extends Error {
+  constructor(url: string, httpStatus: string) {
+    super(`Job gone (${httpStatus}) fetching ${url}`);
+    this.name = 'JobGoneError';
+  }
+}
+
+/** True when a fetch error string (from fetchWithRetry's `HTTP <status>`
+ *  format) indicates a definitive 4xx client error. Checked only AFTER the
+ *  existing 403/429 RateLimitError checks. */
+function isGoneError(error: string): boolean {
+  return /HTTP 4\d\d/.test(error);
+}
+
 export interface ScrapeResult {
   jobs: ParsedJob[];
   html: string;
@@ -251,6 +273,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
     await randomDelay(300, 600);
     const { description, error } = await smartrecruitersJobDetailApiFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return { ...job, description: description || undefined };
   }
 
@@ -268,6 +291,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
     await randomDelay(300, 600);
     const { description, error } = await eightfoldJobDetailApiFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return { ...job, description: description || undefined };
   }
 
@@ -282,6 +306,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
     await randomDelay(300, 600);
     const { description, error } = await celonisJobDetailApiFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return { ...job, description: description || undefined };
   }
 
@@ -300,6 +325,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
     await randomDelay(3000, 5000);
     const { description, location, error } = await successfactorsJobDetailFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return {
       ...job,
       description:    job.description || description || undefined,
@@ -314,6 +340,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
     await randomDelay(300, 600);
     const { description, error } = await workdayJobDetailApiFetch(job.url);
     if (error && /429|403|502/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return { ...job, description: job.description || description || undefined };
   }
 
@@ -329,6 +356,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
   if (/[a-z0-9-]+\.icims\.com/i.test(job.url)) {
     const { description, department, workplace_type, error } = await icimsJobDetailFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
+    if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return {
       ...job,
       description:    job.description    || description    || undefined,
@@ -338,6 +366,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
   }
 
   const { html, error } = await fetchHtml(job.url);
+  if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
   if (error || !html) return job;
 
   // ── JOIN: extract structured data from __NEXT_DATA__ on the detail page ──
