@@ -5,7 +5,8 @@
  *   - no further detail fetches or job writes are started,
  *   - already-inserted listing rows are preserved,
  *   - the source is recorded with status 'timed-out' (updateSourceSync),
- *   - the description-backfill pass is skipped,
+ *   - the description-backfill pass (which now runs BEFORE new-job detail
+ *     enrichment) is skipped once the deadline has expired,
  * and that runSync computes the session new-job count from the DB
  * (countJobsBySyncId) instead of summing per-source responses.
  */
@@ -90,8 +91,9 @@ describe('syncOneSource server deadline', () => {
     expect(mockedScrapeJobDetail.mock.calls.length).toBeLessThan(5);
     // Source recorded as timed-out with the jobs count.
     expect(mockedDb.updateSourceSync).toHaveBeenCalledWith(1, 'timed-out', 5);
-    // Backfill pass skipped entirely.
-    expect(mockedDb.getJobsWithEmptyDescription).not.toHaveBeenCalled();
+    // Empty-description snapshot is taken up-front (before inserts), but the
+    // backfill pass itself is skipped once the deadline has expired.
+    expect(mockedDb.getJobsWithEmptyDescription).toHaveBeenCalledTimes(1);
     // Client-visible status is 'timed-out'.
     expect(result.status).toBe('timed-out');
     expect(result.newJobs).toBe(5);
@@ -112,6 +114,39 @@ describe('syncOneSource server deadline', () => {
     expect(mockedDb.updateSourceSync).toHaveBeenCalledWith(1, 'timed-out', 4);
     expect(result.status).toBe('timed-out');
     expect(result.newJobs).toBe(0);
+  });
+
+  it('records timed-out and skips new-job enrichment when the deadline expires during backfill', async () => {
+    // One unseen job (would be inserted + enriched) and one pre-existing row
+    // with an empty description (backfilled first, before enrichment).
+    mockedScrapeSource.mockResolvedValue({ jobs: makeJobs(1), html: '' });
+    mockedDb.getExistingJobUrls.mockResolvedValue(new Set<string>());
+    mockedDb.getJobsWithEmptyDescription.mockResolvedValue([
+      { id: 42, url: 'https://acme.example/jobs/old', title: 'Old Job', location: null, department: null, workplace_type: null, commitment: null },
+    ]);
+
+    // The backfill fetch blows past the server deadline.
+    mockedScrapeJobDetail.mockImplementation(async (job) => {
+      jest.advanceTimersByTime(SOURCE_SYNC_DEADLINE_MS + 1);
+      return { ...job, description: 'backfilled' };
+    });
+
+    const result = await syncOneSource(SOURCE, 12);
+
+    // The backfill fetch ran (it has priority over new-job enrichment)...
+    expect(mockedScrapeJobDetail).toHaveBeenCalledTimes(1);
+    expect(mockedDb.updateJobDetails).toHaveBeenCalledWith(42, {
+      description: 'backfilled',
+      workplace_type: undefined,
+      commitment: undefined,
+      department: undefined,
+      team: undefined,
+    });
+    // ...but the deadline hit during backfill, so enrichment for the new row
+    // was skipped and the source is recorded as timed-out.
+    expect(mockedDb.insertJobListingRow).toHaveBeenCalledTimes(1);
+    expect(mockedDb.updateSourceSync).toHaveBeenCalledWith(1, 'timed-out', 1);
+    expect(result.status).toBe('timed-out');
   });
 
   it('completes normally (status ok) when the deadline is not exceeded', async () => {
