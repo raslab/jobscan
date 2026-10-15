@@ -296,8 +296,9 @@ export async function updateJobDescription(jobId: number, description: string): 
 const SEARCH_FIELDS = ['title', 'company', 'location', 'workplace_type', 'commitment', 'department', 'team', 'url'];
 const ALLOWED_SORT_COLUMNS = new Set(['first_seen', 'company', 'title', 'location', 'department', 'workplace_type', 'commitment']);
 
-/** Build WHERE clause + params for job filters (shared between count and paginated) */
-function buildJobWhere(filters: PaginatedJobQuery): { clause: string; params: unknown[]; nextIdx: number } {
+/** Build WHERE clause + params for job filters (shared between count and paginated).
+ *  Exported for deterministic unit-style testing of the generated clause. */
+export function buildJobWhere(filters: PaginatedJobQuery): { clause: string; params: unknown[]; nextIdx: number } {
   const conditions: string[] = ['TRUE'];
   const params: unknown[] = [];
   let i = 1;
@@ -347,21 +348,23 @@ function buildJobWhere(filters: PaginatedJobQuery): { clause: string; params: un
     const mode = filters.searchMode || 'fuzzy';
 
     if (mode === 'regex') {
-      // PostgreSQL regex on the pre-concatenated search_text column
-      conditions.push(`search_text ~* $${i}`);
+      // PostgreSQL regex on search_text (indexed) + description (excluded from
+      // search_text due to encoding issues; see migration 0005). Mirrors
+      // buildCrmJobConditions.
+      conditions.push(`(search_text ~* $${i} OR COALESCE(description,'') ~* $${i})`);
       params.push(q);
       i++;
     } else if (mode === 'fuzzy') {
-      // Every whitespace-separated word must appear in search_text
+      // Every whitespace-separated word must appear in search_text OR description
       const words = q.toLowerCase().split(/\s+/).filter(Boolean);
       for (const word of words) {
-        conditions.push(`search_text LIKE $${i}`);
+        conditions.push(`(search_text LIKE $${i} OR LOWER(COALESCE(description,'')) LIKE $${i})`);
         params.push(`%${word}%`);
         i++;
       }
     } else {
-      // exact: the whole query as a substring in search_text
-      conditions.push(`search_text LIKE $${i}`);
+      // exact: the whole query as a substring in search_text OR description
+      conditions.push(`(search_text LIKE $${i} OR LOWER(COALESCE(description,'')) LIKE $${i})`);
       params.push(`%${q.toLowerCase()}%`);
       i++;
     }
