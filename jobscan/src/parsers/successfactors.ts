@@ -332,7 +332,7 @@ async function sfDWRPaginatedFetch(
  *   s12.postingDate="03\/07\/2026";
  *   dwr.engine._remoteHandleCallback('1','0',{filters:s0,results:s1});
  */
-function parseDWRListings(dwr: string): {
+export function parseDWRListings(dwr: string): {
   jobs: Array<{ id: string; title: string }>;
   detailURLPrefix: string;
   totalCount: number;
@@ -490,12 +490,70 @@ export async function successfactorsJobDetailFetch(
 
   const $ = cheerio.load(html);
 
+  // ── JSON-LD JobPosting (Career Site Builder pages embed schema.org JSON-LD) ─
+  // Mirrors the JSON-LD JobPosting strategy in default.ts / dvinci.ts.
+  // Captured CSB pages (Capgemini, KAUFLAND, RWE, Volvo) currently render the
+  // microdata form instead, but the JSON-LD form appears on other CSB
+  // instances, so it is tried first and the microdata strategies below remain
+  // as fallbacks.
+  let jsonLd: { description?: string; location?: string; company?: string } = {};
+  $('script[type="application/ld+json"]').each((_i: number, el: any) => {
+    try {
+      const raw = $(el).html() ?? '';
+      const data = JSON.parse(raw);
+      const entries: any[] = Array.isArray(data)
+        ? data
+        : (data && typeof data === 'object' && Array.isArray(data['@graph'])
+            ? data['@graph']
+            : [data]);
+      for (const e of entries) {
+        if (!e || e['@type'] !== 'JobPosting') continue;
+
+        if (!jsonLd.description && typeof e['description'] === 'string') {
+          const d = e['description'].trim();
+          if (d) jsonLd.description = d.slice(0, 20_000);
+        }
+
+        if (!jsonLd.location) {
+          const locs = Array.isArray(e['jobLocation']) ? e['jobLocation'] : [e['jobLocation']];
+          for (const jl of locs) {
+            const addr = jl && typeof jl === 'object' ? jl['address'] : undefined;
+            if (!addr || typeof addr !== 'object') continue;
+            const parts = ['addressLocality', 'addressRegion', 'addressCountry']
+              .map((k) => String((addr as Record<string, unknown>)[k] ?? '').trim())
+              .filter(Boolean);
+            if (parts.length) { jsonLd.location = parts.join(', '); break; }
+          }
+        }
+
+        if (!jsonLd.company) {
+          const org = e['hiringOrganization'];
+          if (typeof org === 'string' && org.trim()) jsonLd.company = org.trim();
+          else if (org && typeof org === 'object') {
+            const name = String((org as Record<string, unknown>)['name'] ?? '').trim();
+            if (name) jsonLd.company = name;
+          }
+        }
+      }
+    } catch {
+      // Malformed JSON-LD — skip
+    }
+  });
+
   // ── Location ────────────────────────────────────────────────────────────────
+  // Strategy 0: JSON-LD JobPosting jobLocation.address (CSB pages)
   // Strategy 1: schema.org meta tags (some instances have these)
   const locality = $('meta[itemprop="addressLocality"]').attr('content')?.trim()  ?? '';
   const region   = $('meta[itemprop="addressRegion"]').attr('content')?.trim()    ?? '';
   const country  = $('meta[itemprop="addressCountry"]').attr('content')?.trim()   ?? '';
-  let location = [locality, region, country].filter(Boolean).join(', ') || undefined;
+  // CSB/classic pages that lack locality/region/country encode the whole
+  // location line in a single streetAddress meta (e.g. "Aguascalientes, MX").
+  const street   = $('meta[itemprop="streetAddress"]').attr('content')?.trim()    ?? '';
+  let location =
+    jsonLd.location ||
+    [locality, region, country].filter(Boolean).join(', ') ||
+    street ||
+    undefined;
 
   // Strategy 2: Requisition breadcrumb line —
   //   <div tabindex="0">Requisition ID&nbsp;<b>35205</b>&nbsp;-&nbsp;…&nbsp;-&nbsp;
@@ -527,12 +585,13 @@ export async function successfactorsJobDetailFetch(
 
   // ── Company ─────────────────────────────────────────────────────────────────
   const company =
+    jsonLd.company                                                        ||
     $('meta[itemprop="hiringOrganization"]').attr('content')?.trim()  ||
     $('[itemprop="hiringOrganization"]').first().text().trim()         ||
     undefined;
 
   // ── Description ─────────────────────────────────────────────────────────────
-  let description: string | undefined;
+  let description: string | undefined = jsonLd.description;
   const nhm = new NodeHtmlMarkdown({ bulletMarker: '-' });
 
   // Strategy 1: schema.org itemprop="description"

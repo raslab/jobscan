@@ -548,6 +548,34 @@ const FIXTURES: FixtureSpec[] = [
     url: 'https://www.personio.com/api/careers/jobs/list/',
     type: 'json',
   },
+
+  // SuccessFactors — Capgemini (CSB custom domain) job detail page
+  {
+    parser: 'successfactors',
+    filename: 'capgemini-net-developer-detail.html',
+    url: 'https://careers.capgemini.com/job/Aguascalientes--Net-Developer/1439136433/',
+    type: 'html',
+  },
+  // SuccessFactors — KAUFLAND classic career5.successfactors.eu job detail page
+  {
+    parser: 'successfactors',
+    filename: 'kaufland-career5-detail.html',
+    url: 'https://career5.successfactors.eu/career?career%5fns=job%5flisting&company=KAUFLAND&navBarLevel=JOB%5fSEARCH&rcm%5fsite%5flocale=en%5fUS&career_job_req_id=410323',
+    type: 'html',
+  },
+  // SuccessFactors — RWE (jobs.rwe.com, CSB custom domain) job detail page
+  {
+    parser: 'successfactors',
+    filename: 'rwe-senior-software-engineer-detail.html',
+    url: 'https://jobs.rwe.com/RWE/job/Austin-Senior-Software-Engineer-II-TX-78701/1413948233/',
+    type: 'html',
+  },
+  // Note: kaufland-dwr-initial.txt (DWR getInitialJobSearchData response) is
+  // manually cached: the DWR endpoint requires a JSESSIONID cookie + ajaxSecKey
+  // CSRF token from a prior career-page GET, which the plain refresh fetcher
+  // cannot perform (same situation as otto-api-de.json). To refresh: GET the
+  // career page, capture cookie + ajaxSecKey, then POST the
+  // getInitialJobSearchData DWR body (see successfactors.ts sfDWRInitialFetch).
 ];
 
 // Live captures are not historical fixtures. Bounded, credential-free HTTP only.

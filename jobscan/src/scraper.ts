@@ -296,7 +296,7 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
 
   // ── SuccessFactors: fetch location + description from the job detail page ──
   // SF rate-limits aggressively — use a longer 4-9 s delay to avoid 403s.
-  if (/career\d+\.successfactors\./i.test(job.url)) {
+  if (/career\d+\.(successfactors|sapsf)\./i.test(job.url)) {
     await randomDelay(3000, 5000);
     const { description, location, error } = await successfactorsJobDetailFetch(job.url);
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
