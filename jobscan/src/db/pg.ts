@@ -232,7 +232,7 @@ export async function getJobs(filters: JobFilters = {}): Promise<Job[]> {
   const params: unknown[] = [];
   let i = 1;
 
-  if (filters.company)  { conditions.push(`company = $${i++}`);                            params.push(filters.company); }
+  if (filters.company)  { conditions.push(`company ILIKE $${i++}`);                        params.push(`%${filters.company}%`); }
   if (filters.title)    { conditions.push(`LOWER(title) LIKE $${i++}`);                    params.push(`%${filters.title.toLowerCase()}%`); }
   if (filters.location) { conditions.push(`LOWER(COALESCE(location,'')) LIKE $${i++}`);    params.push(`%${filters.location.toLowerCase()}%`); }
   if (filters.since)    { conditions.push(`first_seen >= $${i++}`);                         params.push(filters.since); }
@@ -303,8 +303,8 @@ function buildJobWhere(filters: PaginatedJobQuery): { clause: string; params: un
   let i = 1;
 
   if (filters.company) {
-    conditions.push(`company = $${i++}`);
-    params.push(filters.company);
+    conditions.push(`company ILIKE $${i++}`);
+    params.push(`%${filters.company}%`);
   }
   if (filters.since) {
     conditions.push(`first_seen >= $${i++}`);
