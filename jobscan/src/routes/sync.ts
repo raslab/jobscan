@@ -4,6 +4,36 @@ import * as db from '../db/index';
 
 const router = Router();
 
+/**
+ * In-flight per-source syncs keyed by sync session id. POST /api/sync/complete
+ * awaits these before writing completed_at, so a sync is only marked complete
+ * after all of its backend work has stopped (each source sync is itself bounded
+ * by the server-side SOURCE_SYNC_DEADLINE_MS).
+ */
+const inFlightBySyncId = new Map<number, Set<Promise<unknown>>>();
+
+function trackInFlight(syncId: number, promise: Promise<unknown>): void {
+  let set = inFlightBySyncId.get(syncId);
+  if (!set) {
+    set = new Set();
+    inFlightBySyncId.set(syncId, set);
+  }
+  set.add(promise);
+  const settle = () => {
+    const s2 = inFlightBySyncId.get(syncId);
+    if (s2) {
+      s2.delete(promise);
+      if (s2.size === 0) inFlightBySyncId.delete(syncId);
+    }
+  };
+  promise.then(settle, settle);
+}
+
+/** Test/inspection helper: pending backend work for a sync session. */
+export function pendingSyncWork(syncId: number): Promise<unknown>[] {
+  return Array.from(inFlightBySyncId.get(syncId) ?? []);
+}
+
 // POST /api/sync — trigger full sync
 router.post('/', async (_req: Request, res: Response) => {
   try {
@@ -38,8 +68,14 @@ router.post('/complete', async (req: Request, res: Response) => {
     return;
   }
   try {
-    await db.completeSyncLog(syncId, sourcesCount ?? 0, newJobs ?? 0);
-    res.json({ ok: true });
+    // Wait for all in-flight backend source syncs of this session to stop
+    // before marking the session complete. The client-supplied newJobs is
+    // ignored: the count is computed server-side from jobs rows belonging to
+    // this sync.
+    await Promise.allSettled(pendingSyncWork(syncId));
+    const newJobsServer = await db.countJobsBySyncId(syncId);
+    await db.completeSyncLog(syncId, sourcesCount ?? 0, newJobsServer);
+    res.json({ ok: true, syncId, newJobs: newJobsServer });
   } catch (err) {
     res
       .status(500)
@@ -60,7 +96,9 @@ router.post('/:sourceId', async (req: Request, res: Response) => {
     ? bodySyncId
     : undefined;
   try {
-    const result = await runSyncOneSource(sourceId, existingSyncId);
+    const promise = runSyncOneSource(sourceId, existingSyncId);
+    if (existingSyncId) trackInFlight(existingSyncId, promise);
+    const result = await promise;
     res.json(result);
   } catch (err) {
     // Return 200 with error payload so OAuth proxies don't treat it as their own error

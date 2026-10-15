@@ -219,6 +219,13 @@ export async function getJobsBySyncId(syncId: number): Promise<Job[]> {
     .all(syncId) as unknown as Job[];
 }
 
+export async function countJobsBySyncId(syncId: number): Promise<number> {
+  const row = db
+    .prepare('SELECT COUNT(*) AS count FROM jobs WHERE sync_id = ?')
+    .get(syncId) as unknown as { count: number | string };
+  return Number(row.count);
+}
+
 export async function getDistinctCompanies(): Promise<string[]> {
   const rows = db
     .prepare('SELECT DISTINCT company FROM jobs ORDER BY company')

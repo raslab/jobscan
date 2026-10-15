@@ -5,7 +5,7 @@ export interface Source {
   parser: string;
   added_at: string;
   last_synced: string | null;
-  last_status: 'ok' | 'error' | 'zero-jobs' | null;
+  last_status: 'ok' | 'error' | 'zero-jobs' | 'timed-out' | null;
   last_error: string | null;
   last_count: number | null;
 }
@@ -50,7 +50,7 @@ export type ParserFn = (html: string, baseUrl: string) => ParsedJob[];
 export interface SyncSourceResult {
   sourceId: number;
   company: string;
-  status: 'ok' | 'error' | 'zero-jobs';
+  status: 'ok' | 'error' | 'zero-jobs' | 'timed-out';
   newJobs: number;
   totalJobs?: number;
   error?: string;

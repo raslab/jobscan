@@ -762,6 +762,11 @@ tr.job-detail td {
   background: var(--pico-color-amber-500, #ffc107);
 }
 
+.dot-timeout {
+  background: var(--pico-color-orange-500, #fb8c00);
+  box-shadow: 0 0 0 2px var(--pico-color-orange-200, #ffcc80);
+}
+
 @keyframes dot-pulse {
   from { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
   to   { box-shadow: 0 0 0 2px rgba(255, 193, 7, 0); }
