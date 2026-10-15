@@ -59,7 +59,6 @@ function syncMixin() {
       }, 1000);
 
       const WORKER_COUNT = 5;
-      const SOURCE_TIMEOUT_MS = 5 * 60 * 1000;
       const activeParsers = new Map();
       panel.activeWorkers = WORKER_COUNT;
 
@@ -78,15 +77,13 @@ function syncMixin() {
         src.state = 'syncing';
         activeParsers.set(src.parser, (activeParsers.get(src.parser) || 0) + 1);
         try {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), SOURCE_TIMEOUT_MS);
+          // No client-side timeout: the backend enforces its own per-source
+          // deadline and reports 'timed-out' status in the response.
           const res = await fetch('/api/sync/' + src.id, {
             method: 'POST',
-            signal: ctrl.signal,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ syncId: sessionSyncId }),
           });
-          clearTimeout(timer);
           const data = await res.json();
           if (data.error && data.status === 'error') {
             src.state = 'error';
@@ -95,6 +92,10 @@ function syncMixin() {
             src.state = 'zero-jobs';
             src.totalJobs = 0;
             src.newJobs = 0;
+          } else if (data.status === 'timed-out') {
+            src.state = 'timed-out';
+            src.newJobs = data.newJobs || 0;
+            src.totalJobs = data.totalJobs ?? null;
           } else {
             src.state = 'done';
             src.newJobs = data.newJobs || 0;
@@ -102,7 +103,7 @@ function syncMixin() {
           }
         } catch (err) {
           src.state = 'error';
-          src.error = err.name === 'AbortError' ? 'Timeout (5 min)' : String(err);
+          src.error = String(err);
         } finally {
           const cnt = activeParsers.get(src.parser) || 1;
           if (cnt <= 1) activeParsers.delete(src.parser);
@@ -130,9 +131,12 @@ function syncMixin() {
       const totalNewJobs = panel.sources.reduce((sum, s) => sum + (s.newJobs || 0), 0);
       const sourcesChecked = panel.sources.filter(s => s.state !== 'pending').length;
 
-      // Complete the shared sync session
+      // Complete the shared sync session. The server waits for its in-flight
+      // source syncs to stop, then computes the new-job count itself from the
+      // jobs rows belonging to this sync — the client count is only a hint.
+      let serverNewJobsTotal = null;
       try {
-        await fetch('/api/sync/complete', {
+        const res = await fetch('/api/sync/complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -141,6 +145,8 @@ function syncMixin() {
             newJobs: totalNewJobs,
           }),
         });
+        const data = await res.json();
+        if (typeof data.newJobs === 'number') serverNewJobsTotal = data.newJobs;
       } catch (err) {
         console.error('Failed to complete sync session', err);
       }
@@ -154,7 +160,7 @@ function syncMixin() {
       }));
       this.syncSummary = {
         sourcesChecked: sourcesChecked,
-        newJobsTotal: totalNewJobs,
+        newJobsTotal: serverNewJobsTotal ?? totalNewJobs,
         results,
       };
 
@@ -177,7 +183,7 @@ function syncMixin() {
     },
 
     syncDoneCount() {
-      return this.syncPanel.sources.filter(s => s.state === 'done' || s.state === 'error' || s.state === 'zero-jobs').length;
+      return this.syncPanel.sources.filter(s => s.state === 'done' || s.state === 'error' || s.state === 'zero-jobs' || s.state === 'timed-out').length;
     },
 
     syncWithJobsCount() {

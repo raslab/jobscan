@@ -257,6 +257,13 @@ export async function getJobsBySyncId(syncId: number): Promise<Job[]> {
   return rows as Job[];
 }
 
+export async function countJobsBySyncId(syncId: number): Promise<number> {
+  const { rows } = await pool.query(
+    'SELECT COUNT(*)::int AS count FROM jobs WHERE sync_id = $1', [syncId]
+  );
+  return Number(rows[0].count);
+}
+
 export async function getDistinctCompanies(): Promise<string[]> {
   const { rows } = await pool.query('SELECT DISTINCT company FROM jobs ORDER BY company');
   return rows.map((r: { company: string }) => r.company);

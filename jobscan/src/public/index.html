@@ -153,6 +153,7 @@
                   'dot-done':     src.state === 'done',
                   'dot-error':    src.state === 'error',
                   'dot-zero':     src.state === 'zero-jobs',
+                  'dot-timeout':  src.state === 'timed-out',
                 }"
                 @click="syncDotClick(src.company)"
               >
@@ -164,6 +165,7 @@
                     src.state === 'syncing' ? 'Syncing…' :
                     src.state === 'done' ? (src.newJobs > 0 ? '+' + src.newJobs + ' new' : 'No new jobs') :
                     src.state === 'zero-jobs' ? '0 jobs found' :
+                    src.state === 'timed-out' ? 'Timed out (5 min) — partial results saved' :
                     src.error || 'Error'
                   "></span>
                   <span class="dot-tip-count"
@@ -444,6 +446,7 @@
                 <option value="">All statuses</option>
                 <option value="ok">ok</option>
                 <option value="zero-jobs">zero-jobs</option>
+                <option value="timed-out">timed-out</option>
                 <option value="error">error</option>
               </select>
               <button
@@ -491,7 +494,7 @@
                         <span
                           :class="{
                             'badge-ok': s.last_status === 'ok',
-                            'badge-warning': s.last_status === 'zero-jobs',
+                            'badge-warning': s.last_status === 'zero-jobs' || s.last_status === 'timed-out',
                             'badge-error': s.last_status === 'error'
                           }"
                           x-text="s.last_status ?? '—'"
