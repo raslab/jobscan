@@ -53,6 +53,12 @@ function runMigrations(): void {
     db.exec(sql);
     db.exec('PRAGMA user_version = 4');
   }
+  if (row.user_version < 5) {
+    const migrationPath = path.join(__dirname, '..', 'migrations', '0005_add_backfill_flag.sql');
+    const sql = fs.readFileSync(migrationPath, 'utf8');
+    db.exec(sql);
+    db.exec('PRAGMA user_version = 5');
+  }
 }
 
 // ─── Sources ─────────────────────────────────────────────────────────────────
@@ -139,17 +145,18 @@ export async function insertJobIfNew(job: Omit<Job, 'id'>): Promise<boolean> {
  * without a second lookup.
  */
 export async function insertJobListingRow(job: Omit<Job, 'id'>): Promise<{ id: number; inserted: boolean }> {
+  const needsBackfill = job.description ? 0 : 1;
   const result = db
     .prepare(
       `INSERT OR IGNORE INTO jobs
-         (source_id, sync_id, company, title, location, workplace_type, commitment, department, team, description, url, first_seen)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         (source_id, sync_id, company, title, location, workplace_type, commitment, department, team, description, url, first_seen, needs_backfill)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       job.source_id, job.sync_id, job.company, job.title,
       job.location ?? null, job.workplace_type ?? null, job.commitment ?? null,
       job.department ?? null, job.team ?? null,
-      job.description ?? null, job.url, job.first_seen
+      job.description ?? null, job.url, job.first_seen, needsBackfill
     );
   if (result.changes === 1) {
     return { id: Number(result.lastInsertRowid), inserted: true };
@@ -183,6 +190,11 @@ export async function updateJobDetails(
   if (fields.department     !== undefined) { sets.push('department = ?');     values.push(fields.department); }
   if (fields.team           !== undefined) { sets.push('team = ?');           values.push(fields.team); }
   if (fields.location       !== undefined) { sets.push('location = ?');       values.push(fields.location); }
+  // A non-empty description written here resolves the partial-data condition,
+  // so retire the row from the backfill backlog (owner comment 6195486910).
+  if (fields.description !== undefined && fields.description !== '') {
+    sets.push('needs_backfill = 0');
+  }
   if (sets.length === 0) return;
   values.push(jobId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -247,7 +259,7 @@ export async function getJobsWithEmptyDescription(sourceId: number): Promise<Pic
       `SELECT id, url, title, location, department, workplace_type, commitment
        FROM jobs
        WHERE source_id = ?
-         AND (description IS NULL OR description = '')`
+         AND needs_backfill = 1`
     )
     .all(sourceId) as unknown as Pick<Job, 'id' | 'url' | 'title' | 'location' | 'department' | 'workplace_type' | 'commitment'>[];
 }
@@ -255,6 +267,13 @@ export async function getJobsWithEmptyDescription(sourceId: number): Promise<Pic
 /** Update the description of an existing job row by its primary key. */
 export async function updateJobDescription(jobId: number, description: string): Promise<void> {
   db.prepare('UPDATE jobs SET description = ? WHERE id = ?').run(description, jobId);
+}
+
+/** Raise/clear the needs_backfill flag on a job row. Cleared when a backfill
+ *  succeeds (also implied by updateJobDetails) or the job is definitively gone
+ *  (4xx); kept raised on transient failures so the row is retried next sync. */
+export async function setJobNeedsBackfill(jobId: number, value: boolean): Promise<void> {
+  db.prepare('UPDATE jobs SET needs_backfill = ? WHERE id = ?').run(value ? 1 : 0, jobId);
 }
 
 // ─── Paginated queries ────────────────────────────────────────────────────────

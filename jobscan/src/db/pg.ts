@@ -86,6 +86,14 @@ async function runMigrations(): Promise<void> {
       await client.query(`INSERT INTO schema_migrations (version) VALUES (6)`);
       console.log('[pg] Migration 0006 applied (CRM composite indexes)');
     }
+    const { rows: rows7 } = await client.query(`SELECT version FROM schema_migrations WHERE version = 7`);
+    if (rows7.length === 0) {
+      const migrationPath = path.join(__dirname, '..', 'migrations', '0007_add_backfill_flag_pg.sql');
+      const sql = fs.readFileSync(migrationPath, 'utf8');
+      await client.query(sql);
+      await client.query(`INSERT INTO schema_migrations (version) VALUES (7)`);
+      console.log('[pg] Migration 0007 applied (needs_backfill flag)');
+    }
   } finally {
     client.release();
   }
@@ -179,17 +187,18 @@ export async function insertJobIfNew(job: Omit<Job, 'id'>): Promise<boolean> {
  * whether a new row was actually inserted (false = row already existed).
  */
 export async function insertJobListingRow(job: Omit<Job, 'id'>): Promise<{ id: number; inserted: boolean }> {
+  const needsBackfill = !job.description;
   const { rows } = await pool.query(
     `INSERT INTO jobs
-       (source_id, sync_id, company, title, location, workplace_type, commitment, department, team, description, url, first_seen)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+       (source_id, sync_id, company, title, location, workplace_type, commitment, department, team, description, url, first_seen, needs_backfill)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
      ON CONFLICT (url) DO NOTHING
      RETURNING id`,
     [
       job.source_id, job.sync_id, job.company, job.title,
       job.location ?? null, job.workplace_type ?? null, job.commitment ?? null,
       job.department ?? null, job.team ?? null,
-      job.description ?? null, job.url, job.first_seen,
+      job.description ?? null, job.url, job.first_seen, needsBackfill,
     ]
   );
   if (rows.length > 0) return { id: rows[0].id as number, inserted: true };
@@ -222,6 +231,11 @@ export async function updateJobDetails(
   if (fields.department     !== undefined) { sets.push(`department = $${i++}`);     values.push(fields.department); }
   if (fields.team           !== undefined) { sets.push(`team = $${i++}`);           values.push(fields.team); }
   if (fields.location       !== undefined) { sets.push(`location = $${i++}`);       values.push(fields.location); }
+  // A non-empty description written here resolves the partial-data condition,
+  // so retire the row from the backfill backlog (owner comment 6195486910).
+  if (fields.description !== undefined && fields.description !== '') {
+    sets.push('needs_backfill = FALSE');
+  }
   if (sets.length === 0) return;
   values.push(jobId);
   await pool.query(`UPDATE jobs SET ${sets.join(', ')} WHERE id = $${i}`, values);
@@ -280,7 +294,7 @@ export async function getJobsWithEmptyDescription(sourceId: number): Promise<Pic
     `SELECT id, url, title, location, department, workplace_type, commitment
      FROM jobs
      WHERE source_id = $1
-       AND (description IS NULL OR description = '')`,
+       AND needs_backfill = TRUE`,
     [sourceId]
   );
   return rows as Pick<Job, 'id' | 'url' | 'title' | 'location' | 'department' | 'workplace_type' | 'commitment'>[];
@@ -289,6 +303,13 @@ export async function getJobsWithEmptyDescription(sourceId: number): Promise<Pic
 /** Update the description of an existing job row by its primary key. */
 export async function updateJobDescription(jobId: number, description: string): Promise<void> {
   await pool.query('UPDATE jobs SET description = $1 WHERE id = $2', [description, jobId]);
+}
+
+/** Raise/clear the needs_backfill flag on a job row. Cleared when a backfill
+ *  succeeds (also implied by updateJobDetails) or the job is definitively gone
+ *  (4xx); kept raised on transient failures so the row is retried next sync. */
+export async function setJobNeedsBackfill(jobId: number, value: boolean): Promise<void> {
+  await pool.query('UPDATE jobs SET needs_backfill = $1 WHERE id = $2', [value, jobId]);
 }
 
 // ─── Paginated queries ────────────────────────────────────────────────────────

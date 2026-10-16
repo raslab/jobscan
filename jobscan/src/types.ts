@@ -24,6 +24,11 @@ export interface Job {
   description: string | null;
   url: string;
   first_seen: string;
+  /** True when the row has partial data (empty description) and must be
+   *  retried by the description-backfill pass. Cleared on successful backfill
+   *  or when the job is definitively gone (4xx); kept raised on transient
+   *  failures so the row is retried on the next sync. */
+  needs_backfill?: boolean | number;
 }
 
 export interface SyncLog {

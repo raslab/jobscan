@@ -1,5 +1,5 @@
 import * as db from './db/index';
-import { scrapeSource, scrapeJobDetail, RateLimitError } from './scraper';
+import { scrapeSource, scrapeJobDetail, RateLimitError, JobGoneError } from './scraper';
 import { randomDelay } from './fetch-utils';
 import { ParsedJob, SyncSourceResult, SyncSummary } from './types';
 
@@ -109,13 +109,104 @@ export async function syncOneSource(
   const existingUrls = await db.getExistingJobUrls(source.id);
   const unseenJobs = jobs.filter((job) => !existingUrls.has(job.url));
 
-  if (unseenJobs.length === 0) {
-    // All positions already known — update count but skip detail fetching entirely
-    await db.updateSourceSync(source.id, 'ok', jobs.length);
-    return { sourceId: source.id, company: source.company, status: 'ok', newJobs: 0, totalJobs: jobs.length };
+  const concurrency = DETAIL_CONCURRENCY[source.parser] ?? DEFAULT_DETAIL_CONCURRENCY;
+
+  // ── Backfill descriptions for existing jobs flagged needs_backfill ────────
+  // This handles cases where a detail fetch previously failed (rate-limit,
+  // transient error, parser gap) and left description=NULL in the DB. The pass
+  // runs on EVERY successful sync — including when no new jobs were discovered
+  // — and BEFORE new-job listing commit / detail enrichment, so old records
+  // are repaired first while new-job scraping keeps the deadline budget
+  // (owner comment 6188617637).
+  //
+  // Deadline-bounded (review comment rc:4283583004): skipped entirely when the
+  // deadline already expired, and the shared deadlineExpired closure is passed
+  // as shouldStop so in-flight tasks stop at the deadline. No numeric cap
+  // (owner comment 6195486910).
+  //
+  // Flag lifecycle (owner comment 6195486910): a definitive 4xx (job gone)
+  // clears needs_backfill so dead records retire permanently; success clears it
+  // via updateJobDetails; 5xx/network/transient failures leave it raised so the
+  // row is retried on the next sync.
+  let backfillRateLimited = false;
+  if (!deadlineExpired()) {
+    const emptyDescJobs = await db.getJobsWithEmptyDescription(source.id);
+    if (emptyDescJobs.length > 0) {
+      console.log(`[sync] ${source.company}: ${emptyDescJobs.length} existing jobs flagged for description backfill — backfilling…`);
+
+      // Build a url→id map so we can do a targeted UPDATE after enrichment
+      const backfillUrlToId = new Map(emptyDescJobs.map((j) => [j.url, j.id]));
+
+      // Convert DB rows to ParsedJob (no description field → scrapeJobDetail will fetch it)
+      const forRefetch = emptyDescJobs.map((j) => ({
+        url:            j.url,
+        title:          j.title,
+        location:       j.location    ?? undefined,
+        department:     j.department  ?? undefined,
+        workplace_type: j.workplace_type ?? undefined,
+        commitment:     j.commitment  ?? undefined,
+      }));
+
+      const { results: backfilled, rateLimited: rlBackfill } = await pLimitAbortable(
+        forRefetch.map((job) => async () => {
+          try {
+            return await scrapeJobDetail(job);
+          } catch (err) {
+            if (err instanceof RateLimitError) throw err; // aborts the batch
+            if (err instanceof JobGoneError) {
+              // Job definitively gone (4xx) — retire the row from the backlog.
+              const dbId = backfillUrlToId.get(job.url);
+              if (dbId !== undefined) await db.setJobNeedsBackfill(dbId, false);
+              return undefined;
+            }
+            throw err;
+          }
+        }),
+        concurrency,
+        deadlineExpired,
+      );
+      backfillRateLimited = rlBackfill;
+
+      let updatedCount = 0;
+      for (const job of backfilled) {
+        if (!job) continue;
+        const hasUpdate =
+          job.description    !== undefined ||
+          job.workplace_type !== undefined ||
+          job.commitment     !== undefined ||
+          job.department     !== undefined ||
+          job.team           !== undefined;
+        if (hasUpdate) {
+          const dbId = backfillUrlToId.get(job.url);
+          if (dbId !== undefined) {
+            await db.updateJobDetails(dbId, {
+              description:    job.description,
+              workplace_type: job.workplace_type,
+              commitment:     job.commitment,
+              department:     job.department,
+              team:           job.team,
+            });
+            if (job.description) updatedCount++;
+          }
+        }
+      }
+
+      if (rlBackfill) {
+        console.log(`[sync] ${source.company}: rate-limited during backfill — updated ${updatedCount}/${emptyDescJobs.length}`);
+      } else {
+        console.log(`[sync] ${source.company}: backfill done — ${updatedCount}/${emptyDescJobs.length} descriptions updated`);
+      }
+    }
   }
 
-  console.log(`[sync] ${source.company}: ${unseenJobs.length} new jobs to enrich (${jobs.length} total)`);
+  if (unseenJobs.length === 0) {
+    // All positions already known — the backfill pass above still ran; skip
+    // listing commit and detail enrichment entirely (no duplicates, original
+    // sync_id/first_seen untouched).
+    console.log(`[sync] ${source.company}: no new jobs — backfill pass completed`);
+  } else {
+    console.log(`[sync] ${source.company}: ${unseenJobs.length} new jobs to enrich (${jobs.length} total)`);
+  }
 
   // ── Step 1: Commit listing rows immediately ──────────────────────────────
   // Insert every unseen job now with whatever the listing gave us
@@ -151,12 +242,20 @@ export async function syncOneSource(
   // additional fields (workplace_type, commitment, department, team) as soon
   // as it finishes — no waiting for the whole batch.
   // On RateLimitError the batch stops early; the rows inserted above are safe.
-  const concurrency = DETAIL_CONCURRENCY[source.parser] ?? DEFAULT_DETAIL_CONCURRENCY;
-  const { rateLimited } = timedOut
-    ? { rateLimited: false }
+  // If the backfill pass was rate-limited, skip enrichment entirely
+  // (anti-hammering): listing rows stay committed and enrichment defers to
+  // the next sync, where the raised needs_backfill flag picks them up.
+  const { rateLimited } = (timedOut || backfillRateLimited)
+    ? { rateLimited: backfillRateLimited }
     : await pLimitAbortable(
     unseenJobs.map((job) => async () => {
-      const enriched = await scrapeJobDetail(job); // may throw RateLimitError
+      let enriched: ParsedJob;
+      try {
+        enriched = await scrapeJobDetail(job); // may throw RateLimitError
+      } catch (err) {
+        if (err instanceof JobGoneError) return undefined; // row keeps its raised flag; retired by a later backfill
+        throw err;
+      }
       const id = urlToId.get(enriched.url);
       if (id !== undefined) {
         const hasUpdate =
@@ -187,69 +286,14 @@ export async function syncOneSource(
     return { sourceId: source.id, company: source.company, status: 'timed-out', newJobs, totalJobs: jobs.length };
   }
 
-  if (rateLimited) {
+  if (backfillRateLimited) {
+    console.log(`[sync] ${source.company}: rate-limited during backfill — new-job enrichment deferred to next sync`);
+  } else if (rateLimited) {
     console.log(`[sync] ${source.company}: rate-limited during detail fetches — ${newJobs} jobs are saved, descriptions will backfill on next sync`);
   }
 
   await db.updateSourceSync(source.id, 'ok', jobs.length);
   console.log(`[sync] ${source.company}: done — ${newJobs} new jobs inserted`);
-
-  // ── Backfill descriptions for existing jobs that previously got none ───────
-  // This handles cases where a detail fetch previously failed (rate-limit, transient
-  // error, parser gap) and left description=NULL in the DB.  We retry them on every
-  // subsequent sync so gaps gradually fill in without a manual trigger.
-  // Rate-limited → stop early, same as the new-jobs pass above.
-  const emptyDescJobs = await db.getJobsWithEmptyDescription(source.id);
-  if (emptyDescJobs.length > 0 && !rateLimited) {
-    console.log(`[sync] ${source.company}: ${emptyDescJobs.length} existing jobs missing descriptions — backfilling…`);
-
-    // Build a url→id map so we can do a targeted UPDATE after enrichment
-    const urlToId = new Map(emptyDescJobs.map((j) => [j.url, j.id]));
-
-    // Convert DB rows to ParsedJob (no description field → scrapeJobDetail will fetch it)
-    const forRefetch = emptyDescJobs.map((j) => ({
-      url:            j.url,
-      title:          j.title,
-      location:       j.location    ?? undefined,
-      department:     j.department  ?? undefined,
-      workplace_type: j.workplace_type ?? undefined,
-      commitment:     j.commitment  ?? undefined,
-    }));
-
-    const { results: backfilled, rateLimited: rlBackfill } = await pLimitAbortable(
-      forRefetch.map((job) => () => scrapeJobDetail(job)),
-      concurrency,
-    );
-
-    let updatedCount = 0;
-    for (const job of backfilled) {
-      const hasUpdate =
-        job.description    !== undefined ||
-        job.workplace_type !== undefined ||
-        job.commitment     !== undefined ||
-        job.department     !== undefined ||
-        job.team           !== undefined;
-      if (hasUpdate) {
-        const dbId = urlToId.get(job.url);
-        if (dbId !== undefined) {
-          await db.updateJobDetails(dbId, {
-            description:    job.description,
-            workplace_type: job.workplace_type,
-            commitment:     job.commitment,
-            department:     job.department,
-            team:           job.team,
-          });
-          if (job.description) updatedCount++;
-        }
-      }
-    }
-
-    if (rlBackfill) {
-      console.log(`[sync] ${source.company}: rate-limited during backfill — updated ${updatedCount}/${emptyDescJobs.length}`);
-    } else {
-      console.log(`[sync] ${source.company}: backfill done — ${updatedCount}/${emptyDescJobs.length} descriptions updated`);
-    }
-  }
 
   return { sourceId: source.id, company: source.company, status: 'ok', newJobs, totalJobs: jobs.length };
 }
