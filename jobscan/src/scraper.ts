@@ -321,9 +321,16 @@ export async function scrapeJobDetail(job: ParsedJob): Promise<ParsedJob> {
 
   // ── SuccessFactors: fetch location + description from the job detail page ──
   // SF rate-limits aggressively — use a longer 4-9 s delay to avoid 403s.
-  if (/career\d+\.successfactors\./i.test(job.url)) {
+  // Matches both classic career*.successfactors.* URLs and the
+  // career*/hcm*.sapsf.(eu|com) hosts that CSB custom domains
+  // (e.g. careers.capgemini.com) resolve job links to via sfExtractCSBInfo —
+  // without the sapsf alternation, CSB jobs fall through to the generic
+  // detail path and never receive successfactorsJobDetailFetch metadata.
+  if (/career\d+\.successfactors\.|(?:career|hcm)\d*\.sapsf\.(?:eu|com)/i.test(job.url)) {
     await randomDelay(3000, 5000);
-    const { description, location, error } = await successfactorsJobDetailFetch(job.url);
+    const { description, location, error } = await successfactorsJobDetailFetch(job.url, {
+      postingDate: (job as { postingDate?: string }).postingDate,
+    });
     if (error && /429|403/.test(error)) throw new RateLimitError(job.url, error);
     if (error && isGoneError(error)) throw new JobGoneError(job.url, error);
     return {
