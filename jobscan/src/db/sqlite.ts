@@ -205,7 +205,7 @@ export async function getJobs(filters: JobFilters = {}): Promise<Job[]> {
   return db
     .prepare(
       `SELECT * FROM jobs
-       WHERE (:company  IS NULL OR company = :company)
+       WHERE (:company  IS NULL OR LOWER(company) LIKE '%' || LOWER(:company) || '%')
          AND (:title    IS NULL OR LOWER(title)    LIKE '%' || LOWER(:title)    || '%')
          AND (:location IS NULL OR LOWER(location) LIKE '%' || LOWER(:location) || '%')
          AND (:since    IS NULL OR first_seen >= :since)
@@ -287,7 +287,7 @@ function buildJobWhere(filters: PaginatedJobQuery): { clause: string; params: Re
   const params: Record<string, string | number | null> = {};
 
   if (filters.company) {
-    conditions.push('company = :fCompany');
+    conditions.push("LOWER(company) LIKE '%' || LOWER(:fCompany) || '%'");
     params.fCompany = filters.company;
   }
   if (filters.since) {
