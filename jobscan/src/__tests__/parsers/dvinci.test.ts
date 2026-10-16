@@ -14,6 +14,7 @@
  */
 
 import { loadFixture } from '../helpers/fixture-loader';
+import { expectMarkdownDescription } from '../helpers/markdown';
 
 // Mock fetch-utils so dvinciApiFetch uses cached data instead of network
 jest.mock('../../fetch-utils', () => ({
@@ -255,6 +256,8 @@ describe('dvinciParseDetailHtml — CENIT job detail', () => {
     expect(result.description).toBeTruthy();
     // Should be Markdown, not raw HTML
     expect(result.description).not.toContain('<br>');
+    // Markdown contract: no HTML tags at all in the stored description
+    expectMarkdownDescription(result.description);
     // Should contain meaningful content
     expect(result.description).toMatch(/CENIT|Digital Manufacturing/i);
   });

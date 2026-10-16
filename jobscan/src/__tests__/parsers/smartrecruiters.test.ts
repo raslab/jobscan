@@ -12,6 +12,7 @@
  */
 
 import { loadJsonFixture, loadFixture } from '../helpers/fixture-loader';
+import { expectMarkdownDescription } from '../helpers/markdown';
 
 // Mock fetch-utils so API functions use cached data instead of network
 jest.mock('../../fetch-utils', () => ({
@@ -249,6 +250,8 @@ describe('smartrecruitersJobDetailApiFetch', () => {
     expect(result.description).toBeTruthy();
     // Description should contain content from the sections
     expect(result.description).toContain('Polygon Technology');
+    // Markdown contract: no raw HTML tags in the stored description
+    expectMarkdownDescription(result.description, { sourceHadMarkdownMarkers: true });
   });
 
   it('should include multiple sections in description', async () => {

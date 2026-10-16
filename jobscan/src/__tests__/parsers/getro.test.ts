@@ -19,6 +19,7 @@
  */
 
 import { loadFixture, loadJsonFixture } from '../helpers/fixture-loader';
+import { expectMarkdownDescription, expectNoHtmlTags } from '../helpers/markdown';
 
 // Mock fetch-utils so API fetch uses cached data
 jest.mock('../../fetch-utils', () => ({
@@ -1052,6 +1053,73 @@ describe('getroApiFetch — Protocol Labs / PL Job Board', () => {
     const result = await getroApiFetch('https://jobs.protocol.ai/companies/pl-job-board');
     for (const job of result.jobs) {
       expect(job.url).toMatch(/^https:\/\/jobs\.protocol\.ai\/companies\/pl-job-board\/jobs\//);
+    }
+  });
+});
+
+// ─── Markdown preservation (issue #16: no raw HTML descriptions) ─────────────
+
+describe('getroApiFetch — Markdown preservation', () => {
+  afterEach(() => {
+    mockFetchHtml.mockReset();
+    mockFetchJson.mockReset();
+    mockSleep.mockReset();
+  });
+
+  it('should convert HTML descriptions to Markdown (HV Capital / Accessus)', async () => {
+    const companyHtml = loadFixture('getro', 'hvcapital-accessus.html');
+    const sitemapXml = loadFixture('getro', 'hvcapital-sitemap.xml');
+    const jobDetail = loadJsonFixture('getro', 'hvcapital-accessus-job-detail.json');
+
+    // Sanity: the fixture source really is HTML
+    expect((jobDetail as any).description).toMatch(/<p>/);
+
+    mockFetchHtml
+      .mockResolvedValueOnce({ html: companyHtml })
+      .mockResolvedValueOnce({ html: sitemapXml });
+    mockFetchJson.mockResolvedValue({ data: jobDetail });
+
+    const result = await getroApiFetch('https://hv.getro.com/companies/accessus');
+    expect(result.error).toBeUndefined();
+    expect(result.jobs.length).toBeGreaterThan(0);
+
+    for (const job of result.jobs) {
+      expectNoHtmlTags(job.description);
+      // Source had headings/lists → Markdown structure must survive
+      expectMarkdownDescription(job.description, { sourceHadMarkdownMarkers: true });
+    }
+  });
+
+  it('should leave already-Markdown descriptions intact (Protocol Labs board)', async () => {
+    // Synthetic board page + sitemap (the live protocolai HTML fixtures are not
+    // checked in); the job-detail JSON fixture carries the real Markdown payload.
+    const companyHtml =
+      '<html><body><script id="__NEXT_DATA__" type="application/json">' +
+      JSON.stringify({ props: { pageProps: { company: { id: 1, name: 'Protocol Labs', slug: 'pl-job-board' }, network: { id: '1336' } } } }) +
+      '</script></body></html>';
+    const sitemapXml =
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+      '<url><loc>https://jobs.protocol.ai/companies/pl-job-board/jobs/79062553-ai-product-manager</loc></url>' +
+      '</urlset>';
+    const jobDetail = loadJsonFixture('getro', 'protocolai-pljobboard-job-detail.json');
+
+    // Sanity: the fixture source is already Markdown (no HTML tags)
+    expect((jobDetail as any).description).not.toMatch(/<[a-z][^>]*>/i);
+
+    mockFetchHtml
+      .mockResolvedValueOnce({ html: companyHtml })
+      .mockResolvedValueOnce({ html: sitemapXml });
+    mockFetchJson.mockResolvedValue({ data: jobDetail });
+
+    const result = await getroApiFetch('https://jobs.protocol.ai/companies/pl-job-board');
+    expect(result.error).toBeUndefined();
+    expect(result.jobs.length).toBeGreaterThan(0);
+
+    for (const job of result.jobs) {
+      expectMarkdownDescription(job.description, { sourceHadMarkdownMarkers: true });
+      // Already-Markdown content must not be escaped/mangled by conversion
+      expect(job.description).toContain('[Protocol Labs](https://protocol.ai/)');
     }
   });
 });

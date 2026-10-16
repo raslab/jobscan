@@ -1,6 +1,22 @@
 import { ParsedJob } from '../types';
 import { fetchHtml, fetchJson, sleep } from '../fetch-utils';
 import * as cheerio from 'cheerio';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
+
+const nhm = new NodeHtmlMarkdown({ bulletMarker: '-' });
+
+/** Heuristic: does the string contain HTML tags (vs already-Markdown text)? */
+const HTML_TAG_RE = /<[a-z][\s\S]*>/i;
+
+/**
+ * Normalize a Getro API description to Markdown.
+ * Some boards (e.g. jobs.protocol.ai) already return Markdown — only convert
+ * when the payload actually contains HTML tags, so nhm never mangles MD.
+ */
+function normalizeDescription(raw: string): string {
+  if (!raw) return '';
+  return HTML_TAG_RE.test(raw) ? nhm.translate(raw).trim() : raw;
+}
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -299,7 +315,7 @@ export async function getroApiFetch(url: string): Promise<{ jobs: ParsedJob[]; e
 
     // Build metadata header + description
     const header = buildMetadataHeader(jobData, company);
-    const rawDesc = jobData.description?.trim() ?? '';
+    const rawDesc = normalizeDescription(jobData.description?.trim() ?? '');
     const parts = [header, rawDesc].filter(Boolean);
     const description = parts.length > 0
       ? parts.join('\n---\n').slice(0, 20_000) || undefined

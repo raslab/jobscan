@@ -11,6 +11,7 @@
  */
 
 import { loadFixture, loadJsonFixture } from '../helpers/fixture-loader';
+import { expectMarkdownDescription, expectNoHtmlTags } from '../helpers/markdown';
 
 // Mock fetch-utils so ycombinatorApiFetch/Detect use our cached data
 jest.mock('../../fetch-utils', () => ({
@@ -255,6 +256,8 @@ describe('ycombinatorApiFetch', () => {
     for (const job of withDesc) {
       expect(job.description).toContain('Salary:');
       expect(job.description).toContain('---');
+      // Taktile detail fixture is already Markdown — must stay Markdown
+      expectMarkdownDescription(job.description, { sourceHadMarkdownMarkers: true });
     }
   });
 
@@ -492,5 +495,59 @@ describe('ycombinatorParser — Metadata field mapping', () => {
     expect(desc).toContain('Contact: Albert Lam');
     expect(desc).toContain('---');
     expect(desc).toContain('We are building the future of X.');
+    expectNoHtmlTags(desc);
+  });
+
+  it('should convert HTML descriptions to Markdown on detail pages', () => {
+    const jobData = {
+      props: {
+        job: {
+          id: 1000,
+          title: 'Backend Engineer',
+          url: '/companies/test-co/jobs/xyz-backend-engineer',
+          location: 'Remote',
+          type: 'Full-time',
+          prettyRole: 'Engineering',
+          description:
+            '<p>We are <strong>hiring</strong> a backend engineer.</p>' +
+            '<ul><li>Go</li><li>Postgres</li></ul><h2>Benefits</h2><p>Equity &amp; learning budget.</p>',
+        },
+      },
+    };
+    const html = `<div data-page='${JSON.stringify(jobData)}'></div>`;
+    const jobs = ycombinatorParser(html, 'https://www.ycombinator.com/companies/test-co/jobs/xyz-backend-engineer');
+
+    expect(jobs).toHaveLength(1);
+    const desc = jobs[0].description!;
+    expectNoHtmlTags(desc);
+    expectMarkdownDescription(desc, { sourceHadMarkdownMarkers: true });
+    expect(desc).toContain('**hiring**');
+    expect(desc).toContain('## Benefits');
+    expect(desc).toContain('- Go');
+  });
+
+  it('should leave already-Markdown descriptions intact on detail pages', () => {
+    const md = '**About the role**\n\nBuild the future.\n\n- Ship features\n- Learn';
+    const jobData = {
+      props: {
+        job: {
+          id: 1001,
+          title: 'Product Designer',
+          url: '/companies/test-co/jobs/abc-product-designer',
+          location: 'Remote',
+          type: 'Full-time',
+          description: md,
+        },
+      },
+    };
+    const html = `<div data-page='${JSON.stringify(jobData)}'></div>`;
+    const jobs = ycombinatorParser(html, 'https://www.ycombinator.com/companies/test-co/jobs/abc-product-designer');
+
+    expect(jobs).toHaveLength(1);
+    const desc = jobs[0].description!;
+    expectNoHtmlTags(desc);
+    // Markdown must survive verbatim (not escaped by nhm)
+    expect(desc).toContain('**About the role**');
+    expect(desc).toContain('- Ship features');
   });
 });

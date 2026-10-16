@@ -300,7 +300,8 @@ export function dvinciParseDetailHtml(html: string): {
     try {
       result.description = NodeHtmlMarkdown.translate(descHtml);
     } catch {
-      result.description = descHtml;
+      // Fallback must never store raw HTML: strip tags via text extraction.
+      result.description = cheerio.load(descHtml).text().trim();
     }
   }
 

@@ -1,0 +1,96 @@
+{
+  "name": "Circonomit",
+  "description": "<p>At Circonomit, we’re building the strategic twin of organisations – a control system that understands the true impact of time, money, and resources in order to eliminate the negative effects in systems that come from hidden interdependencies.</p>",
+  "jobs": [
+    {
+      "title": "Applied Operations Research Engineer",
+      "shortcode": "71BB556160",
+      "code": "",
+      "employment_type": "Full-time",
+      "telecommuting": false,
+      "department": "Tech",
+      "url": "https://apply.workable.com/j/71BB556160",
+      "shortlink": "https://apply.workable.com/j/71BB556160",
+      "application_url": "https://apply.workable.com/j/71BB556160/apply",
+      "published_on": "2026-09-02",
+      "created_at": "2026-09-02",
+      "country": "Germany",
+      "city": "Cologne",
+      "state": "North Rhine-Westphalia",
+      "education": "Master's Degree",
+      "experience": "Mid-Senior level",
+      "function": "Engineering",
+      "industry": "Computer Software",
+      "locations": [
+        {
+          "country": "Germany",
+          "countryCode": "DE",
+          "city": "Cologne",
+          "region": "North Rhine-Westphalia",
+          "hidden": false
+        }
+      ],
+      "description": "<p>Hi, I'm Erik, CTO at Circonomit. We build the decision platform industrial companies use to plan their production. The toughest challenges we're facing:</p><ul><li>A model that answers for one site has to keep answering across twelve, over more periods and harder constraints. And a hundred customers have to solve at once without noticing each other.</li><li>Our engineers, and eventually our customers, should build and extend models without you in the room. That means deciding where the abstraction belongs and what the modeling vocabulary has to cover.</li><li>When the honest answer is \"impossible\", the planner still needs something usable: which rules collide, and what it would cost to bend one.</li></ul><p>I need someone to own the engine our models run on: decide how it gets built, build it, keep it running.</p><p>Our models decide what gets produced when, on which machine, and at what stock level. The engine sits between the mathematics that makes the answer correct and the product that has to make it usable by people who are not mathematicians.</p><p>We came out of RWTH research, raised €2.8M with Vorwerk Ventures, and have customers running on our models today. Small team, Cologne office.</p><p><strong>Requirements</strong></p><ul><li>You have modeled and shipped combinatorial optimization in industry (MILP, CP, or both), with models that ran on messy data and real users.</li><li>Recent, substantial hands-on experience writing and operating production Python: tests, types, review, measurement before optimization. You know how numerics go wrong where a model meets a solver: scaling, tolerances, integrality.</li><li>You know where solvers reach their limits, CP-SAT and Gurobi included, and can say which technique bought you what: warm starts, rolling horizon, relax-and-fix, aggregation, or a heuristic.</li><li>Experience running optimization workloads in production, not only in notebooks: cancellation, timeouts, and parallel solves included.</li><li>You can name the modeling or solver decision that will decide whether something holds up at scale, before it is built.</li><li>The ability to make technical decisions independently and explain the trade-offs.</li><li>You want to understand the customer's problem and their data, not only the mathematics.</li><li>German at C1 level or above, and fluent English. Team communication is in German; code and documentation are in English.</li><li>Existing work visa for Germany.</li></ul><p>You should enjoy turning ambiguous customer problems into models that hold up, rather than waiting for a specification. Priorities change as we learn from customers, and we make scope and trade-offs explicit together.</p><p><strong>Benefits</strong></p><ul><li><strong>Ownership.</strong> The engine every customer model runs on: modeling language, compiler, solver integration.</li><li><strong>Architectural influence.</strong> You'll own how modeling and solving evolve here, and make those trade-offs directly with the team.</li><li><strong>Leverage.</strong> You do not build one model for one customer. You build what every model here is built with.</li><li><strong>Real-world impact.</strong> Customers plan their production on our models today.</li><li><strong>Direct collaboration.</strong> Small team, no org chart. We work directly together. Weekly feedback, both ways.</li><li><strong>Compensation.</strong> Competitive salary plus a VSOP package reflecting your contribution and development in the role.</li><li><strong>Hybrid work.</strong> We work from our Cologne office, with one to two home-office days per week. You don't need to live in Cologne, but you do need to be able to work from the office on the remaining days.</li><li><strong>Your setup and everyday extras.</strong> Hardware of your choice · AI tooling budget · sports membership · Deutschland-Ticket.</li></ul><p><strong>Process:</strong> A 20-minute call, a technical conversation with me and one of our engineers, a three-hour challenge with a 45-minute walkthrough, then a conversation with the team. Two to three weeks overall, with feedback within days.</p>"
+    },
+    {
+      "title": "Forward Deployed Engineer",
+      "shortcode": "53549C4AFB",
+      "code": "FDE-001",
+      "employment_type": "Full-time",
+      "telecommuting": false,
+      "department": "Tech",
+      "url": "https://apply.workable.com/j/53549C4AFB",
+      "shortlink": "https://apply.workable.com/j/53549C4AFB",
+      "application_url": "https://apply.workable.com/j/53549C4AFB/apply",
+      "published_on": "2026-09-04",
+      "created_at": "2026-09-01",
+      "country": "Germany",
+      "city": "Cologne",
+      "state": "North Rhine-Westphalia",
+      "education": "Bachelor's Degree",
+      "experience": "Mid-Senior level",
+      "function": "Information Technology",
+      "industry": "Computer Software",
+      "locations": [
+        {
+          "country": "Germany",
+          "countryCode": "DE",
+          "city": "Cologne",
+          "region": "North Rhine-Westphalia",
+          "hidden": false
+        }
+      ],
+      "description": "<p>Hi, I'm Erik, CTO at Circonomit. We build the decision platform industrial companies use to plan their production. The problems that show up at every customer:</p><ul><li>Optimization software fails in the gap between what a company actually does and what the model assumes. Someone has to sit with the people who plan today and turn how they really decide into something a machine can compute.</li><li>ERP and Excel exports arrive inconsistent and incomplete. The numbers that cannot be right have to be caught before the customer notices them.</li><li>The same planning problem shows up at the second and third customer in a different shape. Somebody has to decide what stays project work and what becomes product.</li></ul><p>I need someone to take the customer's decision problem and own it end to end: build the model on their data, and stay with it until their management trusts the result enough to act on it.</p><p>Our models decide what gets produced when, on which machine, and at what stock level. You build those models.</p><p>We came out of RWTH research, raised €2.8M with Vorwerk Ventures, and have customers running on our models today. Small team, Cologne office.</p><p><strong>Requirements</strong></p><ul><li>You have taken quantitative models for real operations problems into production. Optimization, simulation, or both.</li><li>You have done this more than once, end to end, and at least one of those models still runs without you.</li><li>Recent, substantial hands-on experience writing and operating production Python.</li><li>You identify the assumptions and constraints that decide the result, and clarify them with the customer before building.</li><li>You are comfortable working directly with plant managers and controllers, and can explain a model to people who will never read the code.</li><li>Experience with messy industrial data. Cleaning it is part of the work.</li><li>Experience working in a team with shared standards, not only on your own projects.</li><li>The ability to make technical decisions independently and explain the trade-offs.</li><li>German at C1 level or above, and fluent English. You can run a customer meeting in German and write a specification in English. Both are required, because the customer conversations happen in German.</li><li>Existing work visa for Germany.</li></ul><p>You should enjoy turning ambiguous customer needs into models that get used, rather than handing over after the concept. Priorities change as customers do, and we make scope and trade-offs explicit together.</p><p><strong>Benefits</strong></p><ul><li><strong>Ownership.</strong> The customer's model from the first conversation to the version running in production.</li><li><strong>Shaping the product.</strong> You make the call at the customer, and you argue the case for what belongs in the platform.</li><li><strong>Real-world impact.</strong> Customers plan their production on our models today, and they tell you what changed.</li><li><strong>Direct collaboration.</strong> Small team, no org chart. We work directly together. Weekly feedback, both ways.</li><li><strong>Compensation.</strong> Competitive salary plus a VSOP package reflecting your contribution and development in the role.</li><li><strong>Cologne plus customer sites.</strong> Most of the work happens at your desk in Cologne. Expect regular travel across the DACH region for the decisive conversations, though not every week.</li><li><strong>Your setup and everyday extras.</strong> Hardware of your choice · AI tooling budget · sports membership · Deutschland-Ticket.</li></ul><p><strong>Process:</strong> A 20-minute call, a technical conversation with two of us, a three-hour challenge on a real planning problem with messy data plus a 45-minute walkthrough, then a conversation with the team. Two to three weeks overall, with feedback within days.</p>"
+    },
+    {
+      "title": "Founding Product Manager",
+      "shortcode": "02CBDBBF40",
+      "code": "23426",
+      "employment_type": "Full-time",
+      "telecommuting": false,
+      "department": "Tech",
+      "url": "https://apply.workable.com/j/02CBDBBF40",
+      "shortlink": "https://apply.workable.com/j/02CBDBBF40",
+      "application_url": "https://apply.workable.com/j/02CBDBBF40/apply",
+      "published_on": "2026-10-01",
+      "created_at": "2026-10-01",
+      "country": "Germany",
+      "city": "Cologne",
+      "state": "North Rhine-Westphalia",
+      "education": "Master's Degree",
+      "experience": "Mid-Senior level",
+      "function": "Product Management",
+      "industry": "Computer Software",
+      "locations": [
+        {
+          "country": "Germany",
+          "countryCode": "DE",
+          "city": "Cologne",
+          "region": "North Rhine-Westphalia",
+          "hidden": false
+        }
+      ],
+      "description": "<p>Hi, we're Dana and Erik, the founders of Circonomit. We build the decision platform industrial companies use to plan their production.</p><p>Dana sees the customer side. She needs to know which use cases we can sell today, which we cannot, and what a demo is allowed to claim.</p><p>Erik sees the engineering side. He needs requirements that are ready to be built, complete, and clear about what we deliberately leave out.</p><p>The product sits between the two, and that is this role. We sell vertically, one use case at a time, while the product has to stay general enough to serve the next customer without being rebuilt. You decide what we build next, in which order, and what we decline.</p><p>How you will be measured: how much of today's project work is standard product a year from now, and how quickly a recognised customer problem becomes a usable capability.</p><p>We came out of RWTH research, raised €2.8M with Vorwerk Ventures, and have customers running on our models today. Small team, Cologne office.</p><p><strong>Requirements</strong></p><ul><li>5+ years in product management, or consulting with genuine product proximity. You have owned a product area end to end, not only a backlog.</li><li>A technical and analytical foundation: engineering, data, operations research, quantitative controlling, or finance with real modelling.</li><li>You recognise when a requirement creates technical debt or will not be reusable at the next customer. You will not write production code.</li><li>Experience deciding under incomplete information, and explaining the trade-offs afterwards: what you chose, why, and what it cost.</li><li>You are comfortable working directly with plant managers and controllers, and understand how they decide today.</li><li>German at C1 level or above, and fluent English. Customer conversations happen in German.</li><li>Existing work visa for Germany.</li></ul><p>You should enjoy being in front of customers in your first week, and deciding without a research team behind you. Priorities change as we learn from customers, and we make scope and trade-offs explicit together.</p><p><strong>Benefits</strong></p><ul><li><strong>Ownership.</strong> The roadmap, and where the line between product and customer project sits.</li><li><strong>Shaping the role.</strong> This is the founding product role. You define how product works here: discovery, prioritisation, and the standards between product and engineering.</li><li><strong>Exposure.</strong> You present your roadmap and the reasoning behind it to the board, and you sit in the core strategy conversations.</li><li><strong>Real-world impact.</strong> Customers plan their production on our models today.</li><li><strong>Direct collaboration.</strong> Small team, no org chart. We work directly together. Weekly feedback, both ways.</li><li><strong>Compensation.</strong> Competitive salary plus a VSOP package reflecting your contribution and development in the role.</li><li><strong>Hybrid work.</strong> Our HQ is in Cologne, and we meet there regularly.</li><li><strong>Your setup and everyday extras.</strong> Hardware of your choice · AI tooling budget · sports membership · Deutschland-Ticket.</li></ul><p><strong>Process:</strong> An intro call, a second conversation with the team, a 60- to 90-minute live case on a real customer requirement, then in-person conversations with the team.</p><p>\"Hustle the day, analyse at night, reinforce something outstanding.\" Period.</p>"
+    }
+  ]
+}

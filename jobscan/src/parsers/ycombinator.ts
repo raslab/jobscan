@@ -1,6 +1,23 @@
 import { ParsedJob } from '../types';
 import { fetchHtml, sleep } from '../fetch-utils';
 import * as cheerio from 'cheerio';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
+
+const nhm = new NodeHtmlMarkdown({ bulletMarker: '-' });
+
+/** Heuristic: does the string contain HTML tags (vs already-Markdown text)? */
+const HTML_TAG_RE = /<[a-z][\s\S]*>/i;
+
+/**
+ * Normalize a YC job detail description to Markdown.
+ * YC detail pages embed escaped HTML (e.g. &lt;p&gt;) in the data-page JSON;
+ * some descriptions are already Markdown — only convert when HTML tags are
+ * present so nhm never mangles MD.
+ */
+function normalizeDescription(raw: string): string {
+  if (!raw) return '';
+  return HTML_TAG_RE.test(raw) ? nhm.translate(raw).trim() : raw;
+}
 
 /**
  * Extract the company slug from a YCombinator jobs URL.
@@ -129,7 +146,7 @@ export async function ycombinatorApiFetch(url: string): Promise<{ jobs: ParsedJo
       if (detailProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const detailJob = detailProps.job as any;
-        if (detailJob?.description) rawDesc = detailJob.description.trim();
+        if (detailJob?.description) rawDesc = normalizeDescription(detailJob.description.trim());
         // Detail page may have hiringManager not present in listing
         if (detailJob?.hiringManager && !rawJobMap.get(job.url)?.hiringManager) {
           rawJobMap.get(job.url).hiringManager = detailJob.hiringManager;
@@ -204,7 +221,7 @@ export function ycombinatorParser(html: string, baseUrl: string): ParsedJob[] {
       : `https://www.ycombinator.com${relUrl}`;
 
     const header = buildMetadataHeader(singleJob);
-    const rawDesc = singleJob.description?.trim() ?? '';
+    const rawDesc = normalizeDescription(singleJob.description?.trim() ?? '');
     const parts = [header, rawDesc].filter(Boolean);
     const description = parts.length > 0
       ? parts.join('\n---\n').slice(0, 20_000) || undefined

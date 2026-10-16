@@ -1,5 +1,21 @@
 import * as cheerio from 'cheerio';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import { ParsedJob } from '../types';
+
+const nhm = new NodeHtmlMarkdown({ bulletMarker: '-' });
+
+/** Heuristic: does the string contain HTML tags (vs already-Markdown text)? */
+const HTML_TAG_RE = /<[a-z][\s\S]*>/i;
+
+/**
+ * Normalize a JSON-LD JobPosting description to Markdown.
+ * schema.org descriptions are usually HTML; some feeds already provide
+ * plain text/Markdown — only convert when HTML tags are present.
+ */
+function normalizeDescription(raw: string): string {
+  if (!raw) return '';
+  return HTML_TAG_RE.test(raw) ? nhm.translate(raw).trim() : raw;
+}
 
 function resolveUrl(href: string, baseUrl: string): string {
   if (!href) return '';
@@ -56,7 +72,7 @@ export function defaultParser(html: string, baseUrl: string): ParsedJob[] {
               : undefined;
           const description =
             typeof e['description'] === 'string'
-              ? e['description'].trim()
+              ? normalizeDescription(e['description'].trim()) || undefined
               : undefined;
           if (title && url) addJob({ title, url, location, description });
         }
