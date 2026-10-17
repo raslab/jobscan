@@ -27,6 +27,15 @@ import { NodeHtmlMarkdown } from 'node-html-markdown';
 import { fetchHtml } from '../fetch-utils';
 import { ParsedJob } from '../types';
 
+/**
+ * ParsedJob extended with the DWR listing posting date (MM/DD/YYYY as returned
+ * by the SF backend). In-memory only — never persisted (no DB schema change);
+ * the scraper threads it into the detail-page YAML frontmatter.
+ */
+export interface SFParsedJob extends ParsedJob {
+  postingDate?: string;
+}
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 /** Hard-coded DWR scriptSessionId root found in the generated engine.js */
@@ -332,8 +341,8 @@ async function sfDWRPaginatedFetch(
  *   s12.postingDate="03\/07\/2026";
  *   dwr.engine._remoteHandleCallback('1','0',{filters:s0,results:s1});
  */
-function parseDWRListings(dwr: string): {
-  jobs: Array<{ id: string; title: string }>;
+export function parseDWRListings(dwr: string): {
+  jobs: Array<{ id: string; title: string; postingDate?: string }>;
   detailURLPrefix: string;
   totalCount: number;
 } {
@@ -354,7 +363,7 @@ function parseDWRListings(dwr: string): {
   // ── Job stubs ──────────────────────────────────────────────────────────────
   // Each posting is represented by a unique JS variable (e.g. s12, s13…).
   // We look for variables that have BOTH .id=NUMBER and .title="…".
-  const jobs: Array<{ id: string; title: string }> = [];
+  const jobs: Array<{ id: string; title: string; postingDate?: string }> = [];
   const idPattern = /(\w+)\.id=(\d+);/g;
   let m: RegExpExecArray | null;
 
@@ -373,7 +382,14 @@ function parseDWRListings(dwr: string): {
       .replace(/\\t/g,  '\t')
       .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 
-    jobs.push({ id, title });
+    // Posting date on the same variable, e.g. s37.postingDate="10\/16\/2026"
+    const dateRe    = new RegExp(`${varName}\\.postingDate="((?:[^"\\\\]|\\\\.)*)";`);
+    const dateMatch = dwr.match(dateRe);
+    const postingDate = dateMatch
+      ? dateMatch[1].replace(/\\\//g, '/')
+      : undefined;
+
+    jobs.push({ id, title, postingDate });
   }
 
   // ── Total count ────────────────────────────────────────────────────────────
@@ -460,9 +476,14 @@ export async function successfactorsApiFetch(
 
   // 3. Build ParsedJob list
   const { jobs: stubs, detailURLPrefix } = parsed;
-  const jobs: ParsedJob[] = stubs.map(({ id, title }) => ({
+  // postingDate from the DWR response is carried on the stub so the scraper
+  // can thread it into the detail-page frontmatter as a posted_on fallback
+  // (rc:4293010464). ParsedJob itself has no posting-date column (non-goal:
+  // no DB schema changes), so the extra field lives only in-memory.
+  const jobs: SFParsedJob[] = stubs.map(({ id, title, postingDate }) => ({
     title: title || '(untitled)',
     url:   `https://${host}${detailURLPrefix}${id}`,
+    ...(postingDate ? { postingDate } : {}),
   }));
 
   console.log(`[successfactors] ${host}/${companyId}: ${jobs.length} jobs`);
@@ -470,21 +491,73 @@ export async function successfactorsApiFetch(
 }
 
 /**
- * Fetch a single SuccessFactors job detail page and extract:
- *   - location  (schema.org or breadcrumb line with bold elements)
- *   - description (schema.org or .joqReqDescription / .externalPosting)
- *   - company   (schema.org or page title)
+ * Metadata extracted from a SuccessFactors/CSB job detail page.
+ * All fields are best-effort — present only when the page exposes them.
+ */
+export interface SFJobMetadata {
+  location?: string;
+  company?: string;
+  posted_on?: string;
+  requisition_id?: string;
+  category?: string;
+}
+
+/** Render metadata as a YAML frontmatter block (values double-quoted). */
+function sfFrontmatter(meta: SFJobMetadata): string {
+  const esc = (v: string) => '"' + v.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  const lines: string[] = [];
+  if (meta.posted_on)      lines.push(`posted_on: ${esc(meta.posted_on)}`);
+  if (meta.requisition_id) lines.push(`requisition_id: ${esc(meta.requisition_id)}`);
+  if (meta.location)       lines.push(`location: ${esc(meta.location)}`);
+  if (meta.company)        lines.push(`company: ${esc(meta.company)}`);
+  if (meta.category)       lines.push(`category: ${esc(meta.category)}`);
+  if (lines.length === 0) return '';
+  return '---\n' + lines.join('\n') + '\n---\n\n';
+}
+
+/**
+ * Extract CSB joblayouttoken label/value pairs.
+ * CSB detail pages render sidebar tokens as:
+ *   <span class="joblayouttoken-label">Posted on:&nbsp;</span>
+ *   <span data-careersite-propertyid="date">Sep 18, 2026</span>
+ * Returns a map of lower-cased label → trimmed value (empty values dropped).
+ */
+function sfExtractLayoutTokens($: cheerio.CheerioAPI): Record<string, string> {
+  const tokens: Record<string, string> = {};
+  $('span.joblayouttoken-label').each(function () {
+    const label = $(this).text().replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    if (!label) return;
+    const valueEl = $(this).siblings('span[data-careersite-propertyid]').first();
+    const value   = (valueEl.length ? valueEl.text() : '')
+      .replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+    if (value) tokens[label] = value;
+  });
+  return tokens;
+}
+
+/**
+ * Fetch a single SuccessFactors job detail page and extract metadata +
+ * description. Metadata (location, company, posted_on, requisition_id,
+ * category) is prepended to the description as a YAML frontmatter block so
+ * the values survive into the jobs table without schema changes
+ * (rc:4293010464).
  *
  * Some SF instances (e.g. ESA) render schema.org metadata server-side.
  * Others (e.g. eberspaecher) are full SPAs but still include the job
  * description HTML and a location breadcrumb in the initial page load.
+ * CSB pages (e.g. careers.capgemini.com backed by career*.sapsf.eu) expose
+ * schema.org meta + joblayouttoken sidebar labels.
  *
  * Called by scraper.ts for each job after the listing is fetched.
  * No session cookies required for detail pages.
+ *
+ * @param listing optional posting date (MM/DD/YYYY) from the DWR listing,
+ *   used as a posted_on fallback when the detail page omits it.
  */
 export async function successfactorsJobDetailFetch(
   jobUrl: string,
-): Promise<{ description?: string; location?: string; company?: string; error?: string }> {
+  listing?: { postingDate?: string },
+): Promise<{ description?: string; location?: string; company?: string; metadata?: SFJobMetadata; error?: string }> {
   const { html, error } = await fetchHtml(jobUrl);
   if (error || !html) return { error: error ?? 'Empty response' };
 
@@ -497,10 +570,18 @@ export async function successfactorsJobDetailFetch(
   const country  = $('meta[itemprop="addressCountry"]').attr('content')?.trim()   ?? '';
   let location = [locality, region, country].filter(Boolean).join(', ') || undefined;
 
+  // Strategy 1b: CSB pages expose only the full postal address as
+  // <meta itemprop="streetAddress" content="Aguascalientes, MX">.
+  if (!location) {
+    location = $('meta[itemprop="streetAddress"]').attr('content')?.trim() || undefined;
+  }
+
   // Strategy 2: Requisition breadcrumb line —
   //   <div tabindex="0">Requisition ID&nbsp;<b>35205</b>&nbsp;-&nbsp;…&nbsp;-&nbsp;
   //   <b>Germany</b>&nbsp;-&nbsp;<b>Baden-Württemberg</b>&nbsp;-&nbsp;<b>Esslingen</b>…</div>
-  if (!location) {
+  let breadcrumbReqId: string | undefined;
+  let breadcrumbPosted: string | undefined;
+  {
     // The breadcrumb text contains "Requisition ID" followed by location bold segments.
     // Extract the raw text, split on " - ", skip the req-ID and date, keep location parts.
     const reqDiv = $('div[tabindex="0"]').filter(function () {
@@ -516,10 +597,17 @@ export async function successfactorsJobDetailFetch(
       // bolds[0] = Req ID (number), rest = location segments + possibly category.
       // Skip the req ID and the posted date (if present).
       // Location parts are typically Country, Region, City.
+      if (bolds.length > 0 && /^\d+$/.test(bolds[0])) {
+        breadcrumbReqId = bolds[0];
+      }
+      const postedSeg = bolds.find((b) => /^posted/i.test(b));
+      if (postedSeg) {
+        breadcrumbPosted = postedSeg.replace(/^posted(\s+on)?:?\s*/i, '').trim() || undefined;
+      }
       const locParts = bolds.slice(1).filter(
         (b) => !/^\d/.test(b) && !/posted/i.test(b),
       );
-      if (locParts.length > 0) {
+      if (locParts.length > 0 && !location) {
         location = locParts.join(', ');
       }
     }
@@ -559,7 +647,48 @@ export async function successfactorsJobDetailFetch(
     }
   }
 
-  return { description, location, company };
+  // ── Extra metadata: posted date, requisition ID, category ────────────────
+  // Sources, in priority order:
+  //   * schema.org <meta itemprop="datePosted"> (all CSB pages we sampled)
+  //   * CSB joblayouttoken sidebar labels ("Posted on:", "Ref. code:",
+  //     "Requisition ID:", "Job Category:")
+  //   * legacy breadcrumb bold segments ("Posted on: …", req-ID number)
+  //   * DWR listing postingDate passed in by the scraper
+  const tokens = sfExtractLayoutTokens($);
+
+  const datePostedMeta = $('meta[itemprop="datePosted"]').attr('content')?.trim();
+  const postedOn =
+    tokens['posted on:'] ?? tokens['posted on'] ??
+    breadcrumbPosted ??
+    datePostedMeta ??
+    listing?.postingDate;
+
+  const reqId =
+    tokens['requisition id:'] ?? tokens['ref. code:'] ?? tokens['reference no.:'] ??
+    breadcrumbReqId;
+
+  const category =
+    tokens['job category:'] ?? tokens['category:'] ?? tokens['department:'] ??
+    tokens['professional community:'];
+
+  const metadata: SFJobMetadata = {};
+  if (postedOn)   metadata.posted_on      = postedOn;
+  if (reqId)      metadata.requisition_id = reqId;
+  if (location)   metadata.location       = location;
+  if (company)    metadata.company        = company;
+  if (category)   metadata.category       = category;
+
+  // Prepend the full metadata as YAML frontmatter so values like Capgemini's
+  // "Posted on: Sep 18, 2026" survive into the stored description
+  // (rc:4293010464).
+  const frontmatter = sfFrontmatter(metadata);
+  if (frontmatter && description) {
+    description = frontmatter + description;
+  } else if (frontmatter) {
+    description = frontmatter.trim();
+  }
+
+  return { description, location, company, metadata };
 }
 
 /**
